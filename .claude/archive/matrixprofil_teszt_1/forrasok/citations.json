@@ -1,0 +1,63 @@
+{
+  "1": {
+    "title": "Matrix Profile I: All Pairs Similarity Joins for Time Series: A Unifying View that Includes Motifs, Discords and Shapelets",
+    "authors": "Yeh, C-C. M.; Zhu, Y.; Ulanova, L.; Begum, N.; Ding, Y.; Dau, H. A.; Silva, D. F.; Mueen, A.; Keogh, E.",
+    "year": "2016",
+    "venue": "IEEE ICDM 2016",
+    "file": "Matrix Profile I.pdf",
+    "url": null,
+    "nlm_uuid": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+    "note": "Az MP eredeti bevezetése, STAMP algoritmus, MASS szubrutin"
+  },
+  "2": {
+    "title": "Matrix Profile II: Exploiting a Novel Algorithm and GPUs to break the one Hundred Million Barrier for Time Series Motifs and Joins",
+    "authors": "Zhu, Y.; Zimmerman, Z.; Senobari, N. S.; Yeh, C-C. M.; Funning, G.; Mueen, A.; Berisk, P.; Keogh, E.",
+    "year": "2016",
+    "venue": "IEEE ICDM 2016",
+    "file": "Matrix Profile II.pdf",
+    "url": null,
+    "nlm_uuid": "b13009b5-e695-431c-87df-e3bcb707671f",
+    "note": "STOMP és GPU-STOMP algoritmusok, 100M adatpont áttörés"
+  },
+  "3": {
+    "title": "matrixProfile -- Compute matrix profile of between all pairs of subsequences in a multivariable time series",
+    "authors": "MathWorks",
+    "year": "2024",
+    "venue": "MATLAB Documentation R2024b",
+    "file": "matrixProfile - Compute matrix profile of between all pairs of subsequences in a multivariable time series - MATLAB.PDF",
+    "url": null,
+    "nlm_uuid": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+    "note": "MATLAB beépített matrixProfile függvény dokumentációja"
+  },
+  "4": {
+    "title": "The UCR Matrix Profile Page",
+    "authors": "UCR -- University of California, Riverside",
+    "year": "2024",
+    "venue": "Weboldal",
+    "file": null,
+    "url": "https://cs.ucr.edu/~eamonn/MatrixProfile.html",
+    "nlm_uuid": "d944d900-4307-46a5-a8bd-31b8d85105b4",
+    "note": "MP alkalmazások gyűjteménye, hivatkozások listája"
+  },
+  "5": {
+    "title": "Matrix Profile I -- ICDM 2016 slides",
+    "authors": "Zhu, Y. et al.",
+    "year": "2016",
+    "venue": "IEEE ICDM 2016 slides",
+    "file": "matrix_profile_i.PDF",
+    "url": null,
+    "nlm_uuid": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+    "note": "Előadásdiák: EKG, zenei mintavétel, szegmentálás példák"
+  },
+  "6": {
+    "title": "Matrix Profile II -- GPU-STOMP benchmark tables",
+    "authors": "Zhu, Y. et al.",
+    "year": "2016",
+    "venue": "IEEE ICDM 2016 supplementary",
+    "file": null,
+    "url": null,
+    "nlm_uuid": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+    "note": "Futásidő-összehasonlító táblázatok (STAMP/STOMP/GPU-STOMP)"
+  },
+  "_pipeline_note": "NLM UUID-k a Prompt B citations mezoibol. Citation szamok query-lokalisak -- globalis atsorszamozas a 04_citations_maker feladata."
+}

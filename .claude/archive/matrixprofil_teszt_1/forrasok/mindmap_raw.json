@@ -1,0 +1,819 @@
+{
+  "title": "Mátrix Profil: Elmélet és Alkalmazások",
+  "root": {
+    "id": "node-0",
+    "text": "Mátrix Profil, 7 gyermek",
+    "level": 1,
+    "children": [
+      {
+        "id": "node-1",
+        "text": "Áttekintés, 6 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-8",
+            "text": "Alapvető Eszköz Idősor Elemzéshez",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-9",
+            "text": "Rendkívül Hatékony",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-10",
+            "text": "Kulcsfontosságú Funkciók: Motívumok, Anomáliák Keresése",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-11",
+            "text": "Nincs Szükség Ablakméretekre, Küszöbértékekre",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-12",
+            "text": "Szilárd, Több Tartományban (pl. Gyártás, EKG, Földrengés)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-13",
+            "text": "Hivatalos MATLAB Primitív",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-2",
+        "text": "Alapfogalmak és Definíciók, 6 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-14",
+            "text": "Idősor (T)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-15",
+            "text": "Alsor (Ti,m), 2 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-53",
+                "text": "Hossz m",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-54",
+                "text": "Kezdőpozíció i",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-16",
+            "text": "Távolság Profil (D), 3 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-55",
+                "text": "Euclidean Távolságok Z-normalizált Alsorokhoz",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-56",
+                "text": "Meta Idősor",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-57",
+                "text": "Triviális Egyezések Elkerülése: Kizárási Zóna (m/4)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-17",
+            "text": "Mátrix Profil (P), 4 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-58",
+                "text": "Vektor: Minden Alsor Legközelebbi Szomszédjának Euclidean Távolsága",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-59",
+                "text": "Element-wise Minimum Távolság Profilokból",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-60",
+                "text": "Meta Idősor",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-61",
+                "text": "Tulajdonságok:, 4 gyermek",
+                "level": 4,
+                "children": [
+                  {
+                    "id": "node-109",
+                    "text": "Legmagasabb Pont: Idősor Diszkordia",
+                    "level": 5,
+                    "children": [],
+                    "expanded": false
+                  },
+                  {
+                    "id": "node-110",
+                    "text": "Legalacsonyabb Pontok: Legjobb Motívum Pár",
+                    "level": 5,
+                    "children": [],
+                    "expanded": false
+                  },
+                  {
+                    "id": "node-111",
+                    "text": "Variancia: Komplexitás Mértéke",
+                    "level": 5,
+                    "children": [],
+                    "expanded": false
+                  },
+                  {
+                    "id": "node-112",
+                    "text": "Hisztogram: Sűrűségbecslés",
+                    "level": 5,
+                    "children": [],
+                    "expanded": false
+                  }
+                ],
+                "expanded": true
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-18",
+            "text": "Mátrix Profil Index (I), 2 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-62",
+                "text": "Vektor: Legközelebbi Szomszéd Helye (indexe)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-63",
+                "text": "Hatékony Legközelebbi Szomszéd Lekérdezés",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-19",
+            "text": "Teljes Távolság Mátrix: Szimmetrikus, de Memóriaigényes",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-3",
+        "text": "Előnyök és Jellemzők, 10 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-20",
+            "text": "Pontos: Nincs Hamis Pozitív/Negatív",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-21",
+            "text": "Egyszerű és Paramétermentes",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-22",
+            "text": "Térhatékony: O(n) Memóriaigény",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-23",
+            "text": "Anytime Algoritmusok Támogatása (STAMP)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-24",
+            "text": "Inkrementálisan Karbantartható (STAMPI)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-25",
+            "text": "Nem Igényel Hasonlósági/Távolsági Küszöböt",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-26",
+            "text": "Hardver Kihasználás: Párhuzamosítható",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-27",
+            "text": "Időkomplexitás Független az Alsor Hosszától (m)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-28",
+            "text": "Determinisztikus Időkomplexitás",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-29",
+            "text": "Hiányzó Adatok Kezelése",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-4",
+        "text": "Algoritmusok (Számítási Módok), 5 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-30",
+            "text": "MASS (Mueen’s ultra-fast Algorithm for Similarity Search), 3 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-64",
+                "text": "O(n log n) Időkomplexitás",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-65",
+                "text": "FFT-t Használ a Pontszorzatokhoz",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-66",
+                "text": "Kiszámítja az Egész Távolság Profilt",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-31",
+            "text": "STAMP (Scalable Time series Anytime Matrix Profile), 5 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-67",
+                "text": "O(n^2 log n) Időkomplexitás",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-68",
+                "text": "Távoli Hasonlósági Csatlakozásokra (All-Pairs Similarity Joins)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-69",
+                "text": "Anytime Tulajdonság: Randomizált Keresési Sorrend",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-70",
+                "text": "Konvergencia és Minőség (RMSE)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-71",
+                "text": "Inkrementális Frissítés (STAMPI): O(n log n) lépésenként",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-32",
+            "text": "STOMP (Scalable Time series Ordered-search Matrix Profile), 4 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-72",
+                "text": "O(n^2) Időkomplexitás (O(log n) gyorsulás STAMP-hoz képest)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-73",
+                "text": "Rendezett Keresés",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-74",
+                "text": "Kihasználja a Pontszorzatok Rekurzív Képletét (O(1) frissítés)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-75",
+                "text": "Optimális Általános Esetben",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-33",
+            "text": "GPU-STOMP, 5 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-76",
+                "text": "STOMP Portolva GPU-ra",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-77",
+                "text": "Adatpárhuzamos Számítás",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-78",
+                "text": "Több GPU Támogatása (k-szoros gyorsulás)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-79",
+                "text": "További Gyorsítás Szimmetria Kihasználásával",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-80",
+                "text": "Példa: 100 Millió Hosszú Idősor 12 Nap Alatt (GPU-STOMP) vs. 25.5 Év (STAMP)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-34",
+            "text": "Összehasonlítás Konkurens Algoritmusokkal (Quick-Motif, MK)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-5",
+        "text": "Alkalmazások és Felhasználási Területek, 9 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-35",
+            "text": "Motívum Felfedezés, 7 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-81",
+                "text": "Ismétlődő Alsorok",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-82",
+                "text": "Leggyorsabb Ismert Algoritmus",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-83",
+                "text": "Nem Érzékeny az Adatok Strukturájára/Zajszintjére",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-84",
+                "text": "Inkrementálisan Felfedezhető",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-85",
+                "text": "Földrengés Motívumok (Ismétlődő Földrengés Sorozatok)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-86",
+                "text": "Szeizmológia: Pontos Eredmények, Paramétermentes",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-87",
+                "text": "Állati Viselkedés (pingvin telemetria: merülési minták)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-36",
+            "text": "Diszkordia Felfedezés (Anomália Detektálás), 5 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-88",
+                "text": "Legnagyobb Távolság a Legközelebbi Szomszédtól",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-89",
+                "text": "Újdonság/Anomália Detektor",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-90",
+                "text": "Példa: Szívritmuszavar (EKG)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-91",
+                "text": "Inkrementálisan Felfedezhető",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-92",
+                "text": "Adatközpont Hűtők (Figure 1)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-37",
+            "text": "Hasonlósági Csatlakozások (Similarity Joins), 3 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-93",
+                "text": "Legközelebbi Szomszédok Lekérése Minden Objektumhoz",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-94",
+                "text": "TSAPSS (Time Series subsequences All-Pairs-Similarity-Search)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-95",
+                "text": "Példa: Kémiai Finomító Bojler (153.8 napról 6.3 órára redukálva)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-38",
+            "text": "Shapelet Felfedezés (Osztályozás), 3 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-96",
+                "text": "Osztályt Képviselő Alsorok",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-97",
+                "text": "Szupervizált Motívumok",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-98",
+                "text": "Jelentős Gyorsulás a Brute Force-hoz Képest",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-39",
+            "text": "Szemantikai Szegmentálás, 4 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-99",
+                "text": "Adatkészlet Felosztása Atomikus Viselkedésekre",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-100",
+                "text": "Adatfüggetlen Megközelítés",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-101",
+                "text": "A Mátrix Profil Index Információt Használ (Szomszédos Pontok Áthidalása)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-102",
+                "text": "Példa: Emberi Tevékenység (járás, futás)",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-40",
+            "text": "Sűrűség Becslés, 1 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-103",
+                "text": "Mátrix Profil Értékek Hisztogramja",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-41",
+            "text": "Idősor Különbség (TSD), 3 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-104",
+                "text": "Mi történik TA-ban, ami nem TB-ben?",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-105",
+                "text": "JAB Profil Maximum Értéke",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-106",
+                "text": "Példa: Harry Potter Hangoskönyvek Különbségei",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-42",
+            "text": "Közös Alsorok (Zenei Mintavétel), 2 gyermek",
+            "level": 3,
+            "children": [
+              {
+                "id": "node-107",
+                "text": "Két Idősor Közös Mintáinak Felfedezése",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              },
+              {
+                "id": "node-108",
+                "text": "Példa: Queen/David Bowie 'Under Pressure' és Vanilla Ice 'Ice Ice Baby'",
+                "level": 4,
+                "children": [],
+                "expanded": false
+              }
+            ],
+            "expanded": true
+          },
+          {
+            "id": "node-43",
+            "text": "Egyéb Idősor Adatbányászati Feladatok",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-6",
+        "text": "Matrix Profile Sorozat (Példák), 3 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-44",
+            "text": "Matrix Profile I (2016)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-45",
+            "text": "Matrix Profile II (2016)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-46",
+            "text": "Matrix Profile XXX: MADRID (2023) - Minden Hosszúságú Anomáliák",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      },
+      {
+        "id": "node-7",
+        "text": "Források és Eszközök, 6 gyermek",
+        "level": 2,
+        "children": [
+          {
+            "id": "node-47",
+            "text": "UCR Matrix Profile Weboldal (cs.ucr.edu/~eamonn/MatrixProfile.html)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-48",
+            "text": "Kód és Adatkészletek Elérhetők",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-49",
+            "text": "Közösségi Implementációk (Python, R, Golang)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-50",
+            "text": "STUMPY (Python MP Könyvtár, Sean Law)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-51",
+            "text": "SCAMP (Leggyorsabb CPU/GPU MP Számítás, Zach Zimmerman)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          },
+          {
+            "id": "node-52",
+            "text": "Khiva Könyvtár (GPU/CPU Támogatás, shapelets.io)",
+            "level": 3,
+            "children": [],
+            "expanded": false
+          }
+        ],
+        "expanded": true
+      }
+    ],
+    "expanded": true
+  }
+}

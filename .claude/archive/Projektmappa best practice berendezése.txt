@@ -1,0 +1,10 @@
+Key prompt
+Gotchas /
+Templates /
+Checktísts /
+Validatíon
+
+SKILL.md
+|_scripts/
+|_references/
+|_assets/

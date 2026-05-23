@@ -1,0 +1,229 @@
+﻿{
+  "value": {
+    "answer": "A Mátrix Profil (MP) az idősor-bányászat egyik legsokoldalúbb eszköze, amelyet a kutatók gyakran neveznek a terület \"svájci bicskájának\", mivel számos különböző elemzési feladatot képes egyetlen egységes keretrendszerben megoldani [1, 2]. Az alábbiakban részletezem a fő alkalmazási területeket és a forrásokban dokumentált valós példákat.\n\n### 1. Motívumkeresés (Motif Discovery)\nA motívumkeresés célja az idősorban előforduló, egymáshoz leginkább hasonló, ismétlődő minták azonosítása [3, 4]. A Mátrix Profilban a motívumokat a profil legkisebb értékei (lokális minimumai) jelölik ki, mivel ezek a pontok mutatják a legkisebb távolságot egy alszekvencia és annak legközelebbi szomszédja között [5-7].\n\n*   **Szeizmológia (Földrengések):** A szeizmológusok ismétlődő földrengéssorozatok (repeating earthquake sequences) azonosítására használják, ahol a hasonló hullámformák azonos forrásból származó feszültségoldódást jeleznek [8, 9]. Például a Sonoma County adatsorban egy 13 év különbséggel bekövetkező földrengéspár a Mátrix Profil 5. legjobb motívumaként jelent meg (\"Matrix Profile II.pdf\") [10, 11].\n*   **Állatviselkedés-kutatás:** Pingvinekre rögzített magnetométer adatokban a Mátrix Profil segítségével azonosítottak egy \"cápauszony\" alakú mintát, amelyről kiderült, hogy minden esetben közvetlenül a táplálékszerző merülés előtt fordul elő (\"Matrix Profile II.pdf\") [12-14].\n\n### 2. Anomáliadetektálás (Discord Discovery)\nAz idősor-diszkordok (discords) olyan alszekvenciák, amelyek a legkevésbé hasonlítanak az idősor bármely más szakaszára [15, 16]. Ezeket a Mátrix Profil legmagasabb értékei (globális maximumai) határozzák meg, jelezve a szokatlan vagy rendellenes eseményeket [16, 17].\n\n*   **Egészségügyi adatok (EKG):** Az elektrokardiogram (EKG) jelekben a Mátrix Profil csúcsai tűpontosan jelzik a rendellenes szívveréseket, például a korai kamrai összehúzódást (PVC) (\"Matrix Profile I.pdf\") [16, 18].\n*   **Ipari rendszerek:** A módszert sikeresen alkalmazzák gázturbinák és hajtóművek anomáliáinak detektálására, ahol a profil kiugró értékei a mechanikai meghibásodás előjeleit azonosítják (\"UCR Matrix Profile Page\") [2, 19].\n\n### 3. Szemantikai szegmentálás (Semantic Segmentation)\nA szegmentálás célja az idősor felosztása homogén szakaszokra (rezsimekre), amelyek eltérő fizikai vagy viselkedésbeli állapotokat tükröznek [20, 21]. Az eljárás a Mátrix Profil Indexen ($I$) alapul: azt vizsgálják, hogy a legközelebbi szomszédokra mutató \"ívek\" milyen gyakran szelik át az idősor egyes pontjait; a kevés átszelés határvonalat (rezsimváltást) jelez [22, 23].\n\n*   **Emberi tevékenység felismerése:** A CMU Motion Capture adatbázisán végzett kísérletekben a Mátrix Profil képes volt elkülöníteni a különböző mozgásformákat (pl. séta, futás, nyújtás) pusztán az adatok szerkezeti változásai alapján (\"Matrix Profile I.pdf\") [22, 24].\n*   **Ipari folyamatok:** Egy finomító kazánjának nyomásadatait elemezve a módszer alkalmas a különböző működési rezsimek (pl. téli vs. nyári üzemmód) automatikus elválasztására (\"Matrix Profile I.pdf\") [25].\n\n### 4. Hasonlósági join (Similarity Join)\nA hasonlósági join során két különböző idősor ($T_A$ és $T_B$) közötti összefüggéseket keresnek, vagyis $T_A$ minden alszekvenciájához megkeresik a legközelebbi mintát $T_B$-ben [26, 27].\n\n*   **Zeneelemzés (Music Sampling):** A források példaként hozzák Vanilla Ice \"Ice Ice Baby\" és a Queen \"Under Pressure\" című számának összehasonlítását (\"Matrix Profile I.pdf\"). A join művelet segítségével a Mátrix Profil azonnal azonosította a Vanilla Ice által átvett (plagizált) 5 másodperces basszusmenetet (\"Matrix Profile I.pdf\") [28-31].\n*   **Audiobook összehasonlítás:** A Harry Potter hangoskönyvek brit és amerikai változatának összehasonlításakor a join profil maximuma (a legnagyobb különbség) pontosan kijelölte azt a mondatot, amely az amerikai kiadásban eltért az eredeti szövegtől (\"Matrix Profile I.pdf\") [32-34].\n\n### Alkalmazási összefoglaló táblázat\n\n| Alkalmazás típusa | Valós példa (Adattípus) | Mátrix Profil jellemzője | Forrás |\n| :--- | :--- | :--- | :--- |\n| **Motívumkeresés** | Ismétlődő földrengések (Szeizmológia) | Lokális minimumok (Alacsony érték) | \"Matrix Profile II.pdf\" [8, 11] |\n| **Anomáliadetektálás** | Rendellenes szívverés (EKG) | Lokális maximumok (Magas érték) | \"Matrix Profile I.pdf\" [16, 18] |\n| **Szegmentálás** | Mozgásformák váltása (Tevékenység) | Ív-átszelési görbe minimumai | \"Matrix Profile I.pdf\" [22, 24] |\n| **Hasonlósági Join** | Zenei mintavételezés (Audio) | Két sorozat közötti min. távolság | \"Matrix Profile I.pdf\" [30, 31] |\n| **Anomáliadetektálás** | Hajtómű hiba (Ipari szenzor) | Kiugró profilértékek (Discord) | \"UCR Matrix Profile Page\" [2, 35] |",
+    "conversation_id": "796ea950-3c61-4d57-9c07-485716889f72",
+    "sources_used": [
+      "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "d944d900-4307-46a5-a8bd-31b8d85105b4",
+      "b13009b5-e695-431c-87df-e3bcb707671f",
+      "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+      "3ec734b5-602c-4794-b01f-065950eb9cd6",
+      "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "9c4899fe-661c-44cf-8ddd-7144c572dd51"
+    ],
+    "citations": {
+      "1": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "2": "d944d900-4307-46a5-a8bd-31b8d85105b4",
+      "3": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "4": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "5": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "6": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "7": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+      "8": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "9": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "10": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "11": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+      "12": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "13": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "14": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "15": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "16": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "17": "3ec734b5-602c-4794-b01f-065950eb9cd6",
+      "18": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "19": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+      "20": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "21": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "22": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "23": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "24": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "25": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "26": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "27": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "28": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "29": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "30": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "31": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+      "32": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "33": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "34": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "35": "9c4899fe-661c-44cf-8ddd-7144c572dd51"
+    },
+    "references": [
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 1,
+        "cited_text": "Matrix Profile I: All Pairs Similarity Joins for Time Series: A Unifying View that Includes Motifs, Discords and Shapelets Chin-Chia Michael Yeh, Yan Zhu, Liudmila Ulanova, Nurjahan Begum, Yifei Ding, Hoang Anh Dau, †Diego Furtado Silva, ‡Abdullah Mueen, and Eamonn Keogh University of California, Riverside, †Universidade de São Paulo, ‡University of New Mexico {myeh003, yzhu015, lulan001, nbegu001, yding007, hdau001}@ucr.edu, diegofsilva@icmc.usp.br, mueen@unm.edu, eamonn@cs.ucr.edu Abstract— The all-pairs-similarity-search (or similarity join)"
+      },
+      {
+        "source_id": "d944d900-4307-46a5-a8bd-31b8d85105b4",
+        "citation_number": 2,
+        "cited_text": "Photo by Amos Nachoum The UCR Matrix Profile Page Funded by NSF IIS 1161997 II, IIS 1510741, CNS 1544969 observations of the magnetosphere collected by the Cassini spacecraft in orbit around Saturn.. ..in this case, the best-performing method was the Matrix Profile. . Kiri L. Wagstaf et. al. NASA JPL.2020 \n For Gear Anomaly Detection .. compared to (existing) methods, the Matrix Profile is more reliable; compared to an AI method the results are equally reliable, require far less data, and is free of parameter-intensive models .   Hurwitz and Hood, DEVCOM Army Research Laboratory (2022) \n (working with animal nervous system) we decided to use matrix profile analysis, since it is robust, scalable, computationally efficient, largely parameter free, and capable of identifying both recurring motives and anomalies in the data .  Athira et al 2022 [ link ] \n We show that Matrix Profile detects (Border Gateway Protocol) BGP anomalies in all categories. We directly compare the approach to Deep Learning techniques .. (but) MP can detect anomalous activity earlier than other techniques. We show that Matrix Profile provides a better understanding of some key BGP incidents that are consistent with previous research that showed potentially hidden anomalous behavior which may represent an early stage of BGP anomalies. The ability to detect BGP anomalies early, as demonstrated by Matrix Profile, is akin to having a highly accurate fire alarm that alerts well in advance of an emergency, rather than too late to be of any use .  Scott et al. 2024 Computer Networks \n In this paper, the problem of bridge health monitoring .. is achieved through automatic feature learning by adopting the concept of matrix profile .. M. Makki Alamdari, Mechanical Systems and Signal Processing 2024  Our method for Anomaly Detection in Gas Turbines employs nearest neighbor methods to pinpoint the exact data points within the Matrix Profile that correspond to these highly impactful anomalies.  Ghazvini et al 2024. \n We developed an ensemble of discords, i.e. anomalies in time series, detected using matrix profiles across multiple discord lengths to identify multiple types of Expert Defined Linguistic Features (EDLFs).. . Nwosu et al. AAAI 2023. \n (we) demonstrate that, in general, the matrix profile and discord discovery methods outperform the existing deep learning methods in terms of detection accuracy . Lee, Malacarne & Aune Pattern Recognition 2024 Surprisingly, as will be demonstrated, change point detection using the matrix profile algorithm is very effective in time series segmentation. . Madani and Vlajic 2022 \n It turns out that the information provided by the matrix profile can efficiently address many if not most problems in basic time series analysis. Steve Huntsman For both distinct and multiple events, we detect anomalies with the Discord Aware Matrix Profile (DAMP) algorithm.. (they show us) a severe local flood and social events show a similar impact on human mobility . Loreti et. al. 2024. \n Having demonstrated that motif identification using matrix profiling is a potent method for identifying the basic behavioral building blocks of Ciona behavior.. The main advantages of matrix profiling are that it is robust, scalable, computationally efficient, and largely parameter free Chatzigeorgiou 2022. (see the bottom of the page for more quotes) The Matrix Profile (and the algorithms to compute it: STAMP, STAMP I , STOMP, SCRIMP, SCRIMP++ , SWAMP, DAMP , SCAMP , GPU-STOMP, TranSCRIMP, TranSCAMP and TranSCAMPfpga ), has the potential to revolutionize time series data mining because of its generality, versatility, simplicity and scalability. In particular it has implications for time series motif discovery, time series joins, shapelet discovery (classification), density estimation, semantic segmentation, visualization, rule discovery, clustering etc (note, for pure similarity search , we suggest you see MASS for Euclidean Distance, and the UCR Suite for DTW) \n Big news!  The Matrix Profile is now an official primitive in the Matlab Language. Our overarching claim abuot the Matrix Profile has three parts: \n 1) Given  only  the Matrix Profile, most time series data mining tasks are trivial.   2) The Matrix Profile can be computed  very  efficiently. \n  3) Algorithms that are built on top the Matrix Profile inherit all its desirable properties.  For example, we can use the Matrix Profile to find time series motifs. Because the Matrix Profile can be incrementally computed, we have the first incremental time series motif discovery algorithm. Because the Matrix Profile can be computed in an anytime fashion, we have the first anytime time series motif discovery algorithm. Because the Matrix Profile can leverage GPUs, we have.. \n  The advantages of using the Matrix Profile (over hashing, indexing, brute forcing a dimensionality reduced representation etc.) for most time series data mining tasks include:"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 3,
+        "cited_text": "E. Profile-Based Motif Discovery Since their introduction in 2003, time series motifs have become one of the most frequently used primitives in time series data mining, with applications in dozens of domains [2]. There are several proposed definitions for time series motifs, but in [18] it is argued that if you can solve the most basic variant, the closest (non-trivial) pair of subsequences, then all other variants only require some minor additional calculations. Note that the locations of the two (tying) minimum values of the matrix profile are exactly the locations of the 1st motif pair."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 4,
+        "cited_text": "II. BACKGROUND AND RELATED WORK A. Motif Discovery Background Motif discovery for time series was introduced in 2003 [5] (although the classic paper of Agrawal, Faloutsos and Swami  foreshadows motifs by computing all-pair similarity for time series [1]); since then, it has created a flurry of research activity. One major direction has been to apply motifs to solving problems in domains as diverse as bioinformatics [4], speech processing [3], robotics, neurology and entomology [14]. The other major research focus has been extensions and generalizations of the original work, especially attempts to improve scalability [11][14]. These attempts at improving the scalability of motif discovery fall into two broad classes; approximate and exact motif discovery [11][14]."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 5,
+        "cited_text": "neighbor in B: JAB={〈 A[i], B[j] 〉 |θ1nn (A[i], B[j])}.  We denote this formally as JAB = A⋈1nnB. 0 400 800 1200 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2 First 5 Days Second 5 Days Data Center Chillers T, a snippet of an energy consumption 2,0000 m/2m/2 Q, query of length m Note that |D| = |T|-|Q|+1D, a distance profile We measure the Euclidean distance between each pair within a similarity join set and store the resultants into an ordered vector. We call the result vector the matrix profile. Definition 7: A matrix profile (or just profile) PAB is a"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 6,
+        "cited_text": "Definition 5: A matrix profile index I of time series T is a vector of integers: I=[I1, I2, … In-m+1], where Ii=j if di,j = min(Di). By storing the neighboring information this way, we can efficiently retrieve the nearest neighbor of query Ti,m by accessing the i th  element in the matrix profile index. To briefly summarize this entire section: we can create two meta time series, the matrix profile and the matrix profile index, to annotate a time series T with the distance and location of all its subsequences’ nearest neighbors within itself. As the reader may already have realized, the smallest pair of values in the matrix profile correspond to the best motif pair under the classic definition [11][14][5], and the corresponding values in the matrix profile index tell us where the motifs are located. Moreover, as both [23][14] argue, the top-k motifs, range motifs, and any other reasonable variant of motifs can trivially be computed given all the information in the matrix profile, the focus of the rest of this paper."
+      },
+      {
+        "source_id": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+        "citation_number": 7,
+        "cited_text": "di,j is the distance between the ith window and the jth window of the time series d1,1 d1,2 … … … d1,n-m+1 d2,1 d2,2 … … … d2,n-m+1 … … … … … … di,1 di,2 … di,j … di,n-m+1 … … … … … … dn-m+1,1 dn-m+1,2 … … … dn-m+1,n-m+1 ith jth Min(D1) Min(D2) Min(Dn-m+1)Min(Di) P1 P1 … … ... Pn-m+1 From Matrix Profile to Motif The Matrix Profile has two minimum points. This pair of minimum points correspond to the 1st motif in the time series. (the closest pair of subsequences in the time series) A pair of minimum points"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 8,
+        "cited_text": "1 . As we will show, we can compute this join in just twelve days. We recognize the twelve days seems like significant computational time, but consider that this data represents 58 days of continuous seismology recorded at 20Hz. Thus even at this massive scale we are much faster than real time. Fig. 1 previews a pair of repeating earthquake sequences (essentially, a time series motif [5]) discovered by our algorithm in a seismologic dataset. Fig. 1. A pair of repeating earthquake sequences (motifs) we discovered from"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 9,
+        "cited_text": "0 0.5 1 T ig h tn es s o f L o w er  B o u n d s 0 400 In the early 1980s it was discovered that in telemetry of seismic data recorded by the same instrument from sources in given region there will be many similar seismograms [6]. Geller and Mueller [6] suggested that “The physical basis of this clustering is that the earthquakes represent repeated stress release at the same asperity, or stress concentration, along the fault surface.” These patterns are called “repeating earthquake sequence” in seismology, and exactly correspond to the more general term “time series motifs”. Fig. 1 shows an example of a repeating earthquake sequence pair from seismic data."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 10,
+        "cited_text": "To allow confirmation of the correctness and utility of STOMP, we begin by considering a dataset for which we know the answer from external sources. On April 30 th , 1996, there was an earthquake of magnitude 2.12 in Sonoma County, California 2 . Then, on December 29 th , 2009, about 13.6 years later, there was another earthquake with a similar magnitude. We concatenated the two full days in question to create a single time series of length 17,279,800 (see TABLE 2  A small earthquake of that magnitude would only be felt by"
+      },
+      {
+        "source_id": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+        "citation_number": 11,
+        "cited_text": "Note: the time and space cost of STOMP is independent of how the data looks. Case Study I: Parameter Setting There is only one parameter to set: the subsequence length m, however, the result is not sensitive to it… raw seismograph data matrix profiles 0min 30min m=1000 m=2000 m=4000 Case Study II: The Benefit of Using Matrix Profile for Motif Discovery 0 1000 2000 3000 1996 2009 1996, ID:30104990 2009, ID:371327705 1st motif is a pair of sensor defects 5st motif is a pair of matching seismology patterns"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 12,
+        "cited_text": "Fig. 10. left) The Magellanic penguin is a strong swimmer. right) A four- minute snippet of the full dataset reveals high levels of noise and no obvious structure. The data is labeled by an observer with binoculars; thus we have a coarse ground truth for the animal’s behavior. The full data consists of 1,048,575 data points recorded at 40 Hz (about 7.5 hours). We ran GPU-STOMP on this dataset, using a subsequence length of 2,000. This took our algorithm just 2.5 minutes. As shown in Fig. 11, the top motif is a surprisingly well conserved “shark fin” like pattern."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 13,
+        "cited_text": "raw seismograph data matrix profiles 0min 30min 1:45am 1:52am 38 seconds 1st February  2006 514,000 524,000 -0.1 0 0.1 0.2 Y-axis magnetometry Fig. 11. The top motif of length 2,000 discovered in the penguin dataset. Only three examples are shown for visual clarity, there are eight such patterns. What (if anything) does this pattern mean? Suggestively, we observed this pattern does not happen during any of the regions annotated as nesting, walking, washing, etc., but only during regions labeled foraging. Could this motif be related to a diving (for food) behavior?"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 14,
+        "cited_text": "Fortunately, diving is the one behavior we can unambiguously determine from the data, as the pressure increases by orders of magnitude when the penguin is under water. We discovered that the motif occurs moments before each dive, and nowhere else. More generally, we see this example as being typical of the sort of interaction that motif discovery supports. In most cases motif discovery is not the end of analyses, but only the beginning. By correlating the observed motifs with other (internal or external) data we can form hypotheses and open avenues for further research. Recall the previous section; this is rather like how the team studying Mount Rainier’s seismology discovered that its earthquakes are correlated with snowfall [2]. We believe that the STOMP algorithm may enable many such unexpected discoveries in a vast array of domains."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 15,
+        "cited_text": "Like the distance profile, the matrix profile can be considered a meta time series annotating the time series T if the matrix profile is generated by joining T with itself. The profile has a host of interesting and exploitable properties. For example, the highest point on the profile corresponds to the time series discord [5], the (tied) lowest points correspond to the locations of the best time series motif pair [18], and the variance can be seen as a measure of the T’s complexity. Moreover, the histogram of the values in the matrix profile is the exact answer to the time series density estimation [4]."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 16,
+        "cited_text": "A time series discord is the subsequence that has the maximum distance to its nearest neighbor. While this is a simple definition, time series discords are known to be very competitive as novelty/anomaly detectors [5]. Note that as shown in Figure 13, the time series discord is encoded as the maximum value in a matrix profile. Figure 13. top) An excerpt from an ECG incorporating a premature ventricular contraction (red/bold). bottom) The time series profile peaks exactly at the beginning of the PVC."
+      },
+      {
+        "source_id": "3ec734b5-602c-4794-b01f-065950eb9cd6",
+        "citation_number": 17,
+        "cited_text": "windsignaling 5 months ago | parent | prev | next [–] Covered in section 6.2.1. bee_rider 6 months ago | parent | prev | next [–] What does it do? Anything to do with matrices, like, from math? eskaytwo 6 months ago | root | parent | next [–] It does convolution of each sub sequence across the series length, and then shows the distance of the closest match. This can detect both outliers (long distance from closest match) as well as repeated patterns (short distance). belter 6 months ago | root | parent | prev | next [–] \"Introduction to Matrix Profiles\" - https://towardsdatascience.com/introduction-to-matrix-profil..."
+      },
+      {
+        "source_id": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+        "citation_number": 18,
+        "cited_text": "34 Discord mining with matrix profile: abnormal heartbeat detection Identifying abnormal heartbeat from ECG reading is important for diagnosis patients 35 Maximum value in matrix profile indicates discord Discord mining with matrix profile: abnormal heartbeat detection Identifying abnormal heartbeat from ECG reading is important for diagnosis patients 36 Premature ventricular contraction Common subsequence mining with matrix profile: music sampling detection (1 of 2) Sometimes a musician “borrows” section of other music to generate new music"
+      },
+      {
+        "source_id": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+        "citation_number": 19,
+        "cited_text": "toplocs = 4×1 9797         9800         9802         9792 Show the corresponding distances. topdist = 4×1 8.3894     8.2062     8.1517 X = T1.MotorCurrent; len = 100;  Get [MP,MPI] = matrixProfile(X,len);  Get matrixProfile(X,len)  Get locs = findDiscord(MP,MPI); toplocs = locs(1:4)  Get topdist = MP(toplocs)  Get Plot the findDiscord results. Discords that are close to each other are probably part of the same anomaly. You need to identify only one discord for such a segment. Improve the segment separation and limit the number of discords to 10."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 20,
+        "cited_text": "I. Profile-Based Semantic Segmentation The goal of time series semantic segmentation is to partition a dataset containing multiple activities/regimes into atomic behaviors or conditions. For example, for human activity data the regimes might later be mapped to {eating, working, commuting,...}[29]. As this example suggests, most work in this area is highly domain-dependent. In contrast, here we show how the matrix profile index can be employed for domain agnostic time series segmentation. The intuition of our approach is as follows. Within a single regime we might expect that most subsequences will have a nearest neighbor close by (in time). For example, consider the toy problem shown in Figure 17 which shows two obvious regimes. We would expect that the nearest neighbor to the first run gait cycle is the second or third or fourth run cycle, but it will almost certainly not be one of the walk cycles. In general, this tendency for nearest neighbor pointers not to cross the boundaries corresponding to regime changes may be sufficient to discover these boundaries, and of course, this is precisely the information that is encoded in the matrix profile index."
+      },
+      {
+        "source_id": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+        "citation_number": 21,
+        "cited_text": "40 Music 2: Ice Ice Baby by Vanilla Ice Music 1: Under Pressure by Queen-David Bowie Most similar 5 secs subsequences Under Pressure Ice Ice Baby Segmentation with matrix profile: human activity (1 of 2) Matrix profile and index can also be used for segmentation Given a time series, by examining its matrix profile index, the neighboring information can be extracted, and similar pattern will be neighbors The neighboring information can be visualized with arcs 41 walkwalkwalkwalkwalkwalkwalkwalkrunrunrunrunrunrunrunrunrun"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 22,
+        "cited_text": "Thus, for each point we count how many “arcs” connecting two nearest neighbors cross it if we connect each subsequence to its nearest neighbor as shown in Figure 17. Figure 17. top) A (toy) time series (red) and nearest neighbor locations for each subsequence. bottom) The number of arcs crossing above each subsequence. We applied the procedure described above to a heavily studied activity segmentation problem [29], which was derived from the CMU Motion Capture database [16]. The recordings are represented as multi-dimensional time series, and most research efforts carefully select the best subset for the segmentation task. For example, [29] states that “we only consider the 14 most informative joints out of 29.” In contrast, we attempt this with a single dimension. The only parameter we need to set is sliding window size. In Figure 18 we show the segmenting results obtained using our approach, with annotations taken from [29] for context."
+      },
+      {
+        "source_id": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+        "citation_number": 23,
+        "cited_text": "Given a time series, by examining its matrix profile index, the neighboring information can be extracted, and similar pattern will be neighbors The neighboring information can be visualized with arcs 43 walkwalkwalkwalkwalkwalkwalkwalkrunrunrunrunrunrunrunrunrun Arc counting curve Segmentation with matrix profile: human activity (1 of 2) Matrix profile and index can also be used for segmentation Given a time series, by examining its matrix profile index, the neighboring information can be extracted, and similar pattern will be neighbors"
+      },
+      {
+        "source_id": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+        "citation_number": 24,
+        "cited_text": "The neighboring information can be visualized with arcs 44 walkwalkwalkwalkwalkwalkwalkwalkrunrunrunrunrunrunrunrunrun Arc counting curve Local minimum is a good split point Segmentation with matrix profile: human activity (2 of 2) 45 0 5,000 10,000 Matrix  Profile Arc Counting Curve One-dimension of multi-d time series: Subject 86, recording 4, dimension 30 W              S              P           N        W         C         T              D               P           W CMU Motion Capture database"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 25,
+        "cited_text": "We believe that this lack of progress stems not from a lack of interest in this useful primitive, but from the daunting nature of the problem. Consider the following example that reflects the needs of an industrial collaborator. A boiler at a chemical refinery reports pressure once a minute. After a year, we have a time series of length 525,600. A plant manager may wish to do a similarity self-join on this data with week-long subsequences (10,080) to discover operating regimes (summer vs. winter or light distillate vs. heavy distillate etc.) The obvious nested loop algorithm requires 132,880,692,960 Euclidean distance computations. If we assume each one takes 0.0001 seconds, then the join will take 153.8 days. The core contribution of this work is to show that we can reduce this time to 6.3 hours, using an off-the-shelf desktop computer. Moreover, we show that this join can be computed and/or updated incrementally. Thus we could maintain this join essentially forever on a standard"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 26,
+        "cited_text": "both these extensively-studied problems. We demonstrate the utility of our ideas for many time series data mining problems, including motif discovery, novelty discovery, shapelet discovery, semantic segmentation, density estimation, and contrast set mining. Keywords—Time Series; Similarity Joins; Motif Discovery I. INTRODUCTION The all-pairs-similarity-search (also known as similarity join) problem comes in several variants. The basic task is this: Given a collection of data objects, retrieve the nearest neighbor for each object. In the text domain the algorithm has applications in a host of problems, including community discovery, duplicate detection, collaborative filtering, clustering, and query refinement [1]. While virtually all text processing algorithms have analogues in time series data mining, there has been surprisingly little progress on Time Series subsequences All-Pairs-Similarity-Search (TSAPSS)."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 27,
+        "cited_text": "subsequences sets A and B and two subsequences A[i] and B[j], a 1NN-join function θ1nn (A[i], B[j]) is a Boolean function which returns “true” only if B[j] is the nearest neighbor of A[i] in the set B. With the defined join function, a similarity join set can be generated by applying the similarity join operator on two input all-subsequences sets. Definition 6: Similarity join set: given all-subsequences sets A and B, a similarity join set JAB of A and B is a set containing pairs of each subsequence in A with its nearest"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 28,
+        "cited_text": "In this section we show two uses of similarity join set. The first use is more familiar to APSS users, quantifying what is similar between two time series. The second example, quantifying what is different between two time series, is novel and can only be supported by threshold-free algorithms that report the nearest neighbor for all objects. Time Series Set Similarity Given two (or more) time series collected under different conditions or treatments, a data analyst may wish to know what patterns (if any) are conserved between the two time series. To demonstrate the utility of automating this, we consider a simple but intuitive example. Figure 9 shows the raw audio of two popular songs converted to Mel Frequency Cepstral Coefficients (MFCCs). Specifically, the songs used in this example are “Under Pressure” by Queen and David Bowie and “Ice Ice Baby” by the American rapper Vanilla Ice. Normally, there are 13 MFCCs; here, we consider just one for simplicity."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 29,
+        "cited_text": "Figure 9. Two songs represented by just the 2nd MFCC at 100Hz. We recognize that it is difficult to see any structure in these times series; however, this difficulty is the motivation for this experiment. Even for these two relatively short time series, visual inspection does not offer immediate answers. The problem here is compounded by the size reproduction, but is not significantly easier with large-scale [24] or interactive graphic tools. We ran JAB (Queen-Bowie, Vanilla Ice) on these datasets with m = 500 (five seconds), the best match, corresponding the minimum value of the matrix profile PAB, is shown in Figure 10."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 30,
+        "cited_text": "Figure 10. The result of JAB (Queen-Bowie (red/bold), Vanilla-Ice (green/fine)) produces a strongly conserved five second region. Readers may know the cause for this highly conserved subsequence. It corresponds to the famous baseline of “Under Pressure,” which was sampled (plagiarized) by Vanilla Ice in his song. The join took 21.9 seconds. The ability to find conserved structure in apparently disparate time series could open many avenues of research in medicine and industry. Time Series Difference"
+      },
+      {
+        "source_id": "a18562e4-3b01-447e-943e-ef69e0b4e430",
+        "citation_number": 31,
+        "cited_text": "The borrowed section is the common subsequence in both music and can be discovered using matrix profile Given two time series Ta and Tb, matrix profile can be compute by either finding the nearest neighbor of Ta’s subsequences in Tb or vise versa 37 Common subsequence mining with matrix profile: music sampling detection (2 of 2) 38 Music 2 Music 1 Common subsequence mining with matrix profile: music sampling detection (2 of 2) 39 Music 2 Music 1 Most similar 5 secs subsequences Common subsequence mining with matrix profile: music sampling detection (2 of 2)"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 32,
+        "cited_text": "Harry was passionate about Quidditch. He had played as Seeker on the Gryffindor house Quidditch team ever since his first year at Hogwarts and owned a Firebolt, one of the best racing brooms in the world... But the corresponding USA version has: Harry had been on the Gryffindor House Quidditch team ever since his first year at Hogwarts and owned one of the best racing brooms in the world, a Firebolt. As shown in Figure 11, we can convert the audio corresponding to these snippets into MFCCs and invoke a JAB join set to produce a matrix profile PAB that represents the differences between them. As Figure 11.left shows, the low values of this profile correspond to identical spoken phrases (despite having two different narrators). However here we are"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 33,
+        "cited_text": "4,000 5,000 6,000 7,000 8,000 9,000 data 0.25% 1% 100% 0 1,000,000 0 100 200 Pan troglodytes Y-chromosome 0 60,000 12,749,475 to 14,249,474 bp 622,725 to 2,122,724 bp T1 = 0; for i = 1 to length(chromosome) if chromosomei = A, then Ti+1 = Ti + 2 if chromosomei = G, then Ti+1 = Ti + 1 if chromosomei = C, then Ti+1 = Ti - 1 if chromosomei = T, then Ti+1 = Ti - 2 end 0 Queen-Bowie 1,000 2,000 -10 0 10 Vanilla Ice 0 250 500-3 -2 -1 0 1 2 interested in the differences, the maximum value of the profile. As we can see in Figure 11.right, here the profile corresponds to a phrase unique to the USA edition."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 34,
+        "cited_text": "Figure 11. The 2nd MFCC of snippets from the USA (pink/bold) and UK (green/fine) Harry Potter audiobooks.  The JAB join of the two longer sections in the main text produces mostly small values in the profile correspond to the same phrase (left), the largest value in the profile corresponds to a phrase unique to the USA edition (right). The time required to do this is just 0.067 seconds, much faster than real time. While this demonstration is trivial, in [24] we show an example applied to ECG telemetry."
+      },
+      {
+        "source_id": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+        "citation_number": 35,
+        "cited_text": "Resources  Calculate the matrix profile. Plot the matrix profile. The profile shows the two top motif pairs, or segments that agree best with their neighbors, occur at locations 6717 and 3119. These locations are consistent with minima in the matrix profile plot. The profile also shows a single discord at location 9797. This subsequence visibly deviates from the motif subsequences for much of its length. Use findDiscord to find more discords, which are the locations of segments with the furthest distances from their neighbors. Show the top four locations."
+      }
+    ]
+  }
+}

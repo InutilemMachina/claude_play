@@ -1,0 +1,280 @@
+<!doctype html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Pipeline Research Network",
+  "schemaVersion": 1,
+  "description": "Hálózat-böngésző: felül 5 tengely (A–E) kártyái, alul 3 F-felépítés (F1–F3) és F×D kompatibilitási mátrix. Pipeline BRAINSTORM v2 (2026-05-19) alapján."
+}
+</script>
+<html lang="hu">
+<head>
+<meta charset="utf-8"/>
+<title>Pipeline Research — Hálózat-böngésző</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;background:#fff;color:#1a1a1a;margin:0;padding:14px 18px 50px;line-height:1.45}
+h1{font-size:1.3rem;margin:0 0 2px;color:#0f2440}
+p.lead{color:#404a5a;margin:2px 0 12px;font-size:.9rem}
+h2{font-size:1.05rem;color:#0f2440;margin:20px 0 8px;border-bottom:1px solid #e0e4eb;padding-bottom:4px}
+
+/* Tengelyek */
+.axes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:20px}
+.ax-card{background:#fafbfd;border:1px solid #e0e4eb;border-radius:10px;padding:12px 14px}
+.ax-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ax-badge{font-size:1rem;font-weight:800;color:#fff;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ax-title{font-size:.95rem;font-weight:600;color:#0f2440}
+.ax-table{width:100%;border-collapse:collapse;font-size:.81rem}
+.ax-table th{text-align:left;color:#5a6473;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:3px 4px;border-bottom:1px solid #e8ecf0}
+.ax-table td{padding:3px 4px;vertical-align:top;border-bottom:1px solid #f3f5f8}
+.ax-table tr:last-child td{border-bottom:none}
+.tag-good{background:#e8f4e8;color:#1b5e20;border-radius:3px;padding:0 5px;font-size:.72rem;white-space:nowrap;display:inline-block}
+.tag-bad{background:#fff3e0;color:#bf360c;border-radius:3px;padding:0 5px;font-size:.72rem;display:inline-block}
+.tag-cond{background:#e3f2fd;color:#0d47a1;border-radius:3px;padding:0 5px;font-size:.72rem;display:inline-block}
+.ax-note{font-size:.79rem;color:#5a6473;margin:5px 0 0}
+
+/* F-felépítések */
+.f-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:22px}
+.f-card{border-radius:10px;padding:14px;border:2px solid}
+.f-head{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.f-badge{font-size:1.1rem;font-weight:800}
+.f-name{font-size:.95rem;font-weight:600;color:#0f2440}
+.f-desc{font-size:.83rem;color:#2a3340;margin-bottom:9px}
+.f-label{font-size:.72rem;color:#5a6473;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.ax-pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:9px}
+.ax-pill{font-size:.76rem;padding:2px 8px;border-radius:4px;border:1px solid #d8dee7;background:#f4f6f9}
+.pro-con{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pc-box{border-radius:6px;padding:7px 9px;font-size:.79rem}
+.pc-label{font-weight:600;font-size:.72rem;margin-bottom:3px}
+
+/* F×D mátrix */
+.matrix-wrap{overflow-x:auto}
+.matrix{border-collapse:collapse;width:100%;font-size:.81rem;min-width:560px}
+.matrix th,.matrix td{padding:7px 10px;border:1px solid #e0e4eb;text-align:center}
+.matrix th{background:#f4f6f9;font-weight:600;color:#0f2440;font-size:.77rem}
+.matrix td:first-child{text-align:left;font-weight:600;background:#f9fafc}
+.m-opt{background:#e8f4e8;color:#1b5e20;font-weight:600;border-radius:4px;padding:2px 6px;display:inline-block}
+.m-ok{color:#404a5a}
+.m-bad{color:#bf360c;font-style:italic}
+.matrix-note{font-size:.8rem;color:#5a6473;margin-top:7px}
+</style>
+</head>
+<body>
+<h1>Pipeline Research — Hálózat-böngésző</h1>
+<p class="lead">Pipeline BRAINSTORM v2 (2026-05-19). Felül: 5 keresztvágó tengely (A–E). Alul: 3 felépítés (F1–F3) és F×D kompatibilitási mátrix.</p>
+
+<h2>1. Tengelyek — keresztvágó szempontok</h2>
+<div class="axes-grid">
+
+  <div class="ax-card">
+    <div class="ax-head">
+      <div class="ax-badge" style="background:#1a3358">A</div>
+      <div class="ax-title">Forrás-előkészítés szintjei</div>
+    </div>
+    <table class="ax-table">
+      <tr><th>Szint</th><th>Mit küldünk NLM-be</th><th>Mikor</th></tr>
+      <tr><td>A0</td><td>nyers digitális PDF</td><td><span class="tag-good">jó</span> szöveges, modern PDF</td></tr>
+      <tr><td>A1</td><td>scannelt PDF (OCR nélkül)</td><td><span class="tag-bad">szinte soha</span></td></tr>
+      <tr><td>A2</td><td>OCR-ezett PDF (OCRmyPDF)</td><td><span class="tag-good">scannelt forrás</span></td></tr>
+      <tr><td>A3</td><td>MinerU MD egyben (képek URL-ként)</td><td><span class="tag-bad">nem jó</span> — NLM nem tölti be a képeket</td></tr>
+      <tr><td>A4</td><td>MD + képhalmaz, két csatornán</td><td><span class="tag-good">komplex, ábrás forrás</span></td></tr>
+      <tr><td>A5</td><td>strukturált szöveg (paste)</td><td>gyors snippet, kiegészítés</td></tr>
+      <tr><td>A6</td><td>YouTube / Web URL</td><td>videós vagy webes forrás</td></tr>
+      <tr><td>A7</td><td>Google Doc link</td><td>live-szerkesztett forrás</td></tr>
+    </table>
+  </div>
+
+  <div class="ax-card">
+    <div class="ax-head">
+      <div class="ax-badge" style="background:#5b2d8e">B</div>
+      <div class="ax-title">Meta-prompt rétegek</div>
+    </div>
+    <table class="ax-table">
+      <tr><th>Szint</th><th>Mit konfigurál</th><th>Limit</th></tr>
+      <tr>
+        <td><strong>B1</strong></td>
+        <td>NLM Custom Instructions (Configure Chat, notebook-szintű): szerepkör, citáció, ábrahorgonyzás, formátum</td>
+        <td style="white-space:nowrap">~10 000 kar.</td>
+      </tr>
+      <tr>
+        <td><strong>B2</strong></td>
+        <td>Cowork Project Custom Instructions (projekt-szintű): szintézis, IEEE-cit., missing-context detector, self-check</td>
+        <td>nincs</td>
+      </tr>
+    </table>
+    <p class="ax-note">B1 + B2 együtt = kétoldalú auditálható nyomonkövetés. F3-ban B2 kiegészül iteratív lekérdezési utasítással.</p>
+  </div>
+
+  <div class="ax-card">
+    <div class="ax-head">
+      <div class="ax-badge" style="background:#0d7c5e">C</div>
+      <div class="ax-title">NLM-output szűkítés</div>
+    </div>
+    <table class="ax-table">
+      <tr><th>Kimenet</th><th>Kell?</th><th>Mire</th></tr>
+      <tr><td>Mindmap</td><td><span class="tag-good">igen</span></td><td>C03 Mindmap.md</td></tr>
+      <tr><td>Chat-válasz (hierarchikus prompt)</td><td><span class="tag-good">igen</span></td><td>C01, C02, C04</td></tr>
+      <tr><td>Studio Quiz</td><td><span class="tag-good">igen</span></td><td>C07 Kérdések.md</td></tr>
+      <tr><td>Data Tables (Pro/Ultra)</td><td><span class="tag-cond">feltételesen</span></td><td>ábrahorgony, szószedet-citáció</td></tr>
+      <tr><td>Audio / Video Overview</td><td><span class="tag-bad">nem</span></td><td>—</td></tr>
+      <tr><td>Slide Deck</td><td><span class="tag-bad">nem</span></td><td>du_template.pptx-ből készül</td></tr>
+      <tr><td>Infographic / FAQ / Flashcard / Briefing</td><td><span class="tag-bad">nem</span></td><td>—</td></tr>
+    </table>
+  </div>
+
+  <div class="ax-card">
+    <div class="ax-head">
+      <div class="ax-badge" style="background:#7b3f00">D</div>
+      <div class="ax-title">Híd-réteg automatizáltsága</div>
+    </div>
+    <table class="ax-table">
+      <tr><th>Szint</th><th>Eszköz</th><th>Setup</th><th>Citáció</th></tr>
+      <tr><td>D0</td><td>Copy &amp; paste</td><td>—</td><td>félig</td></tr>
+      <tr><td>D1</td><td>BibCit / Export Pro</td><td>alacsony</td><td>teljes</td></tr>
+      <tr><td>D2</td><td>Apify Actor</td><td>közepes</td><td>JSON</td></tr>
+      <tr><td>D3</td><td>notebooklm-cowork plugin (39 eszköz)</td><td>közepes</td><td>teljes</td></tr>
+      <tr><td>D4</td><td>Claude Code CLI + notebooklm-connector</td><td>magas</td><td>3-körös</td></tr>
+    </table>
+    <p class="ax-note">D3 mindhárom F-re alapcsapat. D4 csak F3-hoz éri meg.</p>
+  </div>
+
+  <div class="ax-card">
+    <div class="ax-head">
+      <div class="ax-badge" style="background:#9c3535">E</div>
+      <div class="ax-title">Citáció és audit-trail</div>
+    </div>
+    <p class="ax-note" style="margin:0 0 7px">Áthúzódó szempont — minden felépítésen átmegy.</p>
+    <table class="ax-table">
+      <tr><th>Szint</th><th>Mit biztosít</th></tr>
+      <tr><td>E1 — NLM (B1)</td><td><code style="background:#eef1f5;padding:1px 4px;border-radius:3px;font-size:.8rem">forrásfájl.ext</code> + szakaszhorgony minden válaszban</td></tr>
+      <tr><td>E2 — Claude (B2)</td><td>IEEE-bibliográfia + gép-verifikálható forráslink</td></tr>
+      <tr><td>E3 — kétindexes</td><td>ember-olvasható [1] ÉS <code style="background:#eef1f5;padding:1px 4px;border-radius:3px;font-size:.8rem">fájl.pdf, anchor</code></td></tr>
+      <tr><td>E4 — ábrahorgony</td><td><code style="background:#eef1f5;padding:1px 4px;border-radius:3px;font-size:.8rem">[Inferred Figure: fájl | Anchored to: '...' segment]</code></td></tr>
+      <tr><td>E5 — 3-körös follow-up</td><td>automatikus utánkérdés ha NLM-válasz hiányos (D4-hez)</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<h2>2. Felépítések (F1 – F3)</h2>
+<div class="f-grid">
+
+  <div class="f-card" style="border-color:#1a6feb;background:#f5f8ff">
+    <div class="f-head">
+      <div class="f-badge" style="color:#1a6feb">F1</div>
+      <div class="f-name">Konfiguráció elsőként</div>
+    </div>
+    <div class="f-desc">Egyszeri setup a tantárgy elején. B1 + B2 meta-prompt elkészül, majd minden lekérdezés ezek alapján fut. Az 1–2. hét kézi finomítással stabilizálja a meta-promptokat. F3-ra kombinálható: 1–2 hét F1-gyel, utána F3.</div>
+    <div class="f-label">Tengelyeken elfoglalt pozíció</div>
+    <div class="ax-pills">
+      <span class="ax-pill">A — rugalmas (A0/A2/A4)</span>
+      <span class="ax-pill">B — B1 + B2 standard</span>
+      <span class="ax-pill">C — 3 kimenet (Mind + Chat + Quiz)</span>
+      <span class="ax-pill">D — D1 beugró / D3 optimális</span>
+      <span class="ax-pill">E — kétindexes (E3)</span>
+    </div>
+    <div class="pro-con">
+      <div class="pc-box" style="border:1px solid #a5d6a7;background:rgba(232,244,232,.5)">
+        <div class="pc-label" style="color:#2e7d32">✔ Erőssége</div>
+        Egyszeri konfig; audit-trail az első lekérdezéstől; alacsony setup-küszöb
+      </div>
+      <div class="pc-box" style="border:1px solid #ffcc80;background:rgba(255,243,224,.5)">
+        <div class="pc-label" style="color:#e65100">⚠ Gyengéje</div>
+        Rossz B1/B2 sok átírást okoz; javítás nem fut vissza régi válaszokra
+      </div>
+    </div>
+  </div>
+
+  <div class="f-card" style="border-color:#2e7d32;background:#f4faf4">
+    <div class="f-head">
+      <div class="f-badge" style="color:#2e7d32">F2</div>
+      <div class="f-name">Két-csatorna alap</div>
+    </div>
+    <div class="f-desc">MinerU minden forráson kötelező (A4). Szöveg (MD) és képhalmaz két külön NLM-csatornán kerül be. Data Tables (Pro/Ultra) az ábrahorgony-kigyűjtés eszköze. D3 plugin bulk-add képességgel egyszerűsíti a kép-feltöltést.</div>
+    <div class="f-label">Tengelyeken elfoglalt pozíció</div>
+    <div class="ax-pills">
+      <span class="ax-pill">A — A4 kötelező (MinerU)</span>
+      <span class="ax-pill">B — B1 + B2 + csatorna-konvenció</span>
+      <span class="ax-pill">C — 4 kimenet (+ Data Tables)</span>
+      <span class="ax-pill">D — D3 optimális (bulk-add)</span>
+      <span class="ax-pill">E — kétindexes + ábrahorgony (E4)</span>
+    </div>
+    <div class="pro-con">
+      <div class="pc-box" style="border:1px solid #a5d6a7;background:rgba(232,244,232,.5)">
+        <div class="pc-label" style="color:#2e7d32">✔ Erőssége</div>
+        Explicit ábrahorgony; Data Tables strukturált citáció; D3 bulk-add
+      </div>
+      <div class="pc-box" style="border:1px solid #ffcc80;background:rgba(255,243,224,.5)">
+        <div class="pc-label" style="color:#e65100">⚠ Gyengéje</div>
+        50-forrás-limit képekkel gyorsan telhet; extra MinerU előkészítési idő
+      </div>
+    </div>
+  </div>
+
+  <div class="f-card" style="border-color:#e65100;background:#fff8f5">
+    <div class="f-head">
+      <div class="f-badge" style="color:#e65100">F3</div>
+      <div class="f-name">Iteratív, hierarchia-driven</div>
+    </div>
+    <div class="f-desc">Egyetlen Claude-prompt vezérli a heti vázlat H3-szintű alfejezetein az iterációt. D4 connector automatikusan lekérdez, 3-körös follow-up ha a válasz hiányos. Stabil heti vázlat előfeltétel. Javasolt: 1–2 hét F1-gyel, utána F3.</div>
+    <div class="f-label">Tengelyeken elfoglalt pozíció</div>
+    <div class="ax-pills">
+      <span class="ax-pill">A — A4 (mint F2)</span>
+      <span class="ax-pill">B — B1 + B2 + iteratív kiegészítés</span>
+      <span class="ax-pill">C — 3 kimenet (Chat iteratív)</span>
+      <span class="ax-pill">D — D4 ideális (D3 is működik)</span>
+      <span class="ax-pill">E — kétindexes + 3-körös follow-up (E5)</span>
+    </div>
+    <div class="pro-con">
+      <div class="pc-box" style="border:1px solid #a5d6a7;background:rgba(232,244,232,.5)">
+        <div class="pc-label" style="color:#2e7d32">✔ Erőssége</div>
+        Leginkább auto-pilot (~90 perc/hét); 3-körös follow-up konvergál
+      </div>
+      <div class="pc-box" style="border:1px solid #ffcc80;background:rgba(255,243,224,.5)">
+        <div class="pc-label" style="color:#e65100">⚠ Gyengéje</div>
+        D4 fejlesztői mindset; stabil heti vázlat előfeltétel; Cowork Pro/Max
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<h2>3. F × D kompatibilitási mátrix</h2>
+<div class="matrix-wrap">
+<table class="matrix">
+  <tr>
+    <th>F \ D</th>
+    <th>D0 — manuális</th>
+    <th>D1 — BibCit</th>
+    <th>D2 — Apify</th>
+    <th>D3 — cowork plugin</th>
+    <th>D4 — connector</th>
+  </tr>
+  <tr>
+    <td>F1 — konfig elsőként</td>
+    <td><span class="m-ok">fallback</span></td>
+    <td><span class="m-ok">jó kezdés</span></td>
+    <td><span class="m-bad">overkill</span></td>
+    <td><span class="m-opt">✅ optimális</span></td>
+    <td><span class="m-bad">overkill</span></td>
+  </tr>
+  <tr>
+    <td>F2 — két-csatorna</td>
+    <td><span class="m-bad">nehéz (sok kép)</span></td>
+    <td><span class="m-ok">OK</span></td>
+    <td><span class="m-ok">OK (batch)</span></td>
+    <td><span class="m-opt">✅ optimális (bulk-add)</span></td>
+    <td><span class="m-ok">részben</span></td>
+  </tr>
+  <tr>
+    <td>F3 — hierarchia-driven</td>
+    <td><span class="m-bad">nem ajánlott</span></td>
+    <td><span class="m-bad">nem (manuális)</span></td>
+    <td><span class="m-ok">részben</span></td>
+    <td><span class="m-opt">✅ optimális</span></td>
+    <td><span class="m-opt">✅ optimális (3-körös)</span></td>
+  </tr>
+</table>
+</div>
+<p class="matrix-note">D3 (notebooklm-cowork plugin) mindhárom F-re alapcsapat. Ha valamit először telepítesz, ez legyen. D4 (notebooklm-connector) csak F3-hoz éri meg.</p>
+
+</body>
+</html>

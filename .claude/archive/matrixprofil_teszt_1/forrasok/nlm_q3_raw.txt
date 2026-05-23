@@ -1,0 +1,134 @@
+﻿{
+  "value": {
+    "answer": "A Mátrix Profil (MP) kiszámítására szolgáló algoritmuscsalád fejlődése a számítási hatékonyság és a skálázhatóság maximalizálására irányul, miközben megőrzi a számítások pontosságát. A források alapján az alábbi algoritmusok képezik a technológia gerincét:\n\n### 1. MASS (Mueen’s ultra-fast Algorithm for Similarity Search)\n\nA MASS az MP-számítás elemi építőköve, amely egyetlen alszekvencia (lekérdezés) távolságprofiljának meghatározására szolgál [1], \"Matrix Profile I.pdf\", 25. o.\n\n*   **Működési elv:** Z-normált euklideszi távolságot számít a lekérdezés és az idősor összes alszekvenciája között [2], \"Matrix Profile I.pdf\", 29. o. A skaláris szorzatok gyors kiszámításához Fast Fourier Transform (FFT) alapú konvolúciót alkalmaz [3], [1], \"Matrix Profile I.pdf\", 6., 25. o.\n*   **Időkomplexitás:** $O(n \\log n)$, ahol $n$ az idősor hossza [1], \"Matrix Profile I.pdf\", 25. o.\n*   **Pontosság:** Egzakt megoldást ad, nincsenek téves negatívok vagy közelítések [3], \"Matrix Profile I.pdf\", 6. o.\n\n### 2. STAMP (Scalable Time series Anytime Matrix Profile)\n\nA STAMP az első olyan algoritmus, amely a MASS-t használva a teljes Mátrix Profil kiszámítására alkalmas [4], \"Matrix Profile I.pdf\", 32. o.\n\n*   **Működési elv:** Egy ciklusban minden egyes alszekvenciát lekérdezésként kezel, kiszámítja azok távolságprofilját a MASS segítségével, majd elemenkénti minimumképzéssel frissíti a globális Mátrix Profilt [4], \"Matrix Profile I.pdf\", 32. o.\n*   **Anytime jelleg:** Mivel a lekérdezéseket véletlenszerű sorrendben is végrehajthatja, az algoritmus bármikor megszakítható (anytime), és a futási idő előrehaladtával egyre pontosabb közelítő megoldást ad [5], [6], \"Matrix Profile I.pdf\", 3., 35. o.\n*   **Időkomplexitás:** $O(n^2 \\log n)$ [7], \"Matrix Profile I.pdf\", 39. o.\n\n### 3. STOMP (Scalable Time series Ordered-search Matrix Profile)\n\nA STOMP a STAMP továbbfejlesztett változata, amely kihasználja az egymást követő alszekvenciák közötti átfedést [8], [9], \"Matrix Profile II.pdf\", 97., 120. o.\n\n*   **Működési elv:** Rendezett keresést hajt végre. Egy speciális frissítési képlet segítségével az $i$-edik alszekvencia skaláris szorzatából $O(1)$ idő alatt kiszámítja az $(i+1)$-edik alszekvencia értékeit: $QT_{i,j} = QT_{i-1,j-1} - t_{i-1}t_{j-1} + t_{i+m-1}t_{j+m-1}$ [10, 11], \"Matrix Profile II.pdf\", 121-122. o.\n*   **Időkomplexitás:** $O(n^2)$, ami $O(\\log n)$ faktorral gyorsabb a STAMP-nél [12], \"Matrix Profile II.pdf\", 127. o.\n*   **Skálázhatóság:** Mivel az elemi frissítések függetlenek, az algoritmus kiválóan párhuzamosítható [13], \"Matrix Profile II.pdf\", 129. o.\n\n### 4. GPU-STOMP\n\nA STOMP algoritmus NVIDIA CUDA architektúrára portolt, masszívan párhuzamosított változata [8], [14], \"Matrix Profile II.pdf\", 97., 130. o.\n\n*   **Működési elv:** A GPU több ezer szálon, egyszerre frissíti a távolságprofil elemeit, kihasználva a szimmetria-tulajdonságokat is a számítási igény további felezése érdekében [15], [16], \"Matrix Profile II.pdf\", 131., 138. o.\n*   **Skálázhatóság:** Ez az algoritmus tette lehetővé a 100 millió adatpontos \"álomhatár\" áttörését [17], [8], \"Matrix Profile II.pdf\", 93., 97. o.\n\n---\n\n### Algoritmusok összehasonlítása\n\n| Szempont | MASS | STAMP | STOMP | GPU-STOMP | Forrás |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Cél** | Távolságprofil (1 sor) | Teljes Mátrix Profil | Teljes Mátrix Profil | Teljes Mátrix Profil | \"Matrix Profile I.pdf\", \"Matrix Profile II.pdf\" |\n| **Időkomplexitás** | $O(n \\log n)$ | $O(n^2 \\log n)$ | $O(n^2)$ | $O(n^2)$ (párhuzamos) | \"Matrix Profile I.pdf\", 39. o.; \"Matrix Profile II.pdf\", 127. o. |\n| **Pontosság** | Egzakt | Egzakt / Anytime | Egzakt | Egzakt | \"Matrix Profile I.pdf\", 6., 35. o.; \"Matrix Profile II.pdf\", 93. o. |\n| **Hardver igény** | CPU / GPU | CPU | CPU | GPU (NVIDIA CUDA) | \"Matrix Profile II.pdf\", 130., 142. o. |\n| **Fő előny** | FFT alapú sebesség | Megszakítható futás | $O(\\log n)$ gyorsulás | Extrém skálázhatóság | \"Matrix Profile II.pdf\", 127-129. o. |\n\n---\n\n### Számszerű példák a forrásokból\n\nAz algoritmusok közötti különbségek leginkább nagy adathalmazokon mutatkoznak meg.\n\n**Példa 1: Futási idők összehasonlítása ($m=256$, változó $n$ esetén)** [18], \"Matrix Profile II.pdf\", 143. o. (Table III):\n*   **$n = 2^{17}$ (~131 ezer adatpont):**\n    *   STAMP: 15,1 perc\n    *   STOMP: 4,21 perc\n    *   GPU-STOMP: 10 másodperc\n*   **$n = 2^{21}$ (~2,1 millió adatpont):**\n    *   STAMP: 4,2 nap\n    *   STOMP: 0,87 nap\n    *   GPU-STOMP: 9,25 perc\n\n**Példa 2: Extrém skálázhatóság ($n = 100$ millió adatpont)** [19], \"Matrix Profile II.pdf\", 145. o. (Table IV):\n*   **STAMP (becsült):** 25,5 év\n*   **STOMP (becsült):** 5,4 év\n*   **GPU-STOMP (tényleges):** 12,13 nap\n\n**Példa 3: Ipari alkalmazás (Olajfinomító)** [20], \"Matrix Profile I.pdf\", 5. o.:\n*   Egy éves adatmennyiség ($n = 525 600$) elemzése hagyományos \"nested loop\" algoritmussal: **153,8 nap**.\n*   Mátrix Profil alapú eljárással (STAMP): **6,3 óra**.",
+    "conversation_id": "796ea950-3c61-4d57-9c07-485716889f72",
+    "sources_used": [
+      "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "b13009b5-e695-431c-87df-e3bcb707671f"
+    ],
+    "citations": {
+      "1": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "2": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "3": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "4": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "5": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "6": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "7": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "8": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "9": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "10": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "11": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "12": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "13": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "14": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "15": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "16": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "17": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "18": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "19": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "20": "72d4e1ee-a813-4764-a33e-873a136e0c81"
+    },
+    "references": [
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 1,
+        "cited_text": "A. Mueen’s ultra-fast Algorithm for Similarity Search (MASS) We begin by introducing a novel Euclidean distance similarity search algorithm for time series data. The algorithm does not just find the nearest neighbor to a query and return its distance; it returns the distance to every subsequence. In particular, it computes the distance profile, as shown in Figure 2. The algorithm requires just O(nlogn) time by exploiting the FFT to calculate the dot products between the query and all subsequences of the time series."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 2,
+        "cited_text": "Figure 4. A toy example of convolution operation being used to calculate sliding dot products for time series data. Note the reverse and append operation on T and q in the input. Fifteen dot products are calculated for every slide. The cells m = 2 to n = 4 from left (red/bold arrows) contain valid products. TABLE II takes this subroutine and uses it to create a distance profile (see Definition 3). In line 1 of TABLE II, we invoke the dot products code outlined in TABLE I. The formula to calculate the z-normalized Euclidean distance D[i] between two time series subsequence Q and Ti,m using their dot product, QT[i] is (see [24] for derivation):"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 3,
+        "cited_text": "desktop, even if the data arrival frequency was much faster than once a minute. Our algorithm uses an ultra-fast similarity search algorithm under z-normalized Euclidean distance as a subroutine, exploiting the overlap between subsequences using the classic Fast Fourier Transform (FFT) algorithm. Our method has the following advantages/features:  It is exact, providing no false positives or false dismissals.  It is simple and parameter-free. In contrast, the more general metric space APSS algorithms require building and"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 4,
+        "cited_text": "B. The STAMP Algorithm We call our join algorithm STAMP, Scalable Time series Anytime Matrix Profile. The algorithm is outlined in TABLE III. In line 1, we extract the length of TB. In line 2, we allocate memory and initial matrix profile PAB and matrix profile index IAB. From lines 3 to line 6, we calculate the distance profiles D using each subsequence B[idx] in the time series TB and the time series TA. Then, we perform pairwise minimum for each element in D with the paired element in PAB (i.e., min(D[i], PAB[i]) for i = 0 to length(D) - 1.) We also update IAB[i] with idx when D[i] ≤ PAB[i] as we perform the pairwise minimum operation. Finally, we return the result PAB and IAB in line 7."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 5,
+        "cited_text": "two orders of magnitude speedup. In this work we introduce a novel scalable algorithm for time series subsequence all-pairs- similarity-search. For exceptionally large datasets, the algorithm can be trivially cast as an anytime algorithm and produce high- quality approximate solutions in reasonable time. The exact similarity join algorithm computes the answer to the time series motif and time series discord problem as a side-effect, and our algorithm incidentally provides the fastest known algorithm for"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 6,
+        "cited_text": "C. An Anytime Algorithm for TSAPSS While the exact algorithm introduced in the previous section is extremely scalable, there will always be datasets for which time needed for an exact solution is untenable. We can mitigate this by computing the results in an anytime fashion, allowing fast approximate solutions [30]. To add the anytime nature to the STAMP algorithm, we simply ensure a randomized search order in line 2 of TABLE III. We can compute a (post-hoc) measurement of the quality of an anytime solution by measuring the Root-Mean-Squared-Error (RMSE) between the true matrix profile and the current best-so-far matrix profile. As Figure 5 suggests, with an experiment on random walk data, the algorithm converges very quickly."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 7,
+        "cited_text": "D. Time and Space Complexity The overall complexity of the proposed algorithm is O(n2logn) where n is the length of the time series. However, our experiments (see Section 4.1) empirically suggest that the runtime of STAMP’s growth rate is roughly O(n2) instead of O(n2logn). One possible explanation for this is that the nlogn factor comes from the FFT subroutine. Because FFT is so important in many applications, it is extraordinarily well optimized. Thus, the empirical runtime is very close to linear."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 8,
+        "cited_text": "In keeping with the STAMP name [23], we call our faster algorithm STOMP, Scalable Time series Ordered-search Matrix Profile, and its GPU-accelerated version GPU-STOMP. In this work we show that GPU-STOMP allows us to significantly push the scalability envelope. We demonstrate the scalability of our ideas by extracting motifs from a dataset with one hundred million objects. Such a computation requires computing (or admissibly pruning) 499,999,999,500,000,000 pairwise Euclidean distances calculations. If each Euclidean distance calculation took 0.0000001 seconds, a brute force algorithm would require 1,585 years"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 9,
+        "cited_text": "IV. ALGORITHMS In this section we begin by showing that we can improve upon the STAMP algorithm [23] to create the much faster STOMP algorithm. We then further demonstrate that the architecture of STOMP lends itself to porting to GPUs. A. The STOMP Algorithm As we shall explain below, STOMP is similar to STAMP [23] in that it can be seen as highly optimized nested loop searches, with the repeated calculation of distance profiles as the inner loop. However, while STAMP must evaluate the distance profiles in random order (to allow its anytime behavior), STOMP performs an ordered search. It is by exploiting the locality of these searches, that we can reduce the time complexity by a factor of O(logn)."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 10,
+        "cited_text": "Before we explain the details of the algorithm, we first introduce a formula to calculate the z-normalized Euclidean distance di,j of two time series subsequences Ti,m and Tj,m using their dot product, QTi,j:  𝑑𝑖,𝑗 = √2𝑚(1 − 𝑄𝑇𝑖,𝑗−𝑚𝜇𝑖𝜇𝑗 𝑚𝜎𝑖𝜎𝑗 )  Here m is the subsequence length, μi is the mean of Ti,m, μj is the mean of Tj,m, σi is the standard deviation of Ti,m, and σj is the standard deviation of Tj,m, The technique introduced in [20] allows us to obtain the means and standard deviations with O(1) time complexity; thus, the time required to compute di,j depends only on the time required to compute QTi,j. Here we claim that QTi,j can also be computed in O(1) time, once QTi-1,j-1 is known."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 11,
+        "cited_text": "Note that QTi-1,j-1 can be decomposed as:  𝑄𝑇𝑖−1,𝑗−1 = ∑ 𝑇𝑖−1+𝑘𝑇𝑗−1+𝑘 𝑚−1 𝑘=0   and QTi,j  can be decomposed as:  𝑄𝑇𝑖,𝑗 = ∑ 𝑇𝑖+𝑘𝑇𝑗+𝑘 𝑚−1 𝑘=0   Thus we have:  𝑄𝑇𝑖,𝑗 = 𝑄𝑇𝑖−1,𝑗−1 − 𝑡𝑖−1𝑡𝑗−1 + 𝑡𝑖+𝑚−1𝑡𝑗+𝑚−1  Our claim is thereby proved. The relationship between QTi,j and QTi-1,j-1 indicates that once we have the distance profile Di-1 of time series T with regard to Ti-1,m, we can obtain the distance profile Di with regard to Ti,m in just O(n) time."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 12,
+        "cited_text": "QT according to . We update QT[1] in line 10 with the pre-computed QT_first in line 3. Line 11 calculates distance profile D according to . Finally, line 12 compares every element of P with D: if D[j] < P[j], then P[j] = D[j], I[j] = i. The time complexity of STOMP is O(n 2 ); thus, we have achieved a O(logn) factor speedup over STAMP [23]. Moreover, it is clear that O(n 2 ) is optimal for any exact motif algorithm in the general case. The O(logn) speedup clearly makes little difference for small datasets, those with just a few tens of thousands of datapoints [5].  However, as we consider the datasets with millions of datapoints, this O(logn) factor begins to produce a very useful order-of-magnitude speedup."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 13,
+        "cited_text": "intrinsic dimensionality (recall Fig. 2), and the domain requires a short subsequence length. In contrast, the speedup for STOMP is completely independent of both the structure of the data and the subsequence length. In spite of this dramatic improvement, it still takes STOMP approximately 5-6 hours to process a time series of length one million. Can we further reduce the time? Note that the STOMP algorithm is extremely amenable to parallel computing frameworks. This is not a coincidence; the algorithm was conceived with a view to eventual hardware acceleration. Recall that the space requirement for the algorithm is only O(n); there is no data dependency in the main inner loop of the algorithm (lines 7-9 of TABLE II), so we can update all entries of QT in parallel. The evaluation of each entry in vectors D, P and I in lines 11 and 12 are also independent of each other. In the next section, we will introduce a GPU-based version of STOMP, taking advantage of these observations to further speed up the evaluation of matrix profile and thus motif discovery."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 14,
+        "cited_text": "B. Porting STOMP to a GPU Framework The Graphic Processor Unit, or GPU, is “especially well-suited to address problems that can be expressed as data-parallel computations” [15]. It has its own memory, and can launch multiple threads in parallel. Here we use the ubiquitous Single Instruction Multiple Data (SIMD) NVIDIA CUDA architecture, where we can assign multiple threads to process the same set of instructions on multiple data. The threads on the GPU are managed in thread blocks. Threads in a thread block run simultaneously, and can cooperate with each other through shared local resources. A CUDA function is called a kernel. When we launch a kernel, we can specify the number of blocks, and the number of threads in each block to run on GPU. For example, the NVIDIA Tesla K80 allows launching at most 1024 threads within a block and as many as 2"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 15,
+        "cited_text": "63  blocks (a total of 2 73 threads), which is much more than enough to process a time series of length 100 million. The GPU implementation of the STOMP algorithm in TABLE II can be decomposed into four steps:  CPU copies the time series to GPU global memory.  CPU launches GPU kernels to evaluate μ, σ, initial QT, D, P and I.  CPU iteratively launches GPU kernels to update QT, D, P and I.  CPU copies final output (P and I) from GPU. In the first step, the CPU copies time series T (input vector of TABLE II) to the global memory of GPU. The time used to copy a time series of length 100 million takes less than a second. Note that in order to run the STOMP algorithm, we need to allocate space to store eight vectors in the GPU global memory: T, μ, σ, QT, QT_first, D, P and I. A double-precision time series of length 100 million is approximately 0.8GB, so the algorithm consumes approximately 6.4GB global memory"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 16,
+        "cited_text": "D. A Technique to Further Accelerate GPU STOMP Fig. 5 showed the process to compute the i th  row of the distance matrix in Fig. 4 by n-m+1 parallel threads. Recall that the distance matrix is symmetric; half of the distance computations can be saved if we instead only evaluate the i th  to the last columns. We show this strategy in Fig. 6.top. However, note that we would like to maintain the O(n) space complexity of our algorithm; if we simply move on to the (i+1) th  row in Fig. 4 without further processing, then Pi ="
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 17,
+        "cited_text": "exact motifs can be computed on datasets with up to a million data points in tenable time. However, in some domains, for example seismology, there is an insatiable need to address even larger datasets. In this work we show that a combination of a novel algorithm and a high-performance GPU allows us to significantly improve the scalability of motif discovery. We demonstrate the scalability of our ideas by finding the full set of exact motifs on a dataset with one hundred million subsequences, by far the largest dataset ever mined for time series motifs."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 18,
+        "cited_text": "TABLE III. TIME REQUIRED FOR MOTIF DISCOVERY WITH 𝑚 = 256, VARYING 𝑛, FOR THE THREE ALGORITHMS UNDER CONSIDERATION Algorithm              Value of n 217 218 219 220 221 STAMP 15.1 min 1.17 hours 5.4 hours 24.4 hours 4.2 days STOMP 4.21 min 0.3 hours 1.26 hours 5.22 hours 0.87 days GPU-STOMP 10 sec 18 sec 46 sec 2.5 min 9.25 min Note that we choose m’s length as a power-of-two only to offer the best case for (the FFT-based) STAMP; our algorithm is agnostic to such issues. A recent paper on finding motifs in (only) seismograph"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 19,
+        "cited_text": "both the other algorithms allow an approximate prediction of the time needed, given the data length n. To obtain the estimated time, we evaluated only the first 100 distance profiles of both STAMP and STOMP, and multiplied the time used by (n-m+1)/100. In TABLE IV we consider much larger datasets, one of which reflects the data used in a case study in Section V.C. TABLE IV. TIME REQUIRED FOR MOTIF DISCOVERY WITH VARIOUS 𝑚 AND VARIOUS 𝑛, FOR THE THREE ALGORITHMS UNDER CONSIDERATION Algorithm                             m | n 2000 | 17,279,800 400 | 100,000,000"
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 20,
+        "cited_text": "We believe that this lack of progress stems not from a lack of interest in this useful primitive, but from the daunting nature of the problem. Consider the following example that reflects the needs of an industrial collaborator. A boiler at a chemical refinery reports pressure once a minute. After a year, we have a time series of length 525,600. A plant manager may wish to do a similarity self-join on this data with week-long subsequences (10,080) to discover operating regimes (summer vs. winter or light distillate vs. heavy distillate etc.) The obvious nested loop algorithm requires 132,880,692,960 Euclidean distance computations. If we assume each one takes 0.0001 seconds, then the join will take 153.8 days. The core contribution of this work is to show that we can reduce this time to 6.3 hours, using an off-the-shelf desktop computer. Moreover, we show that this join can be computed and/or updated incrementally. Thus we could maintain this join essentially forever on a standard"
+      }
+    ]
+  }
+}

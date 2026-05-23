@@ -1,0 +1,213 @@
+<!doctype html><script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Pipeline Research Parallel",
+  "schemaVersion": 1,
+  "description": "Parallel coordinates plot. 5 tengely (A–E) × 3 felépítés (F1–F3). Kattintásra részletező jobb panel. Pipeline BRAINSTORM v2 alapján."
+}
+</script>
+<html lang="hu">
+<head>
+<meta charset="utf-8"/>
+<title>Pipeline Research — Parallel Plot</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;background:#fff;color:#1a1a1a;margin:0;padding:14px 18px 40px;line-height:1.45}
+h1{font-size:1.3rem;margin:0 0 2px;color:#0f2440}
+p.lead{color:#404a5a;margin:2px 0 10px;font-size:.9rem}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.84rem;margin:0 0 12px;align-items:center}
+.li{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 9px;border-radius:5px;border:1px solid transparent;transition:border-color .15s,background .15s}
+.li.active{background:#f4f6f9;border-color:#ccc}
+.sw{width:26px;height:4px;border-radius:2px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px}
+@media(max-width:880px){.layout{grid-template-columns:1fr}}
+.plot-wrap{background:#fafbfd;border:1px solid #e0e4eb;border-radius:10px;padding:6px;overflow-x:auto}
+svg.plot{display:block;width:100%;height:auto;min-width:600px}
+.panel{background:#fafbfd;border:1px solid #e0e4eb;border-radius:10px;padding:14px;min-height:240px}
+.panel h3{margin:0 0 8px;font-size:.98rem}
+.empty{color:#9aa3af;font-size:.9rem;font-style:italic}
+.dr{margin:5px 0;padding-bottom:5px;border-bottom:1px solid #f0f2f5}
+.dr:last-child{border-bottom:none}
+.dl{font-size:.72rem;color:#5a6473;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+.dv{font-size:.85rem}
+.d-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.d-chip{font-size:.76rem;padding:2px 7px;border-radius:4px;border:1px solid transparent}
+.d-opt{background:#e8f4e8;border-color:#2e7d32;color:#1b5e20}
+.d-ok{background:#f4f6f9;border-color:#c9cfd8;color:#404a5a}
+.d-bad{background:#fff3e0;border-color:#e65100;color:#bf360c}
+details summary{cursor:pointer;font-size:.78rem;color:#5a6473;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>Pipeline Research — Parallel Plot</h1>
+<p class="lead">5 tengely (A–E) × 3 felépítés. Kattints vagy vidd rá az egeret egy vonalra a részletekért.</p>
+<div class="legend" id="lgd"></div>
+<div class="layout">
+  <div class="plot-wrap">
+    <svg class="plot" id="svg" viewBox="0 0 830 530" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="panel" id="panel">
+    <h3>Részletek</h3>
+    <p class="empty">Kattints egy vonalra.</p>
+  </div>
+</div>
+<script>
+const AXS=[
+  {id:'A',x:75,label:'A — Forrás',right:true,
+   levels:[{t:'A0 nyers digitális PDF',y:440},{t:'A2 OCR-ezett PDF',y:350},{t:'A4 MinerU (MD + képek)',y:155}]},
+  {id:'B',x:225,label:'B — Meta-prompt',right:true,
+   levels:[{t:'B1 csak',y:440},{t:'B1 + B2',y:280},{t:'B1 + B2 + iteráció',y:125}]},
+  {id:'C',x:390,label:'C — NLM-output',right:true,
+   levels:[{t:'3 kimenet',y:370},{t:'4 kimenet (+Data Tables)',y:175}]},
+  {id:'D',x:560,label:'D — Híd szint',right:true,
+   levels:[{t:'D0 manuális',y:450},{t:'D1 bővítmény',y:375},{t:'D2 Apify',y:300},{t:'D3 cowork plugin',y:225},{t:'D4 connector',y:150}]},
+  {id:'E',x:730,label:'E — Citáció',right:false,
+   levels:[{t:'alap',y:440},{t:'kétindexes',y:300},{t:'kétindexes + horgony',y:155}]},
+];
+
+const CFGS=[
+  {id:'F1',label:'F1 — Konfiguráció elsőként',color:'#1a6feb',
+   yA:{A:350,B:280,C:370,D:375,E:300},
+   pos:{A:'A2 — OCR-ezett PDF (rugalmas: A0/A2/A4)',B:'B1 + B2 standard',C:'3 kimenet (Mindmap + Chat + Quiz)',D:'D1 BibCit bővítmény (D3 optimális)',E:'kétindexes citáció'},
+   desc:'Egyszeri setup a tantárgy elején. B1/B2 stabilizálódik, majd minden lekérdezés auditált az első kérdéstől. Az 1–2. hét kézi finomítással csiszolja a meta-promptokat. F3-ra kombinálható.',
+   pro:'Egyszeri konfig; audit-trail az első lekérdezéstől',
+   con:'Rossz B1/B2 sok átírást okoz; javítás nem fut vissza régi válaszokra',
+   dc:{D0:'ok',D1:'opt',D2:'bad',D3:'opt',D4:'bad'},
+  },
+  {id:'F2',label:'F2 — Két-csatorna alap',color:'#2e7d32',
+   yA:{A:155,B:280,C:175,D:225,E:155},
+   pos:{A:'A4 — MinerU (MD + képhalmaz) — kötelező',B:'B1 + B2 + csatorna-konvenció',C:'4 kimenet (+ Data Tables ábrahorgony)',D:'D3 cowork plugin (bulk-add képek)',E:'kétindexes + ábrahorgony-kigyűjtés'},
+   desc:'MinerU minden forráson kötelező. Szöveg (MD) és képhalmaz két külön NLM-csatornán. Data Tables (Pro/Ultra) az ábrahorgony-kigyűjtés eszköze. D3 plugin bulk-add képességgel.',
+   pro:'Explicit ábrahorgony; Data Tables strukturált citáció; D3 bulk-add',
+   con:'50-forrás-limit képekkel gyorsan telhet; extra előkészítési idő',
+   dc:{D0:'bad',D1:'ok',D2:'ok',D3:'opt',D4:'ok'},
+  },
+  {id:'F3',label:'F3 — Iteratív, hierarchia-driven',color:'#e65100',
+   yA:{A:155,B:125,C:370,D:150,E:155},
+   pos:{A:'A4 — MinerU (mint F2)',B:'B1 + B2 + iteratív lekérdezési kiegészítés',C:'3 kimenet (Chat iteratív, Mindmap + Quiz külön)',D:'D4 notebooklm-connector (3-körös follow-up)',E:'kétindexes + 3-körös follow-up audit'},
+   desc:'Egyetlen Claude-prompt vezérli a heti vázlat H3-szintű alfejezetein az iterációt. D4 connector automatikusan kérdez, 3-körös follow-up ha hiányos a válasz. Javasolt: 1–2 hét F1-gyel, utána F3.',
+   pro:'Leginkább auto-pilot (~90 perc/hét); 3-körös follow-up konvergál',
+   con:'D4 fejlesztői mindset; stabil heti vázlat előfeltétel; Cowork Pro/Max',
+   dc:{D0:'bad',D1:'bad',D2:'ok',D3:'opt',D4:'opt'},
+  },
+];
+
+const DL={D0:'manuális',D1:'BibCit',D2:'Apify',D3:'plugin',D4:'connector'};
+const svgEl=document.getElementById('svg');
+const panel=document.getElementById('panel');
+const lgd=document.getElementById('lgd');
+let active=null;
+
+function ns(tag){return document.createElementNS('http://www.w3.org/2000/svg',tag)}
+
+// Draw axes
+AXS.forEach(ax=>{
+  const ln=ns('line');
+  ln.setAttribute('x1',ax.x);ln.setAttribute('y1',88);
+  ln.setAttribute('x2',ax.x);ln.setAttribute('y2',472);
+  ln.setAttribute('stroke','#b8c0cc');ln.setAttribute('stroke-width','1.5');
+  svgEl.appendChild(ln);
+
+  const lbl=ns('text');
+  lbl.setAttribute('x',ax.x);lbl.setAttribute('y',72);
+  lbl.setAttribute('text-anchor','middle');lbl.setAttribute('font-size','12');
+  lbl.setAttribute('font-weight','700');lbl.setAttribute('fill','#0f2440');
+  lbl.textContent=ax.label;
+  svgEl.appendChild(lbl);
+
+  ax.levels.forEach(lv=>{
+    const dot=ns('circle');
+    dot.setAttribute('cx',ax.x);dot.setAttribute('cy',lv.y);
+    dot.setAttribute('r','3.5');dot.setAttribute('fill','#b8c0cc');
+    svgEl.appendChild(dot);
+
+    const t=ns('text');
+    t.setAttribute('x',ax.right?ax.x+8:ax.x-8);
+    t.setAttribute('y',lv.y+1);
+    t.setAttribute('font-size','9.5');t.setAttribute('fill','#6a7485');
+    t.setAttribute('dominant-baseline','middle');
+    t.setAttribute('text-anchor',ax.right?'start':'end');
+    t.textContent=lv.t;
+    svgEl.appendChild(t);
+  });
+});
+
+// Draw lines + dots
+CFGS.forEach(cfg=>{
+  const pts=AXS.map(ax=>`${ax.x},${cfg.yA[ax.id]}`).join(' ');
+  const pl=ns('polyline');
+  pl.setAttribute('points',pts);pl.setAttribute('fill','none');
+  pl.setAttribute('stroke',cfg.color);pl.setAttribute('stroke-width','2.5');
+  pl.setAttribute('opacity','0.7');pl.setAttribute('stroke-linejoin','round');
+  pl.style.cursor='pointer';
+  pl.addEventListener('mouseenter',()=>{if(!active)hilite(cfg.id)});
+  pl.addEventListener('click',()=>pick(cfg.id));
+  svgEl.appendChild(pl);
+  cfg._pl=pl;
+
+  cfg._dots=[];
+  AXS.forEach(ax=>{
+    const dot=ns('circle');
+    dot.setAttribute('cx',ax.x);dot.setAttribute('cy',cfg.yA[ax.id]);
+    dot.setAttribute('r','5.5');dot.setAttribute('fill',cfg.color);
+    dot.setAttribute('stroke','#fff');dot.setAttribute('stroke-width','1.5');
+    dot.style.cursor='pointer';
+    dot.addEventListener('click',()=>pick(cfg.id));
+    svgEl.appendChild(dot);
+    cfg._dots.push(dot);
+  });
+
+  const item=document.createElement('div');
+  item.className='li';
+  item.innerHTML=`<span class="sw" style="background:${cfg.color}"></span><span style="color:${cfg.color}">${cfg.label}</span>`;
+  item.addEventListener('click',()=>pick(cfg.id));
+  cfg._li=item;
+  lgd.appendChild(item);
+});
+
+svgEl.addEventListener('mouseleave',()=>{if(!active)reset()});
+
+function hilite(id){
+  CFGS.forEach(c=>{
+    const on=c.id===id;
+    c._pl.setAttribute('opacity',on?'1':'0.15');
+    c._pl.setAttribute('stroke-width',on?'3.5':'1.5');
+    c._dots.forEach(d=>d.setAttribute('opacity',on?'1':'0.15'));
+  });
+}
+function reset(){
+  CFGS.forEach(c=>{
+    c._pl.setAttribute('opacity','0.7');c._pl.setAttribute('stroke-width','2.5');
+    c._dots.forEach(d=>d.setAttribute('opacity','1'));
+  });
+}
+function pick(id){
+  if(active===id){
+    active=null;reset();
+    CFGS.forEach(c=>c._li.classList.remove('active'));
+    panel.innerHTML='<h3>Részletek</h3><p class="empty">Kattints egy vonalra.</p>';
+    return;
+  }
+  active=id;
+  CFGS.forEach(c=>c._li.classList.toggle('active',c.id===id));
+  hilite(id);
+  showPanel(CFGS.find(c=>c.id===id));
+}
+function showPanel(cfg){
+  const dChips=Object.entries(cfg.dc).map(([d,s])=>{
+    const cls=s==='opt'?'d-opt':s==='ok'?'d-ok':'d-bad';
+    const ic=s==='opt'?'✅':s==='ok'?'○':'✗';
+    return `<span class="d-chip ${cls}" title="${DL[d]}">${ic} ${d}</span>`;
+  }).join('');
+  const posRows=AXS.map(ax=>`<div class="dr"><div class="dl">${ax.id}</div><div class="dv">${cfg.pos[ax.id]}</div></div>`).join('');
+  panel.innerHTML=`
+    <h3 style="color:${cfg.color}">${cfg.label}</h3>
+    <div class="dr"><div class="dl">Leírás</div><div class="dv">${cfg.desc}</div></div>
+    <div class="dr"><div class="dl">Erőssége</div><div class="dv">✔ ${cfg.pro}</div></div>
+    <div class="dr"><div class="dl">Gyengéje</div><div class="dv">⚠ ${cfg.con}</div></div>
+    <div class="dr"><div class="dl">D-szint kompatibilitás</div><div class="d-row">${dChips}</div></div>
+    <details><summary>Tengelyeken elfoglalt pozíció</summary><div style="margin-top:6px">${posRows}</div></details>
+  `;
+}
+</script>
+</body>
+</html>

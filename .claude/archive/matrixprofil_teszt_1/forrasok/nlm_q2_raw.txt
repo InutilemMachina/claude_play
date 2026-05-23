@@ -1,0 +1,94 @@
+﻿{
+  "value": {
+    "answer": "A Mátrix Profil (Matrix Profile) keretrendszerének megértéséhez elengedhetetlen az alapvető matematikai definíciók és az adatszerkezetek pontos ismerete. Az alábbiakban a feltöltött források alapján részletezem ezeket a fogalmakat, a hozzájuk tartozó képleteket és a módszertan egyik kritikus elemét, a kizárási zónát.\n\n### 1. Alapvető definíciók és képletek\n\nAz idősor-bányászat ezen területén a következő öt fogalom alkotja az elméleti alapot:\n\n*   **Idősor ($T$):** Az idősor valós számok véges, rendezett sorozata.\n    *   **Képlet:** $T = t_1, t_2, ..., t_n$, ahol $n$ az idősor hossza [1], [2].\n    *   **Forrás:** \"Matrix Profile I.pdf\" (13. o.), \"Matrix Profile II.pdf\" (112. o.).\n\n*   **Alsor vagy Alszekvencia ($T_{i,m}$):** Az idősor egy folytonos részlete, amely meghatározott hosszúságú és egy adott pozíciótól kezdődik.\n    *   **Képlet:** $T_{i,m} = t_i, t_{i+1}, ..., t_{i+m-1}$, ahol $m$ az alszekvencia hossza és $1 \\leq i \\leq n-m+1$ [1], [3].\n    *   **Forrás:** \"Matrix Profile I.pdf\" (13. o.), \"Matrix Profile II.pdf\" (113. o.).\n\n*   **Távolság Profil ($D$):** Egy olyan vektor, amely egy konkrét $Q$ lekérdező alszekvencia (amely maga is a $T$ idősor része) és az idősor összes lehetséges alszekvenciája közötti euklideszi távolságokat tartalmazza.\n    *   **Képlet:** $D_i = [d_{i,1}, d_{i,2}, ..., d_{i,n-m+1}]$, ahol $d_{i,j}$ a $T_{i,m}$ és $T_{j,m}$ közötti Z-normált euklideszi távolságot jelöli [4], [3].\n    *   **Forrás:** \"Matrix Profile I.pdf\" (14. o.), \"Matrix Profile II.pdf\" (113. o.).\n\n*   **Mátrix Profil ($P$):** Egy meta-idősor (vektor), amely minden egyes alszekvenciához tárolja a hozzá legközelebb eső, nem triviális szomszédja távolságát.\n    *   **Képlet:** $P = [\\min(D_1), \\min(D_2), ..., \\min(D_{n-m+1})]$. A gyakorlatban ez a távolságmátrix oszloponkénti (vagy soronkénti) minimumainak vektora [5], [6].\n    *   **Forrás:** \"Matrix Profile I.pdf\" (18. o.), \"Matrix Profile II.pdf\" (115. o.), \"matrixProfile - Compute matrix profile of between all pairs of subsequences in a multivariable time series - MATLAB.PDF\" (237. o.).\n\n*   **Mátrix Profil Index ($I$):** Egy kiegészítő egész számokból álló vektor, amely megmutatja, hogy az adott alszekvenciának pontosan hol (melyik indexen) található a legközelebbi szomszédja.\n    *   **Képlet:** $I[i] = j$, feltéve, hogy $d_{i,j}$ a legkisebb érték a $D_i$ távolságprofilban (a kizárási zónán kívül) [7], [8].\n    *   **Forrás:** \"Matrix Profile I.pdf\" (22. o.), \"Matrix Profile II.pdf\" (118. o.), \"matrix_profile_i.PDF\" (14. o.).\n\n### 2. A kizárási zóna (Exclusion Zone) szerepe\n\nA Mátrix Profil számítása során a legkritikusabb hibaforrás a **triviális egyezések (trivial matches)** jelenléte, amelyet a kizárási zóna hivatott orvosolni [9], [10].\n\n**A probléma meghatározása:**\nHa egy $T_{i,m}$ alszekvencia legközelebbi szomszédját keressük ugyanabban az idősorban, a matematikai minimum mindig önmaga lesz (ahol $i=j$), hiszen a távolság ekkor nulla [9], [10]. Ezenkívül a közvetlenül mellette lévő alszekvenciák (például $T_{i+1,m}$ vagy $T_{i-1,m}$) is rendkívül hasonlóak lesznek, mivel jelentős átfedésben vannak az eredeti szakasszal [9], [10]. Ezek az átfedésből adódó \"találatok\" nem hordoznak hasznos információt az ismétlődő mintákról (motívumokról) [10].\n\n**A megoldás és működés:**\n*   A számítás során a lekérdezett alszekvencia indexe ($i$) körül kijelölnek egy tartományt, amelyen belül minden távolságot figyelmen kívül hagynak (gyakorlatilag végtelenre, $\\infty$-re állítanak a távolságprofilban) [9], [10], [11].\n*   A források szerint a kizárási zóna hossza általában az alszekvencia-hossz ($m$) fele ($m/2$) a lekérdezési pont mindkét oldalán [9], [12]. Más implementációk az $m/4$ értéket használják [10].\n*   Ez biztosítja, hogy az algoritmus csak olyan szomszédokat találjon meg, amelyek időben elég távol vannak ahhoz, hogy valódi ismétlődésnek (motívumnak) tekinthessük őket [10], [8].\n\nA kizárási zóna vizuális megjelenítését a \"Matrix Profile I.pdf\" 2. ábrája (szürke régió a távolságprofil alatt) és a \"Matrix Profile II.pdf\" 3. ábrája szemlélteti [4], [13].",
+    "conversation_id": "796ea950-3c61-4d57-9c07-485716889f72",
+    "sources_used": [
+      "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "b13009b5-e695-431c-87df-e3bcb707671f",
+      "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+      "9c4899fe-661c-44cf-8ddd-7144c572dd51"
+    ],
+    "citations": {
+      "1": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "2": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "3": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "4": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "5": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "6": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "7": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "8": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "9": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+      "10": "b13009b5-e695-431c-87df-e3bcb707671f",
+      "11": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+      "12": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+      "13": "b13009b5-e695-431c-87df-e3bcb707671f"
+    },
+    "references": [
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 1,
+        "cited_text": "A. Definitions and Notation We begin by defining the data type of interest, time series: Definition 1: A time series T is a sequence of real-valued numbers ti: T = t1, t2, ..., tn where n is the length of T. We are not interested in the global properties of time series, but in the similarity between local subsequences: Definition 2: A subsequence Ti,m of a T is a continuous subset of the values from T of length m starting from position i.   Ti,m = ti, ti+1,…, ti+m-1, where 1 ≤  i ≤  n-m+1. We can take any subsequence from a time series and compute its distance to all sequences. We call an ordered vector of such distances a distance profile:"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 2,
+        "cited_text": "Finally, we note that seismologists have been early adopters of GPU technology [13] and other high performance computing paradigms. However, their use of this technology has been limited to similarity search, not motif search. III. NOTATION AND DEFINITIONS While we mostly follow the framework introduced in [23], for completeness we review all necessary definitions. A. Definitions We begin by defining the data type of interest, time series: Definition 1: A time series T is a sequence of real-valued numbers ti: T = t1, t2, ..., tn where n is the length of T."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 3,
+        "cited_text": "We are interested not in global, but local properties of time series. A local region of time series is called a subsequence: Definition 2: A subsequence Ti,m of a time series T is a continuous subset of the values from T of length m starting from position i. Formally, Ti,m = ti, ti+1,…, ti+m-1, where 1 ≤  i ≤  n-m+1. We can take a subsequence and compute its distance to all subsequences in the same time series. We call this a distance profile: Definition 3: A distance profile Di of time series T is a vector of the Euclidean distances between a given query subsequence Ti,m and each subsequence in time series T. Formally, Di = [di,1, di,2,…, di,n-m+1], where di,j (1 ≤ i, j ≤ n-m+1) is the distance between Ti,m and Tj,m."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 4,
+        "cited_text": "Definition 3: A distance profile D is a vector of the Euclidean distances between a given query and each subsequence in an all-subsequences set (see Definition 4). Note that we are assuming that the distance is measured using the Euclidean distance between the z-normalized subsequences [8]. The distance profile can be considered a meta time series that annotates the time series T that was used to generate it. The first three definitions are illustrated in Figure 2. Figure 2. A subsequence Q extracted from a time series T is used as a query to every subsequence in T. The vector of all distances is a distance profile."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 5,
+        "cited_text": "neighbor in B: JAB={〈 A[i], B[j] 〉 |θ1nn (A[i], B[j])}.  We denote this formally as JAB = A⋈1nnB. 0 400 800 1200 0 0.2 0.4 0.6 0.8 1 1.2 1.4 1.6 1.8 2 First 5 Days Second 5 Days Data Center Chillers T, a snippet of an energy consumption 2,0000 m/2m/2 Q, query of length m Note that |D| = |T|-|Q|+1D, a distance profile We measure the Euclidean distance between each pair within a similarity join set and store the resultants into an ordered vector. We call the result vector the matrix profile. Definition 7: A matrix profile (or just profile) PAB is a"
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 6,
+        "cited_text": "We use a vector called matrix profile to represent the distances between all subsequences and their nearest neighbors: Definition 4: A matrix profile P of time series T is a vector of the Euclidean distances between each subsequence Ti,m and its nearest neighbor (closest match) in time series T. Formally, P = [min(D1), min(D2),…, min(Dn-m+1)], where Di (1 ≤ i ≤  n-m+1) is the distance profile Di of time series T. We call this vector matrix profile because one (naïve and space-inefficient) way to compute it would be to compute the full distance matrix of all pairs of subsequences in time series T, and then evaluate the minimum value of each column. Fig. 3 illustrates both a distance profile and a matrix profile created on the same raw time series T."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 7,
+        "cited_text": "The ith element in the matrix profile tells us the Euclidean distance to the nearest neighbor of the subsequence of T, starting at i.  However, it does not tell us where that neighbor is located. This information is recorded in matrix profile index. Definition 9: A matrix profile index IAB of a similarity join set JAB is a vector of integers where IAB[i] = j if {A[i], B[j]} ∈ JAB. By storing the neighboring information this way, we can efficiently retrieve the nearest neighbor of A[i] by accessing the ith element in the matrix profile index."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 8,
+        "cited_text": "Definition 5: A matrix profile index I of time series T is a vector of integers: I=[I1, I2, … In-m+1], where Ii=j if di,j = min(Di). By storing the neighboring information this way, we can efficiently retrieve the nearest neighbor of query Ti,m by accessing the i th  element in the matrix profile index. To briefly summarize this entire section: we can create two meta time series, the matrix profile and the matrix profile index, to annotate a time series T with the distance and location of all its subsequences’ nearest neighbors within itself. As the reader may already have realized, the smallest pair of values in the matrix profile correspond to the best motif pair under the classic definition [11][14][5], and the corresponding values in the matrix profile index tell us where the motifs are located. Moreover, as both [23][14] argue, the top-k motifs, range motifs, and any other reasonable variant of motifs can trivially be computed given all the information in the matrix profile, the focus of the rest of this paper."
+      },
+      {
+        "source_id": "72d4e1ee-a813-4764-a33e-873a136e0c81",
+        "citation_number": 9,
+        "cited_text": "Note that if the query and all-subsequences set belong to the same time series, the distance profile must be zero at the location of the query, and close to zero just before and just after. Such matches are called trivial matches in the literature [18], and are avoided by ignoring an exclusion zone (shown as a gray region) of m/2 before and after the location of the query. We are interested in similarity join of all subsequences of a given time series. We define an all-subsequences set of a given time series as a set that contains all possible subsequences from the time series. The notion of all-subsequences set is purely for notational purposes. In our implementation, we do not actually extract the subsequences in this form as it would require significant time and space overhead."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 10,
+        "cited_text": "We assume that the distance is measured by Euclidean distance between z-normalized subsequences [22]. We are interested in finding the nearest neighbors of all subsequences in T, as the closest pairs of this are the classic definition of time series motifs [5][14]. Note that by definition, the i th  location of distance profile Di is zero, and very close to zero just before and after this location. Such matches are called trivial matches in the literature [14]. We avoid such matches by ignoring an “exclusion zone” of length m/4 before and after the location of the query. In practice, we simply set di,j to infinity (i-m/4 ≤ j ≤  i+m/4) while evaluating Di."
+      },
+      {
+        "source_id": "f839ffc6-7e2e-40d3-a595-00722e52fffc",
+        "citation_number": 11,
+        "cited_text": "Distance Profile We pre-calculate QTx,1 and QT1,x (x=1,2,3,…,n-m+1). Then iterate through i=2, 2, 3, …, n-m+1. d1,1 d1,2 … d1,n-m+1 d2,1 d2,2 … d2,n-m+1 … … … … di,1 di,2 … di,n-m+1 … … … … dn-m+1,1 dn-m+1,2 … dn-m+1,n-m+1 P1 P2 … Pn-m+1 min min min min Pi Pi Pi+1 … Pn-m+1 QTi,i QTi,i+1 … QTi,n-m+1 di,i di,i+1 … di,n-m+1 QTi-1,i-1 QTi-1,i … QTi-1,n-m QTi-1,n-m+1 di,i+1 di,i+2 … di,n-m+1 dmin … Second Kernel Launch: Evaluate Final Value of Pi min Update if Smaller First Kernel Launch: Update Pi to Pn-m+1"
+      },
+      {
+        "source_id": "9c4899fe-661c-44cf-8ddd-7144c572dd51",
+        "citation_number": 12,
+        "cited_text": "Name-Value Arguments Specify optional pairs of arguments as Name1=Value1,...,NameN=ValueN, where Name is the argument name and Value is the corresponding value. Name-value arguments must appear after other arguments, but the order of the pairs does not matter. Example: MP = matrixProfile(X,len,UseParallel=true) results in parallel processing. Length of exclusion zone on either side of the query starting position loc, specified as the number of data points to exclude. This argument prevents false matches with the query subsequence itself."
+      },
+      {
+        "source_id": "b13009b5-e695-431c-87df-e3bcb707671f",
+        "citation_number": 13,
+        "cited_text": "T, synthetic data D, a distance profile Q, query of length m m/4m/40 2,500 Note that |D| = |T|-|Q|+1 0 2,500 Note that |P| = |T|-|Q|+1 T, synthetic data P, a matrix profile Fig. 4. An illustration of the relationship between the distance profile, the matrix profile and the full distance matrix. For clarity, we note we do not actually create the full distance matrix, as this would have untenable memory requirements. The i th  element in the matrix profile P tells us the Euclidean distance from subsequence Ti,m to its nearest neighbor in time series T. However, it does not tell us where that neighbor is located. This information is recorded in a companion data structure called the matrix profile index."
+      }
+    ]
+  }
+}

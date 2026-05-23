@@ -1,0 +1,38 @@
+- **Matrix Profile (MP) Alapfogalmak**
+    - **Idősor (Time Series - $n$ hosszúságú)**: Valós számok sorozata [law2019_paper.pdf: 15, yeh2016_paper.pdf: 31, yeh2018_paper.pdf: 180, zhu2016_paper.pdf: 599].
+    - **Részsorozat (Subsequence - $m$ hosszúságú)**: Az idősor egy folytonos szakasza [stumpy_documentation.url: 4, yeh2016_paper.pdf: 31, yeh2018_paper.pdf: 181, zhu2016_paper.pdf: 599].
+    - **Euklideszi távolság (z-normalizált)**: A részsorozatok összehasonlításának alapvető mértéke [stumpy_documentation.url: 4-5, yeh2016_paper.pdf: 32, yeh2018_paper.pdf: 181, zhu2016_paper.pdf: 600].
+    - **Távolságprofil (Distance Profile)**: Egy adott lekérdező részsorozat és az idősor összes többi részsorozata közötti távolságokat tartalmazó vektor [stumpy_documentation.url: 5, yeh2016_paper.pdf: 32, yeh2018_paper.pdf: 182, zhu2016_paper.pdf: 600].
+    - **Triviális egyezés (Trivial match)**: Egy részsorozat önmagával vagy közvetlen szomszédaival való egyezése, amelyet ki kell zárni [stumpy_documentation.url: 5, yeh2016_paper.pdf: 33, yeh2018_paper.pdf: 183, zhu2016_paper.pdf: 601].
+    - **Kizárási zóna (Exclusion Zone)**: A triviális egyezések elkerülésére szolgáló tartomány, hossza általában $m/2$ vagy $m/4$ [stumpy_documentation.url: 12, yeh2016_paper.pdf: 33, yeh2018_paper.pdf: 183, zhu2016_paper.pdf: 601].
+
+- **Matrix Profile Struktúra**
+    - **Matrix Profile ($P$ vektor)**: Minden részsorozathoz eltárolja a legközelebbi nem-triviális szomszéd távolságát [stumpy_documentation.url: 7, law2019_paper.pdf: 15, yeh2016_paper.pdf: 36, yeh2018_paper.pdf: 184, zhu2016_paper.pdf: 601].
+    - **Matrix Profile Index ($I$ vektor)**: Eltárolja a legközelebbi szomszéd (Nearest Neighbor) pozícióját (indexét) [yeh2016_paper.pdf: 40, yeh2018_paper.pdf: 188, zhu2016_paper.pdf: 604].
+
+- **Alapvető Algoritmusok**
+    - **MASS (Mueen's ultra-fast Algorithm for Similarity Search)**: FFT-alapú szubrutin a távolságprofilok ultra-gyors kiszámításához [yeh2016_paper.pdf: 43, yeh2018_paper.pdf: 199, zhu2016_paper.pdf: 607].
+        - **FFT-alapú skaláris szorzat (Sliding Dot Product)**: A MASS lelke, $O(n \log n)$ komplexitással [yeh2016_paper.pdf: 45, yeh2018_paper.pdf: 202, zhu2016_paper.pdf: 610].
+    - **STAMP (Scalable Time series Anytime Matrix Profile)**: Véletlenszerű mintavételezésen alapuló "anytime" algoritmus [yeh2016_paper.pdf: 50, yeh2018_paper.pdf: 209, zhu2016_paper.pdf: 581, 606].
+    - **STOMP (Scalable Time series Ordered-search Matrix Profile)**: Rendezett keresésű algoritmus, $O(n^2)$ komplexitással [stumpy_documentation.url: 10, yeh2018_paper.pdf: 117, 233, zhu2016_paper.pdf: 583, 607].
+        - **GPU-STOMP**: Hardveresen gyorsított változat [stumpy_documentation.url: 10, yeh2018_paper.pdf: 185, zhu2016_paper.pdf: 583, 616].
+    - **SCRIMP / SCRIMP++**: Nagyon gyors közelítő és egzakt Matrix Profile számítás [stumpy_documentation.url: 1, yeh2018_paper.pdf: 1, 168].
+    - **STAMPI / STOMPI**: Inkrementális algoritmusok streaming adatok valós idejű feldolgozásához [stumpy_documentation.url: 1, yeh2016_paper.pdf: 60-61, yeh2018_paper.pdf: 240-241].
+
+- **Variánsok és Kiterjesztések**
+    - **Multidimenzionális Matrix Profile ($m$STAMP, $m$STOMP)**: Több párhuzamos idősor közötti összefüggések (altér-hasonlóság) keresése [yeh2018_paper.pdf: 118, 189, 258].
+    - **STUMPY**: Python könyvtár a Matrix Profile hatékony kiszámítására [stumpy_documentation.url: 10, law2019_paper.pdf: 15].
+
+- **Főbb Alkalmazások**
+    - **Motívum keresés (Motif Discovery)**: Ismétlődő minták azonosítása (globális minimumok) [law2019_paper.pdf: 15-16, yeh2016_paper.pdf: 21, 85, yeh2018_paper.pdf: 281, zhu2016_paper.pdf: 580, 605].
+    - **Diszkord keresés (Discord / Anomaly Discovery)**: Anomáliák, ritka események keresése (globális maximumok) [stumpy_documentation.url: 7-8, law2019_paper.pdf: 16, yeh2016_paper.pdf: 88, yeh2018_paper.pdf: 151].
+    - **Szemantikai szegmentáció (Semantic Segmentation - FLUSS)**: Az idősor állapotváltozásainak detektálása [stumpy_documentation.url: 1, law2019_paper.pdf: 16, yeh2016_paper.pdf: 98, yeh2018_paper.pdf: 115, 516].
+    - **Shapelet felfedezés**: Osztályozáshoz használt jellegzetes alakzatok kinyerése [law2019_paper.pdf: 16, yeh2016_paper.pdf: 95, yeh2018_paper.pdf: 115, 551].
+    - **Idősor láncok (Time Series Chains)**: Időben fejlődő, egymást követő minták azonosítása [stumpy_documentation.url: 1, law2019_paper.pdf: 16, yeh2018_paper.pdf: 115, 556].
+
+- **Jellemzők és Előnyök**
+    - **Egzakt**: Nem tartalmaz téves negatívokat vagy elutasításokat [yeh2016_paper.pdf: 24, yeh2018_paper.pdf: 162, zhu2016_paper.pdf: 588].
+    - **Paramétermentes**: Nem igényel bonyolult hangolást a felhasználótól [yeh2016_paper.pdf: 24, 29, yeh2018_paper.pdf: 163, 177, zhu2016_paper.pdf: 644].
+    - **Helytakarékos**: Csak $O(n)$ extra memóriát igényel [yeh2016_paper.pdf: 25, yeh2018_paper.pdf: 163, zhu2016_paper.pdf: 592].
+    - **Determinisztikus**: A futási idő előre pontosan kiszámítható [yeh2018_paper.pdf: 166, 250, 252].
+    - **Skálázható**: Akár százmillió adatpont felett is alkalmazható [zhu2016_paper.pdf: 577, 583].

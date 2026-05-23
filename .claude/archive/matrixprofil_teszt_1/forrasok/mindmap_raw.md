@@ -1,0 +1,115 @@
+# Mátrix Profil: Elmélet és Alkalmazások
+
+## Mátrix Profil, 7 gyermek
+  - Áttekintés, 6 gyermek
+    - Alapvető Eszköz Idősor Elemzéshez
+    - Rendkívül Hatékony
+    - Kulcsfontosságú Funkciók: Motívumok, Anomáliák Keresése
+    - Nincs Szükség Ablakméretekre, Küszöbértékekre
+    - Szilárd, Több Tartományban (pl. Gyártás, EKG, Földrengés)
+    - Hivatalos MATLAB Primitív
+  - Alapfogalmak és Definíciók, 6 gyermek
+    - Idősor (T)
+    - Alsor (Ti,m), 2 gyermek
+      - Hossz m
+      - Kezdőpozíció i
+    - Távolság Profil (D), 3 gyermek
+      - Euclidean Távolságok Z-normalizált Alsorokhoz
+      - Meta Idősor
+      - Triviális Egyezések Elkerülése: Kizárási Zóna (m/4)
+    - Mátrix Profil (P), 4 gyermek
+      - Vektor: Minden Alsor Legközelebbi Szomszédjának Euclidean Távolsága
+      - Element-wise Minimum Távolság Profilokból
+      - Meta Idősor
+      - Tulajdonságok:, 4 gyermek
+        - Legmagasabb Pont: Idősor Diszkordia
+        - Legalacsonyabb Pontok: Legjobb Motívum Pár
+        - Variancia: Komplexitás Mértéke
+        - Hisztogram: Sűrűségbecslés
+    - Mátrix Profil Index (I), 2 gyermek
+      - Vektor: Legközelebbi Szomszéd Helye (indexe)
+      - Hatékony Legközelebbi Szomszéd Lekérdezés
+    - Teljes Távolság Mátrix: Szimmetrikus, de Memóriaigényes
+  - Előnyök és Jellemzők, 10 gyermek
+    - Pontos: Nincs Hamis Pozitív/Negatív
+    - Egyszerű és Paramétermentes
+    - Térhatékony: O(n) Memóriaigény
+    - Anytime Algoritmusok Támogatása (STAMP)
+    - Inkrementálisan Karbantartható (STAMPI)
+    - Nem Igényel Hasonlósági/Távolsági Küszöböt
+    - Hardver Kihasználás: Párhuzamosítható
+    - Időkomplexitás Független az Alsor Hosszától (m)
+    - Determinisztikus Időkomplexitás
+    - Hiányzó Adatok Kezelése
+  - Algoritmusok (Számítási Módok), 5 gyermek
+    - MASS (Mueen’s ultra-fast Algorithm for Similarity Search), 3 gyermek
+      - O(n log n) Időkomplexitás
+      - FFT-t Használ a Pontszorzatokhoz
+      - Kiszámítja az Egész Távolság Profilt
+    - STAMP (Scalable Time series Anytime Matrix Profile), 5 gyermek
+      - O(n^2 log n) Időkomplexitás
+      - Távoli Hasonlósági Csatlakozásokra (All-Pairs Similarity Joins)
+      - Anytime Tulajdonság: Randomizált Keresési Sorrend
+      - Konvergencia és Minőség (RMSE)
+      - Inkrementális Frissítés (STAMPI): O(n log n) lépésenként
+    - STOMP (Scalable Time series Ordered-search Matrix Profile), 4 gyermek
+      - O(n^2) Időkomplexitás (O(log n) gyorsulás STAMP-hoz képest)
+      - Rendezett Keresés
+      - Kihasználja a Pontszorzatok Rekurzív Képletét (O(1) frissítés)
+      - Optimális Általános Esetben
+    - GPU-STOMP, 5 gyermek
+      - STOMP Portolva GPU-ra
+      - Adatpárhuzamos Számítás
+      - Több GPU Támogatása (k-szoros gyorsulás)
+      - További Gyorsítás Szimmetria Kihasználásával
+      - Példa: 100 Millió Hosszú Idősor 12 Nap Alatt (GPU-STOMP) vs. 25.5 Év (STAMP)
+    - Összehasonlítás Konkurens Algoritmusokkal (Quick-Motif, MK)
+  - Alkalmazások és Felhasználási Területek, 9 gyermek
+    - Motívum Felfedezés, 7 gyermek
+      - Ismétlődő Alsorok
+      - Leggyorsabb Ismert Algoritmus
+      - Nem Érzékeny az Adatok Strukturájára/Zajszintjére
+      - Inkrementálisan Felfedezhető
+      - Földrengés Motívumok (Ismétlődő Földrengés Sorozatok)
+      - Szeizmológia: Pontos Eredmények, Paramétermentes
+      - Állati Viselkedés (pingvin telemetria: merülési minták)
+    - Diszkordia Felfedezés (Anomália Detektálás), 5 gyermek
+      - Legnagyobb Távolság a Legközelebbi Szomszédtól
+      - Újdonság/Anomália Detektor
+      - Példa: Szívritmuszavar (EKG)
+      - Inkrementálisan Felfedezhető
+      - Adatközpont Hűtők (Figure 1)
+    - Hasonlósági Csatlakozások (Similarity Joins), 3 gyermek
+      - Legközelebbi Szomszédok Lekérése Minden Objektumhoz
+      - TSAPSS (Time Series subsequences All-Pairs-Similarity-Search)
+      - Példa: Kémiai Finomító Bojler (153.8 napról 6.3 órára redukálva)
+    - Shapelet Felfedezés (Osztályozás), 3 gyermek
+      - Osztályt Képviselő Alsorok
+      - Szupervizált Motívumok
+      - Jelentős Gyorsulás a Brute Force-hoz Képest
+    - Szemantikai Szegmentálás, 4 gyermek
+      - Adatkészlet Felosztása Atomikus Viselkedésekre
+      - Adatfüggetlen Megközelítés
+      - A Mátrix Profil Index Információt Használ (Szomszédos Pontok Áthidalása)
+      - Példa: Emberi Tevékenység (járás, futás)
+    - Sűrűség Becslés, 1 gyermek
+      - Mátrix Profil Értékek Hisztogramja
+    - Idősor Különbség (TSD), 3 gyermek
+      - Mi történik TA-ban, ami nem TB-ben?
+      - JAB Profil Maximum Értéke
+      - Példa: Harry Potter Hangoskönyvek Különbségei
+    - Közös Alsorok (Zenei Mintavétel), 2 gyermek
+      - Két Idősor Közös Mintáinak Felfedezése
+      - Példa: Queen/David Bowie 'Under Pressure' és Vanilla Ice 'Ice Ice Baby'
+    - Egyéb Idősor Adatbányászati Feladatok
+  - Matrix Profile Sorozat (Példák), 3 gyermek
+    - Matrix Profile I (2016)
+    - Matrix Profile II (2016)
+    - Matrix Profile XXX: MADRID (2023) - Minden Hosszúságú Anomáliák
+  - Források és Eszközök, 6 gyermek
+    - UCR Matrix Profile Weboldal (cs.ucr.edu/~eamonn/MatrixProfile.html)
+    - Kód és Adatkészletek Elérhetők
+    - Közösségi Implementációk (Python, R, Golang)
+    - STUMPY (Python MP Könyvtár, Sean Law)
+    - SCAMP (Leggyorsabb CPU/GPU MP Számítás, Zach Zimmerman)
+    - Khiva Könyvtár (GPU/CPU Támogatás, shapelets.io)

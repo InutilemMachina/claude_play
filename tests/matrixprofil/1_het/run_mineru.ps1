@@ -1,0 +1,1 @@
+﻿& "C:\Users\lasz\miniconda3\Scripts\conda.exe" run -n mineru python "C:\Users\lasz\claude_play\scripts\mineru_pdf.py" "C:\Users\lasz\claude_play\matrixprofil_teszt_2\1_het\forrasok\" --output "C:\Users\lasz\claude_play\matrixprofil_teszt_2\1_het\forrasok\kepek\"
