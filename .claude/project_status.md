@@ -83,47 +83,10 @@ Minden pitfall → [pitfalls.md](pitfalls.md)-be ment; skill javítások → az 
 | pptx_gyarto.py LaTeX | ❌ | python-pptx nem tud LaTeX-et -- elfogadott korlát |
 | Képek | ❌ | PDF-ek hiányoztak → placeholder rendszer (kepek_workflow.md) |
 
-# 4. Act (rendszerszintű változtatások)
-
-Elvégzett rendszerváltoztatások (PDCA Act fázis):
-
-| Dátum | Változtatás | Érintett fájl |
-|-------|------------|---------------|
-| 2026-05-22 | 01_nlm_query_runner skill megírva (01_html_to_md helyett) | skills/01_nlm_query_runner.md |
-| 2026-05-22 | 04_citations_maker B opció: UUID-dedup + citations_renumber.py | skills/04_citations_maker.md |
-| 2026-05-22 | 03 blockquote whitespace fix beépítve | skills/03_excerpt_block_maker.md |
-| 2026-05-22 | NLM ékezet-probléma dokumentálva | nlm_integration.md + pitfalls.md §2 |
-| 2026-05-23 | Workspace refaktor: tests/, templates/, archívum | CLAUDE.md v2.0 |
-| 2026-05-23 | kepek_workflow.md v2.0: design + operatív egyesítve | kepek_workflow.md |
-| 2026-05-23 | pipeline.md v2.0: aktuális lépések, IO táblázat | pipeline.md |
-
-# 5. Architekturális megjegyzések
-
-## 5.1. NLM notebook granularitás
-
-Döntés (2026-05-22): Egy NLM notebook = egy hét anyaga. Így Prompt B és forrás-UUID-ek
-per-hét izoláltak, az atsorszámozás egyértelmű.
-
-## 5.2. Forrásgyűjtés naming
-
-| Típus | Kód | Példa |
-|:------|:----|:------|
-| Cikk | paper | yeh2016_paper.pdf |
-| Könyv | book | oppenheim1999_book.pdf |
-| Könyvfejezet | chapter | smith2020_chapter.pdf |
-| Weboldal | webpage | ucr2024_webpage.html |
-| Dia | slides | zhu2016_slides.pdf |
-
-Azonos szerző-év: yeh2016a_paper.pdf, yeh2016b_paper.pdf.
-
-## 5.3. du_template.pptx bypass
-
-A pptx_gyarto.py kezeli ha a template hiányzik (default python-pptx sablon).
-Bypass dokumentálva: templates/du_template.pptx elhelyezve, de tartalmilag üres.
-
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
 | 2026-05-22 | 1.0 | Létrehozva: Do szekciók, következő lépések |
 | 2026-05-23 | 2.0 | PDCA struktúra: Plan/Do/Check/Act; tanulságok táblázatba rendezve; pipeline_next_steps.md beolvasztva |
+| 2026-05-23 | 2.1 | §4 Act + §5 Arch törölve (git history + CLAUDE.md/pipeline.md lefedi) |

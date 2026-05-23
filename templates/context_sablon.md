@@ -7,6 +7,7 @@ description: Új tantárgynál másolandó sablon. Kitöltendő: alapadatok, tem
 ---
 # CONTEXT.MD — TANTÁRGY SABLON
 _Másold ide: [TantargyNeve]/_claude/context.md_
+# QUESTION: ki csinálja?
 
 # 1. Alapadatok
 - **Tantárgy neve:**

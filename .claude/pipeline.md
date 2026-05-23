@@ -48,6 +48,8 @@ flowchart TD
     NEXT -->|nem| END(["✅ Kész"])
 ```
 
+💡 **Egy NLM notebook = egy hét anyaga.** Prompt B és forrás-UUID-ek per-hét izoláltak, sorszámozás egyértelmű.
+
 # 2. IO táblázat
 
 | Lépés | Input | Output | Felelős |
@@ -96,20 +98,7 @@ Részletek: [kepek_workflow.md](kepek_workflow.md)
 | 04_citations_maker után | 👤 jóváhagyva | 05_mindmap_manager indul |
 | Bármelyik hiányzik | -- | Leáll, jelzi mi hiányzik |
 
-# 6. Heti outputok
-
-| Fájl | Lépés |
-|------|-------|
-| forrasok/nlm_q*_raw.txt | 01_nlm_query_runner |
-| forrasok/figure_catalog.json | 00c_mineru_extractor |
-| N_Szozedet.md | 04_citations_maker |
-| N_Mindmap.md | 05_mindmap_manager |
-| N_Jegyzet.md | 06 + 07_typesetter |
-| N_Prezentacio.md + .pptx 🐍 | 08_presentation_maker |
-| N_Kerdesek.md | 09_question_bank_collector |
-| bsc/ 🐍 | 10_bsc_filter |
-
-# 7. MCP / automatizálás
+# 6. MCP / automatizálás
 
 Az aktív megoldás: `notebooklm-mcp-cli` (Python CLI) Windows-MCP PowerShell hídon.
 Részletek és notebook-lista: [nlm_integration.md](nlm_integration.md)

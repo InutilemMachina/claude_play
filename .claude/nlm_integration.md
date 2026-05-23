@@ -1,12 +1,10 @@
 ﻿---
 title: NLM-Claude Integrációs Útmutató
 type: meta
-tags: [meta, reference, integration]
-updated: 2026-05-21 (rev2)
-description: Tesztelt, működő NLM-Claude architektúra. Alapja: notebooklm-mcp-cli Python CLI, híd a Windows-MCP PowerShell toolon keresztül. + Export-Tool Studio workflow.
----
-NOTE ez nem egy aktívan használt fájl
-
+status: active
+version: 2.1
+updated: 2026-05-23
+description: Tesztelt NLM-Claude architektúra. notebooklm-mcp-cli Python CLI, Windows-MCP PowerShell hídon. Export-Tool Studio workflow.
 # NLM-Claude Integrációs Útmutató
 
 # 1. Összefoglalás
@@ -23,7 +21,7 @@ Claude (Cowork)
 
 Tesztelve: 2026-05-21. Státusz: ✅
 
-**Kritikus lelet (MP teszt, 2026-05-21):** A Configure Chat Custom Instructions (Prompt B) a CLI-lekérdezésekre is hat. Prompt B aktív notebookban a JSON válasz `citations` és `references` mezői teljes forrásazonosítókkal és idézett szövegrészletekkel töltődnek fel. Prompt B nélkül ezek üresek.
+**Kritikus lelet:** Prompt B (Configure Chat) a CLI-lekérdezésekre is hat.
 
 | JSON mező | Prompt B nélkül | Prompt B aktív |
 |---|---|---|
@@ -36,8 +34,6 @@ Tesztelve: 2026-05-21. Státusz: ✅
 - `mcpServers` kulcs a `claude_desktop_config.json`-ban **Cowork-ben nem aktív** (csak Claude Code-ban olvasódik).
 - A `notebooklm-mcp.exe` sztenderd MCP szerver indításként nem jelenik meg a Cowork session-ben.
 - A `nlm query notebook` CLI-nek nincs `--system` vagy `--instructions` flagje; rendszerszintű prompt csak Configure Chat-en keresztül adható.
-
----
 
 # 2. Telepített eszköz: `notebooklm-mcp-cli`
 
@@ -68,8 +64,6 @@ nlm login
 # Edge megnyílik → Google bejelentkezés → OK után bezárja magát
 nlm notebook list  # ellenőrzés
 ```
-
----
 
 # 3. Claude-ból való használat (Cowork session)
 
@@ -116,8 +110,6 @@ A `nlm` CLI a pipeline lépések nagy részét közvetlenül végrehajtja:
 | Pipeline futtatás | `nlm pipeline ...` |
 | Cross-notebook | `nlm cross ...` |
 
----
-
 # 4. Studio outputok exportálása (Export-Tool)
 
 ## 4.1. Eszköz
@@ -163,8 +155,6 @@ Studio → Data Tables → ceruza ikon → Prompt C sablon → Generate
 
 **Névadás:** Az NLM heurisztikus nevet ad (pl. "Strukturált Forrásáttekintő Táblázat..."). Nem szükséges átnevezni -- Claude a tartalmat dolgozza fel.
 
----
-
 # 5. Notebook-lista (2026-05-21)
 
 | ID | Cím | Források | Prompt B |
@@ -182,8 +172,6 @@ Studio → Data Tables → ceruza ikon → Prompt C sablon → Generate
 
 Alias beállítása: `nlm alias set <rövidnév> <ID>`
 
----
-
 # 6. Nyitott kérdések
 
 - `nlm setup add "Claude Code"` -- tesztelendő, ha Claude Code-ot is használunk
@@ -196,5 +184,8 @@ Alias beállítása: `nlm alias set <rövidnév> <ID>`
 
 # Változásjegyzék
 
-- 2026-05-21 -- Fájl létrehozva, tesztelt architektúra dokumentálva; PyPI és GitHub hivatkozás hozzáadva
-- 2026-05-21 (rev2) -- Kritikus lelet: Prompt B hat a CLI-re (MP teszt, 28 citation); 1.1 frissítve; 1.2 kiegészítve CLI flag-limitációval; 3.1 JSON struktúra frissítve Prompt B-s példával; 4. fejezet hozzáadva (Export-Tool, mindmap workflow, adattáblázat workflow); notebook-lista Prompt B státusszal bővítve
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-21 | 1.0 | Létrehozva; tesztelt architektúra, PyPI/GitHub hivatkozások |
+| 2026-05-21 | 2.0 | Kritikus lelet: Prompt B hat a CLI-re; Export-Tool + notebook-lista hozzáadva |
+| 2026-05-23 | 2.1 | YAML fix; NOTE és --- elválasztók eltávolítva; §1.1 tömörítve |
