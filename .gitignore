@@ -1,0 +1,31 @@
+# Nagy bináris forrásanyagok -- nem kell verziókövetni
+*.pdf
+*.pptx
+*.docx
+*.ppt
+*.ppt
+*.png
+*.jpg
+*.jpeg
+
+# Kivétel: master sablon és brand assets
+!templates/du_template.pptx
+!templates/assets/
+
+# MinerU outputok (nagy, generált)
+**/kepek/
+**/mineru_output/
+**/auto/
+
+# Backup fájlok
+*.bak
+
+# Logfájlok
+*.log
+mineru_err.txt
+mineru_log.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
