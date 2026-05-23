@@ -11,24 +11,51 @@ description: Master index. Naming, struktúra, fájlkatalógus, PDCA protokoll.
 
 # 1. Kommunikáció
 
-| Emoji | Jelentés | | Emoji | Ki | Mikor |
-|-------|----------|-|-------|----|-------|
-| ✅ | KÉSZ | | 😎 | Felhasználó | Döntés, checkpoint |
-| ⚙️ | WIP | | 🤖 | Claude | Pipeline 01-10 |
-| ❌ | NOK | | 🐍 | Python script | MinerU, pptx |
-| ⚠️ | VIGYÁZAT | | 🔌 | NLM CLI | PowerShell hídon |
-| 🛑 | Checkpoint -- 😎 jóváhagyás kell | | 💻 | Bash | Fájlműveletek |
-| 📎 | Link (belső) / 🔗 Link (külső) | | | | |
+## 1.1. Emoji státuszok
+
+| Emoji | Jelentés |
+|-------|----------|
+| 🔲 | TODO |
+| ✅ | KÉSZ / OK |
+| ⚙️ | FÉLKÉSZ / WIP |
+| ❌ | NOK / HIÁNYZIK |
+| ❔ | KÉRDÉS / NYITOTT |
+| ⚠️ | VIGYÁZAT / FONTOS |
+| 🚦 | CHECKPOINT (🔴 blokkolt / 🟢 mehet) |
+| ⚡ | HIBA / inkonzisztencia |
+| 💬 | NOTE |
+| 💡 | IDEA |
+| 📎 | LINK (projekten belül) |
+| 🔗 | LINK (projekten kívülre) |
+
+## 1.2. Szerepkörök
+
+| Emoji | Ki | Mikor |
+|-------|----|-------|
+| 😎 | Felhasználó | Manuális teendő, döntés, checkpoint jóváhagyás |
+| 🤖 | Claude | Pipeline lépések (01-10) |
+| 🐍 | Python script | MinerU, pptx, audit |
+| 🔌 | NLM CLI | NLM lekérdezések (Windows-MCP PowerShell hídon) |
+| 💻 | Bash/terminal | Fájlműveletek, szkript-futtatás |
 
 # 2. Nevezéktan
 
-**Fejléc:** `# 1. Főcím` / `## 1.1. Alcím` -- sorszám kötelező, utolsó szám után pont + szóköz.
+## 2.1. Fejléc konvenció
 
-**Fájlnév:** szóköz tilos (alulvonás); végtermék: **magyar**; meta/skill: **angol** (tartalom: magyar); Python: **angol**.
+- Dokumentum címe: `# Nagy Kezdőbetűk`
+- Első szint: `# 1. Főcím első betű nagy`
+- Második szint: `## 1.1. Alcím első betű nagy`
+- Sorszámozás kötelező; utolsó szám után `. `; `#` után szóköz.
+- Nincs `---` vízszintes vonal (kivétel: prezentációk, YAML frontmatter).
 
-**Heti outputok** (`N` = hét): `N_Szozedet.md` · `N_Mindmap.md` · `N_Jegyzet.md` · `N_Prezentacio.md` · `N_Kerdesek.md`
+## 2.2. Fájlnév konvenció
 
-**Forrás PDF-ek:** `vezeteknev2024_tipus.pdf` (típus: paper / book / chapter / webpage / slides); azonos: `vezeteknev2024a_tipus.pdf`
+- Tananyag (végtermék): mindig **magyar** nyelv
+- Meta és skill fájlok neve: **angol**; tartalmuk: **magyar**
+- Python kódok: **angol** (name + content); magyarázat: **magyar**
+- Heti outputok (`N` = hét száma): `N_Szozedet.md`, `N_Mindmap.md`, `N_Jegyzet.md`, `N_Prezentacio.md`, `N_Kerdesek.md`
+- Szóköz tilos -- alulvonás
+- Forrás PDF-ek: `vezeteknev2024_tipus.pdf`; azonos esetben: `vezeteknev2024a_tipus.pdf`
 
 # 3. Mappastruktúra
 
