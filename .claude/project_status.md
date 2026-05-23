@@ -25,6 +25,16 @@ _Frissítve: 2026-05-23_
 
 # 2. Do (elvégzett munkák)
 
+## 2026-05-23 -- Meta-fájlok konszolidáció (2. kör)
+
+- ✅ .claude/CLAUDE.md törölve -- tartalom root CLAUDE.md v3.0-ban
+- ✅ pipeline.md: §6 Heti outputok törölve (duplikátum); NLM granularitás note + Nyitott kérdések szekció hozzáadva
+- ✅ project_status.md: §4 Act + §5 Arch törölve (git history + CLAUDE.md lefedi)
+- ✅ nlm_integration.md v2.1: YAML fix, --- elválasztók eltávolítva, Változásjegyzék táblává
+- ✅ Nyitott kérdések elosztva: 06_notes_collector, 10_bsc_filter, 00b_nlm_notebook_setup, pipeline.md
+- ✅ context_sablon.md: C00-C08 oszlopok → 00b/01/02/03-05/06-07/08/09/10
+- ✅ git commit: 2 commit, összesen 329 sor törlés + 150 hozzáadás
+
 ## 2026-05-23 -- Workspace rendrakás
 
 - ✅ Mappastruktúra refaktor: tests/, templates/, .claude/ konszolidáció
