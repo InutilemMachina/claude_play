@@ -90,9 +90,11 @@ Pipeline részletek és NLM parancsok: ld. a fenti linkeken.
 | # | Kérdés | Hol részletesen |
 |:--|:-------|:----------------|
 | 1 | Tantárgy .claude/: másolás vs hivatkozás éles tantárgynál? | Architektúra |
-| 2 | Nagy témák (3+ hét): hogyan osztja meg a forrást több NLM notebook? | [pipeline.md](pipeline.md) |
-| 3 | Export-Tool Chrome-bővítmény automatizálható-e Claude in Chrome-mal? | [skills/00b](skills/00b_nlm_notebook_setup.md) |
-| 4 | pymupdf telepítve a mineru env-be? Ha igen, mire? | Környezet |
+| 2 | pymupdf telepítve a mineru env-be? Ha igen, mire? | Környezet |
+| 3 | Pedagógiai output szekciók kötelező tartalma, összefoglaló blokk formátuma | [skills/06_notes_collector.md](.claude/skills/06_notes_collector.md) |
+| 4 | Nagy témák (3+ hét) NLM notebook felosztás | [.claude/pipeline.md](.claude/pipeline.md) |
+| 5 | Export-Tool automatizálás, NLM CLI skill-ek | [skills/00b_nlm_notebook_setup.md](.claude/skills/00b_nlm_notebook_setup.md) |
+| 6 | bsc/ struktúra lapítása | [skills/10_bsc_filter.md](.claude/skills/10_bsc_filter.md) |
 
 # Változásjegyzék
 

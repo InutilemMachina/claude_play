@@ -260,6 +260,12 @@ nlm chat configure <id>  # aktualis beallitas megjelenitese
 → [pitfalls.md §2.4](../pitfalls.md) -- Multiline prompt: @'...'@ kötelező
 → [pitfalls.md §2.3](../pitfalls.md) -- PowerShell query timeout
 
+# Nyitott kérdések
+
+- Export-Tool Chrome-bővítmény automatizálható-e Claude in Chrome-mal? (Studio Gondolattérkép + Data Tables export)
+- `nlm setup add "Claude Code"` -- tesztelendő
+- `nlm skill install` -- elérhető skill-ek listája?
+
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |

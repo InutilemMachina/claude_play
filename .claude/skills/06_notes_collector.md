@@ -99,6 +99,11 @@ Csak a fejléc-alapú tartalomjegyzék elegendő — kulcsszavak nélkül.
 
 Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
 
+# Nyitott kérdések
+
+- Pedagógiai output szekciók: mi a kötelező tartalom? Tanulási célok, főszöveg, kulcsfogalmak, összefoglaló, kérdések -- mennyi, milyen formátumban?
+- Összefoglaló blokk: szürke háttér MD-ben lehetséges-e? (GFM `> [!NOTE]` callout megoldás?)
+
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |

@@ -16,11 +16,11 @@ _Másold ide: [TantargyNeve]/_claude/context.md_
 - **Célcsoport:** (szak, év)
 
 # 2. Tematika és pipeline státusz
-| Hét | Téma | NLM notebook | Input | NLM01 | C00 | C01 | C02 | C03-C05 | C06 | C07 | C08 |
-|-----|------|--------------|-------|-------|-----|-----|-----|---------|-----|-----|-----|
-| 1 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 2 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 3 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Hét | Téma | NLM notebook | 00b✓ | 01✓ | 02✓ | 03-05 | 06-07 | 08 | 09 | 10 |
+|-----|------|--------------|------|-----|-----|-------|-------|-----|-----|-----|
+| 1 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 2 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 3 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
 
@@ -51,11 +51,11 @@ _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
 - **Célcsoport:** Gépészmérnök BSc/MSc, 3-4. év
 
 ## 2. Tematika és pipeline státusz
-| Hét | Téma | NLM notebook | Input | NLM01 | C00 | C01 | C02 | C03-C05 | C06 | C07 | C08 |
-|-----|------|--------------|-------|-------|-----|-----|-----|---------|-----|-----|-----|
-| 1 | Hőkamerás diagnosztika | Termografia_NLM | ✅ | ✅ | ✅ | ✅ | ✅ | ⚙️ | ❌ | ❌ | ❌ |
-| 2 | Termográfia mérési módszerek | Termografia_NLM | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 3 | Rezgésdiagnosztika | Rezges_NLM | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Hét | Téma | NLM notebook | 00b✓ | 01✓ | 02✓ | 03-05 | 06-07 | 08 | 09 | 10 |
+|-----|------|--------------|------|-----|-----|-------|-------|-----|-----|-----|
+| 1 | Hőkamerás diagnosztika | Termografia_NLM | ✅ | ✅ | ✅ | ✅ | ⚙️ | ❌ | ❌ | ❌ |
+| 2 | Termográfia mérési módszerek | Termografia_NLM | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 3 | Rezgésdiagnosztika | Rezges_NLM | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## 3. Célok
 - BSc szint: Diagnosztikai módszerek felismerése, alapvető mérési elvek ismerete, tipikus hibamódok azonosítása.

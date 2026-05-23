@@ -103,6 +103,10 @@ Részletek: [kepek_workflow.md](kepek_workflow.md)
 Az aktív megoldás: `notebooklm-mcp-cli` (Python CLI) Windows-MCP PowerShell hídon.
 Részletek és notebook-lista: [nlm_integration.md](nlm_integration.md)
 
+# Nyitott kérdések
+
+- Nagy témák (3+ hetes anyag): hogyan osztja meg a forrást több NLM notebook? Több notebook = párhuzamos Q1-Q4, vagy szekvenciális?
+
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |

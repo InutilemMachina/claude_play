@@ -40,6 +40,10 @@ Az adott hét összes outputja kész → BSc export → `bsc/` feltöltődik.
 
 Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
 
+# Nyitott kérdések
+
+- bsc/ struktúra lapítása: N_Mindmap.md + N_Mindmap_bsc.md egyszintű forma -- jelenleg bsc/ almappában vannak a fájlok.
+
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
