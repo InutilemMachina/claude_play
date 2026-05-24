@@ -81,3 +81,7 @@ A self-attention log ezentúl kettős monitort futtat:
 | 015 | Self-check 08-10 false alarm | SZINT tag a Prezentációban nem elvárt -- check szabály hibás volt. Tényleges output OK. |
 | 016 | PPTX generálás | Status 1 a konzolon, de fájl kész (105KB). Gyökérok: encoding hiba a print() outputban. |
 | 017 | BSc filter | Prezentáció: -15 sor (MSc dia kiszűrve), Kérdések: -17 sor (MSc fejezet). |
+
+| 018 | SingleFile CLI Windows-MCP-ből | FAIL: CDP browser spawn blokkolva; gyökérok: process isolation; elfogadott korlát |
+| 019 | SingleFile architektúra tanulság | Lokális HTML NLM-be nem kell -- URL kell; HTML archiválás + MinerU képkinyeréshez fontos |
+| 020 | Pipeline végső státusz | 00b→10 PASS; 3 commit (main branch); 3 új pitfall dokumentálva |

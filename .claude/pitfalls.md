@@ -278,3 +278,22 @@ python scripts/mineru_pdf.py 1_het/forrasok/ --output 1_het/forrasok/kepek/
 **Megoldás:** re.sub rugalmas mintával -- (---\n+)(# 1_Jegyzet) -- 1 vagy több sortörés elfogadása.
 
 **Státusz:** Javítva 2026-05-24.
+
+## SingleFile CLI -- Windows-MCP-ből nem futtatható (2026-05-24)
+
+**Tünet:** `single-file <url> out.html` futtatás Windows-MCP PowerShell-hídon keresztül: `Process exited with code 2147483651` (0x80000003 STATUS_BREAKPOINT).
+
+**Gyökérok:** A Windows-MCP sandboxolt folyamatkörnyezetben a headless Chromium (CDP) indítása blokkolva van. Nem Edge-konfiguráció, hanem process isolation probléma.
+
+**Mi NEM működik Claude-ból:**
+- `single-file <url>` bármilyen `--browser-args` kombinációval
+- `--browser-headless=false` sem segít
+- Docker alternatíva: nem telepített
+- `--browser-args` JSON-parse bug: `--no-sandbox` dashes = "negative number" hiba
+
+**Helyes workflow:**
+- SingleFile mentés: 👤 manuális lépés (felhasználó Edge-bővítménnyel ment)
+- NLM-be kerülő forrás: mindig URL (`nlm source add --url`) -- nem lokális HTML
+- Lokális HTML célja: archiválás + képkinyerés (MinerU, 05b pipeline)
+
+**Státusz:** Elfogadott korlát. 00_references_collector skill-ben jelölendő (👤).
