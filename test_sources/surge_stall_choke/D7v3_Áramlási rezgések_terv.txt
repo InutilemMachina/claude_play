@@ -1,0 +1,122 @@
+CÍM: ÁRAMLÁSTECHNIKAI BERENDEZÉSEK ÉS ÁRAMLÁSTECHNIKAI DIAGNOSZTIKA
+
+I. Gépészeti alapok és osztályozás
+	I.1 Az áramlástechnikai gépek rendszertana
+	A gépek megkülönböztetése a nyomásviszony (p_ki / p_be) alapján történik az ASME szabvány szerint. 
+	- Ventilátorok (Fans): Alacsony nyomásnövekedés, a nyomásviszony 1,11-ig terjed. Céljuk nagy mennyiségű gáz mozgatása kis ellenállás ellenében.
+	- Fúvók (Blowers): Közepes nyomásnövekedés, a nyomásviszony 1,11 és 1,20 között van. Alkalmazásuk nagyobb csővezeték-ellenállás esetén indokolt.
+	- Kompresszorok (Compressors): Nagy nyomásnövekedés, a nyomásviszony 1,20 felett (akár 10-nél is több egy fokozatban). Gázok jelentős sűrítésére szolgálnak.
+		<Ábra> Osztályozási táblázat: Az ASME táblázat, amely mutatja a határértékeket (Ventilátor: <1,11; Fúvó: 1,11–1,20; Kompresszor: >1,20).
+	- Szivattyúk (Pumps): Folyadékok szállítására szolgáló gépek, ahol a sűrűségváltozás elhanyagolható.
+	
+
+- Gépészeti illusztrációk: Centrifugális és axiális ventilátorok/fúvók szerkezeti rajzai.
+- A Ventilátorok és Kompresszorok üzemi görbéinek ismertetése
+	
+II. Működési tartományok és jelleggörbék
+
+II.1. Ventilátorok és fúvók
+Tartalom:
+A működést a ventilátor jelleggörbe és a rendszerellenállási görbe metszéspontja, a munkapont határozza meg. A rendszerellenállás a térfogatáram négyzetével arányosan nő.
+
+Ábrák:
+- Ventilátor karakterisztika: Statikus nyomás és teljesítmény görbe a térfogatáram függvényében.
+- Rendszerellenállási görbe: Mutatja, hogyan változik a munkapont fojtás vagy fordulatszám-változtatás hatására.
+
+II.2. Kompresszor térkép (Compressor Map)
+Tartalom: 
+A kompresszor viselkedését a nyomásviszony és a tömegáram összefüggésében ábrázoljuk. A gép „játékterének” bemutatása, ahol a stabil üzem a Surge (bal) és a Choke (jobb) vonalak közé szorul.
+- Stabil tartomány: A Surge-vonal (bal oldali korlát) és a Choke-vonal (jobb oldali korlát) közötti terület.
+- Sebességvonalak és hatásfok-szigetek: A térkép mutatja a különböző fordulatszámokhoz tartozó teljesítményt és a legjobb hatásfokú pontokat (BEP).
+	
+Ábrák:
+- Munkapont térkép: Nyomásviszony a tömegáram függvényében, sebességvonalakkal és hatásfok-szigetekkel.
+- Surge és Choke vonalak: A stabil és instabil tartományok vizuális elhatárolása a diagramon.
+	
+III. Rezgésdiagnosztikai alapok
+Tartalom:
+Lapát-elhaladási frekvencia (Blade Pass - BP): Minden forgógép rendelkezik egy alapvető rezgési csúccsal, amely a lapátszám és a forgási sebesség szorzata (BP=NB⋅X) [1, PV jelöléssel szivattyúknál: 2].
+- A BP csúcs amplitúdójának növekedése jelezheti a lapát sérülését, lerakódásokat vagy a diffúzorral való nem megfelelő illesztést.
+- Turbulencia: Alacsony frekvenciás (1–35 Hz), véletlenszerű rezgések a spektrumban.
+	
+Ábrák:
+- {01-Aramlasi rendellenessegek, 1. oldal, Spektrum ábra} Klasszikus spektrum BP csúccsal és harmonikusaival.
+	
+IV. Áramlási rendellenességek rezgésdiagnosztikájaf
+IV.1. Stall (Áramláselakadás)
+Tartalom: A határréteg-leválás folyamata és a forgó stall-cellák kialakulása.
+- Fizikai tünet: Lokális áramlásleválás a lapátokról.
+- Rezgésdiagnosztika: Alacsony frekvenciájú, szub-harmonikus rezgések, jellemzően a forgási frekvencia 0,1X és 0,8X közötti tartományában.
+	
+- Ábrák:
+- Lapátprofil stall: Rajz a határréteg leválásáról és az áramlás megtöréséről a lapát felületén.
+- Forgó örvénylés mechanizmusa: Hogyan terjed a stall cella a lapátkoszorúban a forgással ellentétes irányban.
+- Stall spektrum: Alacsony frekvenciájú, szub-harmonikus csúcsok (0,1X – 0,8X) megjelenése.
+	
+	
+IV.2. Forgó örvénylés (Rotating Stall) diagnosztikája]
+Tartalom: A stall-cellák a forgórész sebességének 20-80%-ával körbeforognak.
+- Rezgésdiagnosztika: Alacsony frekvenciájú, szub-harmonikus csúcsok (0,1X – 0,8X).
+- Ábrák:
+- {01-Aramlasi rendellenessegek, 23. oldal, 3D rezgési spektrum} Kompresszor stall spektruma 0,85X körüli instabil cellákkal.
+- {INFLUENCE OF ROTATING..., Figure 2} Stall propagation: Az elakadás terjedése a lapátkoszorúban.
+
+	
+IV.3. Surge (Áramláshullámzás):
+Tartalom: A teljes áramlás összeomlása, visszaáramlás (negatív tömegáram) és destruktív lengések.
+- Fizikai tünet: Teljes áramlás-összeomlás és visszaáramlás, "köhögő" hang.
+- Rezgésdiagnosztika: Igen magas szintű, axiális irányú rezgések és lüktetések, amelyek mechanikai károsodást (csapágy, tömítés) okozhatnak.
+		
+- Ábrák:
+- Surge ciklus: A munkapont periodikus vándorlása a jelleggörbe stabil és instabil ága között.
+- Nyomás-idő függvény: A surge alatt fellépő drasztikus nyomáslengések időbeli lefutása.
+? Surge spetrum
+	
+[9. dia: A Surge fajtái és rezgésképe] **
+- Tartalom: Enyhe (Mild), Klasszikus, Módosult és Mély (Deep) surge megkülönböztetése.
+- Rezgésdiagnosztika: Igen magas amplitúdójú lökésszerű rezgések, „köhögő” hang.
+- Ábrák:
+- {01-Aramlasi rendellenessegek, 20. oldal, Surge fajtái 3. ábra} Különböző intenzitású surge ciklusok összehasonlítása.
+				
+IV.4.Choking (Stonewall) A „Kőfal”:
+Tartalom: Az áramlás eléri a helyi hangsebességet (Mach 1.0) a torokkeresztmetszetben, a tömegáram nem növelhető tovább.
+- Fizikai tünet: A torokkeresztmetszetben az áramlás eléri a hangsebességet.
+- Rezgésdiagnosztika: „Stall flutter” jelenség léphet fel, ami a lapátok nagy ciklusú fáradásos töréséhez vezethet a lökéshullámok miatt.
+
+- Ábrák:
+- Mach-szám kontúrok: Szimulációs ábra, amely mutatja a lökéshullámok kialakulását a lapátok között nagy tömegáramnál.
+- Stonewall hatás: A jelleggörbe meredek, függőleges zuhanása a Choke vonalnál.
+? Choke spetrum
+- Rezgésdiagnosztika: „Stall flutter” gerjesztés, ami a lapátok fáradásos töréséhez vezethet.
+- {Operation of Centrifugal..., Figure 6} Mach-szám kontúrok a lökéshullámok kialakulásáról a lapátcsúcsokon.
+		
+IV.5. Kavitáció (szivattyú-specifikus):
+Tartalom: Gőzbuborékok képződése és robbanásszerű összeroppanása alacsony nyomáson.
+- Fizikai tünet: Gőzbuborékok képződése és összeroppanása.
+- Rezgésdiagnosztika: Széles sávú, véletlenszerű magas frekvenciás zaj ("domb" a spektrumban), amely úgy hangzik, mintha kavicsok lennének a gépben.
+	
+- Ábrák:
+- Kavitációs roncsolás: Fénykép a kavitáció által szétmart járókerékről.
+- Hajócsavar kavitációja: Vizuális példa a buborékképződésre.
+- Kavitációs domb: Széles sávú, véletlenszerű magas frekvenciás „zaj” domb a szivattyúknál.	
+		
+IV.6. Általános áramlási turbulencia
+- Tartalom: A rendszergeometria (kanyarok, szűkületek) okozta zavarok.
+- Rezgésdiagnosztika: Alacsony frekvenciás (1–35 Hz) véletlenszerű rezgések.
+- Ábrák:
+- {01-Aramlasi rendellenessegek, 8. oldal, Mechanikai instabilitás ábra} Turbulencia okozta zaj a spektrum alsó tartományában.
+	
+V. Védekezés és Megoldások
+Tartalom:
+- Passzív: Casing treatment (házkezelés) a stall margin növelésére.
+- Aktív: Megkerülő szelepek (Anti-surge), Változtatható terelőlapátok (VIGV/VSV), Bleed szelepek (lefúvatás).
+Tartalom:
+Bypass szelepek, változtatható állásszögű terelőlapátok (IGV/VSV) és bleed szelepek.
+
+Ábrák:
+- Anti-surge rendszer: A megkerülő vezeték és a szabályozószelep elvi sémája.
+- Változtatható lapátszög (VIGV): Illusztráció a terelőlapátok állításáról a stall elkerülése érdekében.
+- {Compressor Stall..., Figure 10 & 11} IGV és VSV vázlatok az áramlási szög optimalizálására.
+- {Rotating Stall and Surge..., Figure 7} Különböző aktív és passzív szabályozási sémák összefoglalója.
+	
+	
