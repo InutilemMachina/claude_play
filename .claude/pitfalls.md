@@ -261,3 +261,20 @@ python scripts/mineru_pdf.py 1_het/forrasok/ --output 1_het/forrasok/kepek/
 2. NLM lekérdezések mentéséhez: `scripts/nlm_query.py` Python subprocess-en keresztül (`encoding='utf-8'`).
 3. Utólagos javítás: `utf8_bytes.decode('cp1250')` táblával csere -- de kerülendő.
 **Érintett fájlok (javítva 2026-05-23):** `.claude/pipeline.md`, `.claude/pitfalls.md`, `.claude/skills/00c_mineru_extractor.md`.
+
+## 06_notes_collector -- TOC insert silent fail (2026-05-24)
+
+**Tünet:** Tárgymutató nem jelenik meg a Jegyzetben, de a script hibát nem dob.
+**Gyökérok:**  nem talált egyezést, mert a frontmatter után csak 1 sortörés volt ().
+**Megoldás:**  rugalmas mintával -- 1 vagy több sortörés elfogadása.
+**Státusz:** ✅ Javítva 2026-05-24.
+
+## 06_notes_collector -- TOC insert silent fail (2026-05-24)
+
+**Tünet:** Tárgymutató nem jelenik meg a Jegyzetben, de a script hibát nem dob.
+
+**Gyökérok:** str.replace pontos string-egyezést keres. A frontmatter után 1 sortörés volt, nem 2.
+
+**Megoldás:** re.sub rugalmas mintával -- (---\n+)(# 1_Jegyzet) -- 1 vagy több sortörés elfogadása.
+
+**Státusz:** Javítva 2026-05-24.

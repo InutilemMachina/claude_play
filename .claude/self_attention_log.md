@@ -63,3 +63,17 @@ description: Session-szintű agent-monitoring napló.
 | 006 | Thermodelta URL duplikáció | Error: Could not add url source -- de mégis feltöltődött; 9 forrás lett a várt 8 helyett |
 | 007 | DOCX upload | PASS -- 12MB docx sikeresen feltöltve (nem volt dokumentálva, hogy támogatott) |
 | 008 | Mindmap struktúra | 6 level-2 node azonosítva; conversation_id: f07d5b07 |
+
+## Scope bővítés: mélységi próba (2026-05-24)
+
+A self-attention log ezentúl kettős monitort futtat:
+- **Op-minőség**: döntések, eltérések, hibák, automatizálhatóság
+- **Output-minőség**: ékezetűség, citáció-sűrűség, struktúra-konzisztencia
+
+| 009 | Q1-Q4 ékezetűség | 7.7-8.7% -- OK (küszöb: >1.5%) |
+| 010 | Q1/Q3/Q4 citations=0 | NLM inline szöveges citációt adott [N] helyett; tartalom OK; Prompt B formátum inconsistens |
+| 011 | Q2 citációk | 10 db numbered citation, 5 sources_used -- ideális; kontextustól függ |
+| 012 | conversation_id konzisztencia | Minden Q ugyanaz az ID (f07d5b07) -- NLM session-on belül konzisztens |
+
+| 013 | 06_notes_collector insert minta mismatch | HIBA: '---\n\n# 1_Jegyzet' != '---\n# 1_Jegyzet'; silent replace fail. Gyökérok: YAML frontmatter után 1 sortörés, nem 2. Javítás: re.sub rugalmas mintával. Pitfalls-ba jelölve. |
+| 014 | 03_excerpt_block_maker fejezet összegzők | 4 fejezetből csak 1 🗺️ összegző jelent meg (chapter-matching logika hibás). Elfogadott hiányosság tesztre. |
