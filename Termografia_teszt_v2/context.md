@@ -19,7 +19,7 @@ description: Termografia_teszt_v2 pipeline tesztkör context fájlja.
 
 | Hét | Téma | NLM notebook | 00b | 01 | 02 | 03-05 | 06-07 | 08 | 09 | 10 |
 |-----|------|--------------|-----|-----|-----|-------|-------|-----|-----|-----|
-| 1 | Termográfia alapjai | Termografia_teszt_v2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 1 | Termográfia alapjai | Termografia_teszt_v2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 # 3. Célok
 
@@ -35,7 +35,7 @@ description: Termografia_teszt_v2 pipeline tesztkör context fájlja.
 
 | Mező | Érték |
 |:-----|:------|
-| Notebook ID | (00b után töltendő) |
+| Notebook ID | 21c5da9f-bf93-4eb6-b0a6-48cc2950fee9 |
 | Prompt B | aktív (00b állítja be) |
 | Forrásszám | 7-8 fájl |
 

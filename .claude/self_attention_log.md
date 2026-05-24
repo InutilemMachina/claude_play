@@ -77,3 +77,7 @@ A self-attention log ezentúl kettős monitort futtat:
 
 | 013 | 06_notes_collector insert minta mismatch | HIBA: '---\n\n# 1_Jegyzet' != '---\n# 1_Jegyzet'; silent replace fail. Gyökérok: YAML frontmatter után 1 sortörés, nem 2. Javítás: re.sub rugalmas mintával. Pitfalls-ba jelölve. |
 | 014 | 03_excerpt_block_maker fejezet összegzők | 4 fejezetből csak 1 🗺️ összegző jelent meg (chapter-matching logika hibás). Elfogadott hiányosság tesztre. |
+
+| 015 | Self-check 08-10 false alarm | SZINT tag a Prezentációban nem elvárt -- check szabály hibás volt. Tényleges output OK. |
+| 016 | PPTX generálás | Status 1 a konzolon, de fájl kész (105KB). Gyökérok: encoding hiba a print() outputban. |
+| 017 | BSc filter | Prezentáció: -15 sor (MSc dia kiszűrve), Kérdések: -17 sor (MSc fejezet). |

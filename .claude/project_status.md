@@ -133,3 +133,17 @@ _Frissítve: 2026-05-24 -- ACT a diagnosztika alapján_
 | 2026-05-22 | 1.0 | Létrehozva: Do szekciók, következő lépések |
 | 2026-05-23 | 2.0 | PDCA struktúra: Plan/Do/Check/Act; tanulságok táblázatba rendezve; pipeline_next_steps.md beolvasztva |
 | 2026-05-23 | 2.1 | §4 Act + §5 Arch törölve (git history + CLAUDE.md/pipeline.md lefedi) |
+
+## 2026-05-24 -- Termografia_teszt_v2 teljes pipeline futtatás
+
+- ✅ Mappastruktúra: Termografia_teszt_v2/1_het/ + raw_sources/ + clean_sources/ + bsc/
+- ✅ HTML forrás: Emissivity - Wikipedia, web_fetch-el mentve (képek nélkül -- SingleFile CLI teszt köv.)
+- ✅ Fájlválogatás: 4 PDF + 3 URL (html) + 1 DOCX = 8 forrás (raw_sources-ban)
+- ✅ 00b: NLM notebook létrehozva (ID: 21c5da9f), 9 forrás feltöltve (1 duplikátum), Prompt B aktív
+- ✅ 01: Q1-Q4 NLM lekérdezések, 7.7-8.8% ékezetűség; Q2 numbered cit., Q1/3/4 inline cit.
+- ✅ 02-07: Jegyzet (21590 char), Szószedet (15 fogalom), Mindmap (Mermaid, 6 node), Citations.json
+- ✅ 08: Prezentáció (9 dia Marp MD + 105KB PPTX)
+- ✅ 09: Kérdések (4 BSc + 2 MSc, LaTeX képletekkel)
+- ✅ 10: BSc filter (Prezentáció -15 sor, Kérdések -17 sor)
+- ✅ self_attention_log.md: 17 bejegyzés, 3 pitfall dokumentálva
+- ⚠️ NYITOTT: SingleFile CLI teszt -- képeket tartalmazó HTML (user kérés)
