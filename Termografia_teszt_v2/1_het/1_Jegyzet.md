@@ -5,47 +5,57 @@ status: draft
 version: 0.1
 updated: 2026-05-24
 description: Termografia_teszt_v2 -- 1. hét. NLM Q1-Q4 alapján összeállított tanulási segédlet.
----
-# Tárgymutató
-
-- [1. Áttekintés](#1-áttekintés)
-    - [Alkalmazási területek](#alkalmazási-területek)
-    - [Fizikai alapelvek](#fizikai-alapelvek)
-    - [Leglényegesebb jellemzők és paraméterek](#leglényegesebb-jellemzők-és-paraméterek)
-- [2. Sugárzásfizikai alaptörvények](#2-sugárzásfizikai-alaptörvények)
-    - [1. Stefan–Boltzmann-törvény](#1-stefanboltzmann-törvény)
-    - [2. Planck-féle sugárzási törvény](#2-planck-féle-sugárzási-törvény)
-    - [3. Wien-féle eltolódási törvény](#3-wien-féle-eltolódási-törvény)
-    - [4. Kirchhoff-féle sugárzási törvény](#4-kirchhoff-féle-sugárzási-törvény)
-    - [Összefoglaló táblázat](#összefoglaló-táblázat)
-- [3. Hőkamerák és méréstechnika](#3-hőkamerák-és-méréstechnika)
-    - [Hőkamerás mérőeszközök típusai](#hőkamerás-mérőeszközök-típusai)
-      - [1. Hűtött (Quantum) vs. Hűtetlen (Thermal) detektorok](#1-hűtött-quantum-vs-hűtetlen-thermal-detektorok)
-      - [2. Spektrális tartományok](#2-spektrális-tartományok)
-    - [A mérési pontosságot befolyásoló tényezők](#a-mérési-pontosságot-befolyásoló-tényezők)
-      - [1. Emissziófüggőség](#1-emissziófüggőség)
-      - [2. Reflexió (Visszaverődés)](#2-reflexió-visszaverődés)
-      - [3. Kalibráció és szoftveres korrekció](#3-kalibráció-és-szoftveres-korrekció)
-    - [Összefoglaló a mérést befolyásoló adatokról](#összefoglaló-a-mérést-befolyásoló-adatokról)
-- [4. Gyakorlati alkalmazások](#4-gyakorlati-alkalmazások)
-    - [1. Általános karbantartás és állapotfüggő diagnosztika](#1-általános-karbantartás-és-állapotfüggő-diagnosztika)
-    - [2. Villamosipari alkalmazások](#2-villamosipari-alkalmazások)
-    - [3. Gépészeti diagnosztika](#3-gépészeti-diagnosztika)
-    - [4. Épületdiagnosztika és építészet](#4-épületdiagnosztika-és-építészet)
-    - [Összefoglaló táblázat a diagnosztikai példákról](#összefoglaló-táblázat-a-diagnosztikai-példákról)
-
+abstract: >
+  A források átfogó képet nyújtanak az infravörös termográfia elméleti alapjairól és
+  a hőkamerák gyakorlati alkalmazásáról, különös tekintettel az ipari karbantartásra.
+  A szövegek részletezik az eszközök működését meghatározó fizikai törvényszerűségeket,
+  mint az emissziós tényező, a sugárvisszaverődés és a Planck-törvény. Bemutatják
+  a detektortechnológiákat, köztük a hűtés nélküli mikrobolométereket, valamint a
+  modern szoftveres elemzés előnyeit. A szerzők hangsúlyozzák, hogy a hőkamerás
+  vizsgálat hatékony eszköz a megelőző diagnosztikában, mivel üzem közben, biztonságos
+  távolságból azonosítja a villamos és mechanikai hibákat.
 ---
 
 # 1_Jegyzet -- Infravörös Termográfia
 
 _Forrás: NLM Termografia\_teszt\_v2 notebook, Q1-Q4 lekérdezések_
 
+# Tartalomjegyzék
+
+- [1. Áttekintés](#1-áttekintés)
+  - [1.1. Alkalmazási területek](#11-alkalmazási-területek)
+  - [1.2. Fizikai alapelvek](#12-fizikai-alapelvek)
+  - [1.3. Leglényegesebb jellemzők és paraméterek](#13-leglényegesebb-jellemzők-és-paraméterek)
+- [2. Sugárzásfizikai alaptörvények](#2-sugárzásfizikai-alaptörvények)
+  - [2.1. Stefan–Boltzmann-törvény](#21-stefanboltzmann-törvény)
+  - [2.2. Planck-féle sugárzási törvény](#22-planck-féle-sugárzási-törvény)
+  - [2.3. Wien-féle eltolódási törvény](#23-wien-féle-eltolódási-törvény)
+  - [2.4. Kirchhoff-féle sugárzási törvény](#24-kirchhoff-féle-sugárzási-törvény)
+  - [2.5. Összefoglaló táblázat](#25-összefoglaló-táblázat)
+- [3. Hőkamerák és méréstechnika](#3-hőkamerák-és-méréstechnika)
+  - [3.1. Hőkamerás mérőeszközök típusai](#31-hőkamerás-mérőeszközök-típusai)
+    - [3.1.1. Hűtött (Quantum) vs. Hűtetlen (Thermal) detektorok](#311-hűtött-quantum-vs-hűtetlen-thermal-detektorok)
+    - [3.1.2. Spektrális tartományok](#312-spektrális-tartományok)
+  - [3.2. A mérési pontosságot befolyásoló tényezők](#32-a-mérési-pontosságot-befolyásoló-tényezők)
+    - [3.2.1. Emissziófüggőség](#321-emissziófüggőség)
+    - [3.2.2. Reflexió (Visszaverődés)](#322-reflexió-visszaverődés)
+    - [3.2.3. Kalibráció és szoftveres korrekció](#323-kalibráció-és-szoftveres-korrekció)
+  - [3.3. Összefoglaló a mérést befolyásoló adatokról](#33-összefoglaló-a-mérést-befolyásoló-adatokról)
+- [4. Gyakorlati alkalmazások](#4-gyakorlati-alkalmazások)
+  - [4.1. Általános karbantartás és állapotfüggő diagnosztika](#41-általános-karbantartás-és-állapotfüggő-diagnosztika)
+  - [4.2. Villamosipari alkalmazások](#42-villamosipari-alkalmazások)
+  - [4.3. Gépészeti diagnosztika](#43-gépészeti-diagnosztika)
+  - [4.4. Épületdiagnosztika és építészet](#44-épületdiagnosztika-és-építészet)
+  - [4.5. Összefoglaló táblázat a diagnosztikai példákról](#45-összefoglaló-táblázat-a-diagnosztikai-példákról)
+
+---
+
 # 1. Áttekintés
 
 <!-- Q:1 -->
 Az infravörös termográfia egy olyan érintésmentes mérési eljárás, amely a tárgyak által kibocsátott láthatatlan infravörös sugárzást elektronikus jelekké, majd vizuális képpé – hőtérképpé vagy termogrammává – alakítja (d1_lecturenotes.docx, flir2024_howworks.pdf). Ez a technológia lehetővé teszi a felületi hőmérséklet-különbségek detektálását és a pontos hőmérsékletértékek meghatározását anélkül, hogy a mérőműszer érintkezne a vizsgált felülettel (flir2024_howworks.pdf, haraszti2013_termografia.pdf).
 
-### Alkalmazási területek
+## 1.1. Alkalmazási területek
 A termográfiát széles körben alkalmazzák a diagnosztika és a karbantartás területén:
 * **Villamos diagnosztika:** Kötéshibák, korrodált csatlakozások, túlterhelt vezetékek és aszimmetrikus terhelések keresése transzformátorokban, kapcsolószekrényekben és napelemes rendszerekben (Hőkamerák villamos szakembereknek, Hoterkep-keszites a karbantarto szemszogebol.pdf).
 * **Gépészeti karbantartás:** Motorok, csapágyak, szivattyúk és hajtóművek rendellenes felmelegedésének ellenőrzése (Hoterkep-keszites a karbantarto szemszogebol.pdf).
@@ -55,7 +65,7 @@ A termográfiát széles körben alkalmazzák a diagnosztika és a karbantartás
 
 > **💡 Lényeg:** Villamos diagnosztikától épületfizikáig széles spektrum.
 
-### Fizikai alapelvek
+## 1.2. Fizikai alapelvek
 A termográfia működése a hősugárzás (radiáció) jelenségén és alapvető fizikai törvényeken nyugszik:
 1. **Emisszió:** Minden test, amelynek hőmérséklete meghaladja az abszolút nulla fokot (0 K vagy -273,15 °C), elektromágneses sugárzást bocsát ki (d1_lecturenotes.docx, flir2024_howworks.pdf).
 2. **Stefan-Boltzmann törvény:** Kimondja, hogy a fekete test által kisugárzott összes energia a test abszolút hőmérsékletének negyedik hatványával arányos (d1_lecturenotes.docx, haraszti2013_termografia.pdf).
@@ -66,7 +76,7 @@ A termográfia működése a hősugárzás (radiáció) jelenségén és alapvet
 
 > **💡 Lényeg:** Stefan-Boltzmann, Planck, Wien és Kirchhoff törvények.
 
-### Leglényegesebb jellemzők és paraméterek
+## 1.3. Leglényegesebb jellemzők és paraméterek
 
 | Jellemző | Meghatározás | Forrás |
 | :--- | :--- | :--- |
@@ -84,7 +94,7 @@ A termográfia működése a hősugárzás (radiáció) jelenségén és alapvet
 <!-- Q:2 -->
 Az infravörös termográfia elméleti hátterét négy alapvető fizikai sugárzási törvény határozza meg, amelyek leírják az objektumok hőmérséklete és az általuk kibocsátott elektromágneses sugárzás közötti összefüggéseket.
 
-### 1. Stefan–Boltzmann-törvény
+## 2.1. Stefan–Boltzmann-törvény
 
 **Matematikai definíció:**
 $$E_{(f)}(T) = \sigma \cdot T^4$$
@@ -102,7 +112,7 @@ A törvény kimondja, hogy egy fekete test által kibocsátott teljes sugárzás
 
 > **💡 Lényeg:** Az összsugárzás T⁴-tel arányos: E = εσT⁴.
 
-### 2. Planck-féle sugárzási törvény
+## 2.2. Planck-féle sugárzási törvény
 
 **Matematikai definíció:**
 Planck törvénye megadja a fekete test spektrális emisszióképességét ($e_{\lambda,T}$) a hullámhossz ($\lambda$) és a hőmérséklet ($T$) függvényében [8, 9]. Bár a képlet komplex, alapja az energia kvantált természete:
@@ -115,7 +125,7 @@ A Planck-törvény leírja a hősugárzás intenzitásának spektrális eloszlá
 
 > **💡 Lényeg:** Spektrális eloszlást ír le; valós testnél ε szorzóval módosul.
 
-### 3. Wien-féle eltolódási törvény
+## 2.3. Wien-féle eltolódási törvény
 
 **Matematikai definíció:**
 $$\lambda_{max} = \frac{b}{T}$$
@@ -132,7 +142,7 @@ A törvény szerint a sugárzó test hőmérsékletének növekedésével a sug�
 
 > **💡 Lényeg:** λ_max = b/T; magasabb hőmérsékletnél rövidebb csúcshullámhossz.
 
-### 4. Kirchhoff-féle sugárzási törvény
+## 2.4. Kirchhoff-féle sugárzási törvény
 
 **Matematikai definíció:**
 $$\alpha = \varepsilon$$
@@ -146,7 +156,7 @@ Kirchhoff törvénye kimondja, hogy egy adott hőmérsékleten és hullámhosszo
 
 > **💡 Lényeg:** ε = α: jó elnyelők egyben jó sugárzók.
 
-### Összefoglaló táblázat
+## 2.5. Összefoglaló táblázat
 
 | Törvény | Fő üzenet | Releváns forrás |
 | :--- | :--- | :--- |
@@ -163,15 +173,15 @@ Kirchhoff törvénye kimondja, hogy egy adott hőmérsékleten és hullámhosszo
 <!-- Q:3 -->
 A hőkamerás mérőeszközök technológiája és a mérések pontosságát meghatározó tényezők összetett fizikai és mérnöki alapokon nyugszanak. Az alábbiakban a forrásdokumentumok alapján részletezem az eszközök típusait és a legfontosabb befolyásoló paramétereket.
 
-### Hőkamerás mérőeszközök típusai
+## 3.1. Hőkamerás mérőeszközök típusai
 
 A hőkamerákat alapvetően a detektor működési elve és a használt spektrális tartomány alapján csoportosítjuk.
 
-#### 1. Hűtött (Quantum) vs. Hűtetlen (Thermal) detektorok
+### 3.1.1. Hűtött (Quantum) vs. Hűtetlen (Thermal) detektorok
 * **Hűtetlen detektorok (Mikrobolométer):** A legelterjedtebb ipari megoldás. Rácsszerkezetű vanádium-oxid (VOx) vagy amorf szilícium (a-Si) hőérzékelőkből állnak (Mikrobolométer technológia - Thermo Delta Kft.). Működésük alapja, hogy az infravörös sugárzás hatására megváltozik a detektorelemek elektromos ellenállása, amit a kiolvasó áramkör (ROIC) mér és hőtérképpé alakít (Mikrobolométer technológia - Thermo Delta Kft., IR Thermography: How It Works (FLIR 2024)). Előnyük az alacsonyabb ár és a robusztus kialakítás, de érzékenységük és sebességük elmarad a hűtött típusokétól (IR Thermography: How It Works (FLIR 2024)).
 * **Hűtött (Kvantum) detektorok:** Különböző félvezető anyagokból (pl. InSb, InGaAs, HgCdTe) készülnek. Működésük a kristályszerkezet elektronjainak állapotváltozásán alapul a beérkező fotonok hatására (IR Thermography: How It Works (FLIR 2024)). Ezek a detektorok rendkívül gyorsak és érzékenyek, de működésükhöz kriogenikus hűtésre (pl. Stirling-hűtő vagy folyékony nitrogén) van szükség, ami drágábbá és szervizigényesebbé teszi őket (IR Thermography: How It Works (FLIR 2024)).
 
-#### 2. Spektrális tartományok
+### 3.1.2. Spektrális tartományok
 A hőkamerák az infravörös spektrum meghatározott "ablakaiban" mérnek:
 * **LWIR (Long Wave IR - Hosszúhullámú):** 7,5–14 μm közötti tartomány. Ipari és épületdiagnosztikai célokra leginkább ezt használják, mivel a légkör itt rendelkezik a legjobb átviteli tulajdonságokkal (IR Thermography: How It Works (FLIR 2024), Termografiai vizsgalatok (Haraszti 2013)).
 * **MWIR (Mid Wave IR - Középhullámú):** 3–5 μm közötti tartomány. Főként tudományos kutatásban, katonai alkalmazásoknál és magas hőmérsékletű (400 °C feletti) ipari folyamatoknál alkalmazzák (IR Thermography: How It Works (FLIR 2024), Termografiai vizsgalatok (Haraszti 2013)).
@@ -182,20 +192,20 @@ A hőkamerák az infravörös spektrum meghatározott "ablakaiban" mérnek:
 
 > **💡 Lényeg:** Hűtött (jobb érzékenység) vs. hűtetlen (kisebb méret, ár).
 
-### A mérési pontosságot befolyásoló tényezők
+## 3.2. A mérési pontosságot befolyásoló tényezők
 
 A hőkamera nem közvetlenül hőmérsékletet mér, hanem sugárzási teljesítményt, amelyből szoftveresen számítja ki a hőmérsékletet (d1_lecturenotes.docx, IR Thermography: How It Works (FLIR 2024)). Ezért a következő tényezők kritikusak a pontosság szempontjából:
 
-#### 1. Emissziófüggőség
+### 3.2.1. Emissziófüggőség
 Az emissziós tényező ($\varepsilon$) az objektum sugárzási képességét mutatja a fekete testhez képest (Emissivity - Wikipedia, Infrared Energy, Emissivity, Reflection & Transmission (FLIR)).
 * **Helytelen megválasztása:** Akár nagyságrendi mérési hibát is okozhat (Termografiai vizsgalatok (Haraszti 2013)).
 * **Befolyásoló tényezők:** Az anyagi minőség mellett az érdesség, az oxidáció foka és a mérés szöge is számít. A mérés szöge ideálisan a felületre merőlegeshez közeli (60 fokos kúpon belül), ennél nagyobb szögnél az emisszió drasztikusan csökkenhet (Infrared Energy, Emissivity, Reflection & Transmission (FLIR)).
 
-#### 2. Reflexió (Visszaverődés)
+### 3.2.2. Reflexió (Visszaverődés)
 Alacsony emissziójú (pl. fényes fém) felületek esetén a kamera a környező tárgyak és a kezelő hősugárzását is érzékeli, amely visszaverődik a célfelületről (Termografiai vizsgalatok (Haraszti 2013), Infrared Energy, Emissivity, Reflection & Transmission (FLIR)).
 * A szoftveres korrekcióhoz meg kell adni a **visszavert háttérhőmérsékletet** ($T_{refl}$ vagy $T_{amb}$), hogy a kamera le tudja vonni ezt a zavaró komponenst a mért értékből (IR Thermography: How It Works (FLIR 2024), Termografiai vizsgalatok (Haraszti 2013)).
 
-#### 3. Kalibráció és szoftveres korrekció
+### 3.2.3. Kalibráció és szoftveres korrekció
 A hőkamerák gyári kalibrálása fekete test sugárzókkal történik (d1_lecturenotes.docx, Infrared Energy, Emissivity, Reflection & Transmission (FLIR)). A mérési egyenletben a szoftver figyelembe veszi az alábbiakat a pontos eredményhez:
 * A légkör transzmisszióját ($\tau_{atm}$) és hőmérsékletét ($T_{atm}$) (IR Thermography: How It Works (FLIR 2024)).
 * Az objektum távolságát, mivel a levegőben lévő vízpára és $CO_2$ elnyeli a sugárzás egy részét (Termografiai vizsgalatok (Haraszti 2013)).
@@ -205,7 +215,7 @@ A hőkamerák gyári kalibrálása fekete test sugárzókkal történik (d1_lect
 
 > **💡 Lényeg:** Emissziós szám, reflexió és NUC kalibrációs hiba a fő hibaforrások.
 
-### Összefoglaló a mérést befolyásoló adatokról
+## 3.3. Összefoglaló a mérést befolyásoló adatokról
 
 | Paraméter | Hatása a mérésre | Releváns forrás |
 | :--- | :--- | :--- |
@@ -222,7 +232,7 @@ A hőkamerák gyári kalibrálása fekete test sugárzókkal történik (d1_lect
 <!-- Q:4 -->
 Az infravörös termográfia az ipari diagnosztika egyik legsokoldalúbb eszköze, mivel lehetővé teszi a berendezések üzem közbeni, érintésmentes vizsgálatát, feltárva a szemmel nem látható hőtani anomáliákat. Az alábbiakban részletezem az alkalmazási területeket a forrásdokumentumok alapján:
 
-### 1. Általános karbantartás és állapotfüggő diagnosztika
+## 4.1. Általános karbantartás és állapotfüggő diagnosztika
 A termográfia alapvető eleme a számítógéppel támogatott megelőző karbantartásnak (*Computer-Aided Predictive Maintenance*), ahol a cél a gépek ideális üzemi hőmérsékletétől való eltérések korai detektálása (D1 Lecture Notes (Termografia).docx).
 * **Trendfigyelés:** A karbantartók évente legalább egyszer hőtérképet készítenek a kritikus egységekről, és az új képeket összehasonlítják a korábbi állapotokkal (Hoterkep-keszites a karbantarto szemszogebol.pdf).
 * **Hiba-beazonosítás:** Ha egy forró pont (*hot spot*) jelenik meg ott, ahol korábban nem volt, az közeledő meghibásodást jelez, így a javítás még a leállás előtt ütemezhető (Hoterkep-keszites a karbantarto szemszogebol.pdf).
@@ -231,7 +241,7 @@ A termográfia alapvető eleme a számítógéppel támogatott megelőző karban
 
 > **💡 Lényeg:** Prediktív karbantartás alapja: rendellenes felmelegedés korai felismerése.
 
-### 2. Villamosipari alkalmazások
+## 4.2. Villamosipari alkalmazások
 A villamosiparban nincsenek kötelező szabványok, de szigorú irányelvek (pl. NETA) szabályozzák a mérést, ahol a környezeti hőmérséklethez vagy a fázisok közötti különbséghez (*ΔT*) viszonyítanak (Hőkamerák villamos szakembereknek).
 * **Kötéshibák:** A laza vagy korrodált csatlakozások megnövekedett ellenállása hőt termel. Például egy meglazult kötés 48,7 °C-os felmelegedést is mutathat (Hőkamerák villamos szakembereknek).
 * **Túlterhelés:** A túlterhelt vezetékek vagy kismegszakítók jól láthatóan magasabb hőmérsékletűek; egy túlterhelt kismegszakító hőmérséklete elérheti a 41,9 °C-ot (Hőkamerák villamos szakembereknek).
@@ -241,7 +251,7 @@ A villamosiparban nincsenek kötelező szabványok, de szigorú irányelvek (pl.
 
 > **💡 Lényeg:** Kötéshibák, aszimmetria, transformer- és napelem-diagnosztika.
 
-### 3. Gépészeti diagnosztika
+## 4.3. Gépészeti diagnosztika
 A gépészetben a súrlódás és a kenési elégtelenségek okozta hőmérséklet-emelkedés a legfontosabb jelzőszám (Hoterkep-keszites a karbantarto szemszogebol.pdf).
 * **Forgógépek:** Motorok, szivattyúk, ventilátorok és kompresszorok csapágyainak ellenőrzése. A forró pontok jelzik a csapágykopást vagy a tengelyirányú beállítási hibákat (Hoterkep-keszites a karbantarto szemszogebol.pdf).
 * **Erőátvitel:** Hajtóművek, fogaskerék-házak és konvejorok (szállítószalagok) hőeloszlásának vizsgálata (Hoterkep-keszites a karbantarto szemszogebol.pdf).
@@ -250,7 +260,7 @@ A gépészetben a súrlódás és a kenési elégtelenségek okozta hőmérsékl
 
 > **💡 Lényeg:** Csapágyak, szivattyúk, hajtóművek melegedésének nyomon követése.
 
-### 4. Épületdiagnosztika és építészet
+## 4.4. Épületdiagnosztika és építészet
 Az építészetben a termográfia a szerkezeti integritás és az energiahatékonyság vizsgálatára szolgál (D1 Lecture Notes (Termografia).docx).
 * **Hőszigetelés ellenőrzése:** A szigetelési hiányosságok és hőhidak pontos helye beazonosítható a falak külső felületének termális elváltozásai alapján (D1 Lecture Notes (Termografia).docx).
 * **Nedvesség detektálása:** A vízzel átitatott lapos tető éjszaka tovább tartja a nappali meleget, mint a száraz részek, így a szivárgások helye éjszakai méréssel pontosan meghatározható (D1 Lecture Notes (Termografia).docx).
@@ -260,7 +270,7 @@ Az építészetben a termográfia a szerkezeti integritás és az energiahatéko
 
 > **💡 Lényeg:** Hőhidak, nedvesedés, tetőszivárgás non-destruktív feltárása.
 
-### Összefoglaló táblázat a diagnosztikai példákról
+## 4.5. Összefoglaló táblázat a diagnosztikai példákról
 
 | Terület | Vizsgált jelenség | Konkrét példa / Érték | Forrás |
 | :--- | :--- | :--- | :--- |
@@ -277,3 +287,21 @@ Az építészetben a termográfia a szerkezeti integritás és az energiahatéko
 > **🗺️ Fejezet összegzés — 4. Gyakorlati alkalmazások**
 >
 > A termográfia széles körű ipari alkalmazása a megelőző karbantartás kulcseszköze.
+
+# Hivatkozásjegyzék
+
+[1] D1 Lecture Notes -- Termografia. Előadásjegyzet, kézirat.
+
+[2] FLIR Systems, *IR Thermography: How It Works*, FLIR Systems Inc., 2024.
+
+[3] FLIR Systems, *Infrared Energy, Emissivity, Reflection & Transmission Guide*, FLIR Systems Inc.
+
+[4] Gy. Haraszti, *Termografiai vizsgalatok*, 2013.
+
+[5] M. Reszler, "Hőtérkép-készítés a karbantartó szemszögéből," 2010.
+
+[6] Wikipedia, "Emissivity," *Wikipedia, The Free Encyclopedia*, 2026. [Online]. Elérhető: https://en.wikipedia.org/wiki/Emissivity
+
+[7] Thermo Delta Kft., "Mikrobolométer technológia," 2026. [Online]. Elérhető: https://thermodelta.hu
+
+[8] IRExpert, "Hőkamerák villamos szakembereknek," 2026. [Online]. Elérhető: https://irexpert.hu

@@ -1,0 +1,61 @@
+Az alábbiakban olvasható az infravörös termográfia témakörének hierarchikus gondolattérkép-struktúrája a forrásdokumentumok alapján:
+
+- **Infravörös termográfia átfogó tudástérképe**
+    - **Hőtan és fizikai alapfogalmak**
+        - Hő és hőmérséklet definíciója (d1_lecturenotes.docx) [1]
+        - Abszolút nulla fok és hőmérsékleti skálák (d1_lecturenotes.docx, flir_emissivity_guide.pdf) [2, 3]
+        - A termodinamika főtételei (d1_lecturenotes.docx) [4-6]
+        - Hőközlési módok (d1_lecturenotes.docx, flir2024_howworks.pdf) [7, 8]
+            - Hővezetés /Kondukció/ (d1_lecturenotes.docx) [9, 10]
+            - Hőszállítás /Konvekció/ (d1_lecturenotes.docx) [9, 11]
+            - Hősugárzás /Radiáció/ (d1_lecturenotes.docx, flir2024_howworks.pdf, haraszti2013_termografia.pdf) [9, 12-14]
+    - **Sugárzásfizikai alaptörvények**
+        - Stefan-Boltzmann törvény (d1_lecturenotes.docx, flir2024_howworks.pdf, haraszti2013_termografia.pdf, Emissivity - Wikipedia) [15-18]
+        - Planck-féle sugárzási törvény (d1_lecturenotes.docx, flir2024_howworks.pdf, Emissivity - Wikipedia) [18-20]
+        - Wien-féle eltolódási törvény (d1_lecturenotes.docx, flir2024_howworks.pdf, Emissivity - Wikipedia) [16, 21, 22]
+        - Kirchhoff-féle sugárzási törvény (d1_lecturenotes.docx, flir2024_howworks.pdf, haraszti2013_termografia.pdf, flir_emissivity_guide.pdf) [23-26]
+    - **Sugárzási paraméterek és anyagjellemzők**
+        - Sugárzási egyenleg: ε + ρ + τ = 1 (haraszti2013_termografia.pdf, flir2024_howworks.pdf, d1_lecturenotes.docx) [20, 23, 25]
+        - Emissziós tényező /ε/ (Emissivity - Wikipedia, flir_emissivity_guide.pdf, haraszti2013_termografia.pdf) [26-28]
+            - Irányfüggés és koszinusz-modell (Emissivity - Wikipedia) [29-31]
+            - Felületi állapot, érdesség és oxidáció hatása (flir_emissivity_guide.pdf, haraszti2013_termografia.pdf) [28, 32-34]
+        - Reflexió /ρ/ (flir2024_howworks.pdf, flir_emissivity_guide.pdf) [20, 35, 36]
+        - Transzmisszió /τ/ (flir2024_howworks.pdf, flir_emissivity_guide.pdf) [20, 35]
+        - Abszorpció /α/ (haraszti2013_termografia.pdf, d1_lecturenotes.docx, Emissivity - Wikipedia) [14, 23, 37]
+        - Sugárzó testek típusai (d1_lecturenotes.docx, flir2024_howworks.pdf, flir_emissivity_guide.pdf)
+            - Abszolút fekete test (d1_lecturenotes.docx, Emissivity - Wikipedia, flir_emissivity_guide.pdf) [18, 26, 38, 39]
+            - Szürke test (d1_lecturenotes.docx, flir2024_howworks.pdf, flir_emissivity_guide.pdf) [40-42]
+            - Szelektív sugárzók (pl. üveg, műanyagok) (flir2024_howworks.pdf, flir_emissivity_guide.pdf) [41, 43]
+    - **Hőkamerás mérőeszközök és technológia**
+        - Infravörös detektorok (flir2024_howworks.pdf, Mikrobolométer technológia - Thermo Delta Kft.) [44, 45]
+            - Termikus detektorok /Mikrobolométer/ (flir2024_howworks.pdf, Mikrobolométer technológia - Thermo Delta Kft.) [44-46]
+            - Kvantum detektorok (flir2024_howworks.pdf) [47]
+        - Optika és lencseanyagok (Ge, Si) (flir2024_howworks.pdf) [47]
+        - Hőkamera főbb jellemzői (Hőkamerák villamos szakembereknek, Hoterkep-keszites a karbantarto szemszogebol.pdf)
+            - Felbontás /detektorméret/ (Hőkamerák villamos szakembereknek, Hoterkep-keszites a karbantarto szemszogebol.pdf) [48, 49]
+            - Termikus érzékenység /NETD/ (Hőkamerák villamos szakembereknek) [48]
+            - Látómező /FOV/ és IFOV (Hőkamerák villamos szakembereknek) [50]
+            - Mérési tartomány (Hőkamerák villamos szakembereknek, Hoterkep-keszites a karbantarto szemszogebol.pdf) [49, 51]
+    - **Méréstechnika és befolyásoló tényezők**
+        - Atmoszférikus hatások (flir2024_howworks.pdf, haraszti2013_termografia.pdf, Emissivity - Wikipedia) [41, 52, 53]
+            - Atmoszférikus ablakok /3-5 μm, 8-14 μm/ (flir2024_howworks.pdf, haraszti2013_termografia.pdf) [52, 54]
+            - Elnyelő gázok /vízpára, CO2/ (flir2024_howworks.pdf, haraszti2013_termografia.pdf, Emissivity - Wikipedia) [52, 53, 55]
+        - Mérési geometria és távolság (flir_emissivity_guide.pdf, haraszti2013_termografia.pdf, Hőkamerák villamos szakembereknek) [28, 51, 56, 57]
+        - Környezeti zavarok (haraszti2013_termografia.pdf, flir2024_howworks.pdf, d1_lecturenotes.docx) [12, 28, 55]
+            - Háttérsugárzás és reflexió kompenzálása (haraszti2013_termografia.pdf, flir2024_howworks.pdf) [28, 58]
+            - Szél hűtő hatása (d1_lecturenotes.docx) [12]
+    - **Gyakorlati alkalmazások**
+        - Villamos diagnosztika (Hőkamerák villamos szakembereknek, Hoterkep-keszites a karbantarto szemszogebol.pdf) [59, 60]
+            - Kötéshibák, túlterhelések és aszimmetria (Hőkamerák villamos szakembereknek) [61]
+            - Napelemes rendszerek vizsgálata (Hőkamerák villamos szakembereknek) [61]
+        - Ipari és mechanikai karbantartás (Hoterkep-keszites a karbantarto szemszogebol.pdf, d1_lecturenotes.docx) [62, 63]
+            - Csapágyak és motorok ellenőrzése (Hoterkep-keszites a karbantarto szemszogebol.pdf) [62, 64]
+        - Épületdiagnosztika (Emissivity - Wikipedia, Hoterkep-keszites a karbantarto szemszogebol.pdf, d1_lecturenotes.docx) [62, 65, 66]
+            - Hőszigetelési hiányosságok és nedvesedés (Hoterkep-keszites a karbantarto szemszogebol.pdf, d1_lecturenotes.docx) [62, 66]
+            - Alacsony emissziós /Low-E/ bevonatok (Emissivity - Wikipedia) [65]
+        - Tudományos és speciális területek (Emissivity - Wikipedia)
+            - Űrkutatási hővédelem /HEC bevonatok/ (Emissivity - Wikipedia) [67]
+            - Planetáris hőtérképek és globális felmelegedés (Emissivity - Wikipedia) [68, 69]
+
+---
+conversation_id: f07d5b07-18dc-48c1-9c09-5fa13592d987

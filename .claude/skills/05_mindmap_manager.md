@@ -75,7 +75,7 @@ Ez adja a legteljesebb strukturat (vizualis layout is), ezert ha elerheto, ezt h
 - Ha a raw output tartalmaz MSc jelzest, vagy az adott fogalom csak masodik/harmadik
   szintu folyoiratban jelenik meg (SCRIMP++, multidimenzios MP, stb.): `[MSc]` elotaggal.
 - BSc szintu fogalmak: elotagok nelkul.
-- A `05_mindmap_manager` skill nem donti el egyedtul a BSc/MSc hatart --
+- A `05_mindmap_manager` skill nem donti el egyedul a BSc/MSc hatart --
   a `.claude/context.md` tantargy-specifikus megadasa alapjan dolgozik.
 
 # 4. Sablon

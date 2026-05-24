@@ -4,8 +4,8 @@ title: 01_NLM_QUERY_RUNNER — NLM Query Runner
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-22
+version: 1.1
+updated: 2026-05-24
 description: NLM notebook lekérdezése CLI-n keresztül. Mindmap szintek alapján tematikus queryek, raw JSON mentés, citations.json alapozása. Felváltja a 01_html_to_md lépést.
 ---
 
@@ -54,6 +54,52 @@ Minden héthez a mindmap 2. szintű csomópontjai adják a query témákat:
 | Q5 | Kérdések (09 lépéshez) | [09_question_bank_collector promptja] |
 
 A sorrend nem kötött; a mindmap struktúrája határozza meg.
+
+## 3.1. Mindmap-vezérelt query sablonok (NLM belső logika)
+
+Az NLM mindmap-nézetben a csomópontokra kattintva a következő belső queryt küldi a RAG-nak:
+
+**Gyökér csomópont:**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt <fő node> témakörről.
+```
+
+**2. szint (gyerek node):**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt,
+a(z) <szülő node> tágabb kontextusába tartozó <gyerek node> témakörről.
+```
+
+**3. szint (unoka node):**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt,
+a(z) <szülő node> tágabb kontextusába tartozó <unoka node> témakörről.
+```
+
+A szülő mindig az **egy szinttel feljebb lévő csomópont** neve -- nem a gyökér.
+
+### Implikáció a Q1-Q4 queryekre
+
+A helyes pipeline-sorrend: **00b (mindmap) → 01 (queryek mindmap alapján)**.
+
+| Query | Sablon szint | Minta |
+|:------|:-------------|:------|
+| Q1 | Gyökér | `"Beszélgessen ... <tantárgy> témakörről."` |
+| Q2-Q4 | 2. szint | `"... a(z) <tantárgy> ... <főcsomópont> témakörről."` |
+| Q5 (opció) | 3. szint | `"... a(z) <főcsomópont> ... <részcsomópont> témakörről."` |
+
+**Konkrét minta (Termografia, 1. hét):**
+```powershell
+# Q1 -- gyoker
+$q1 = "Beszelgessen az ezekben a forrasokban targyalt Infravoros termografia temakorrol."
+# Q2 -- level-2: Sugarzasfizika
+$q2 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Sugarzasfizikai alaptorvenyek temakorrol."
+# Q3 -- level-2: Hokamerak
+$q3 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Hokamerak es merestechnika temakorrol."
+```
+
+⚠️ **ASCII-korlát:** A CLI-n küldött kérdésben ékezetek elfogadottak, de
+ha az output csonka, ASCII fallback-et alkalmazz (l. §2 workaround).
 
 # 4. Szekció-markerek injektálása
 
@@ -211,5 +257,6 @@ Ez az út **nem ajánlott** -- Prompt B és CLI nélkül UUID-ek nem állnak ren
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-24 | 1.1 | §3.1 Mindmap query sablonok hozzáadva (NLM belső logika, szülő-gyerek template) |
 | 2026-05-22 | 1.0 | 5.1-5.4 hozzáadva: references mezo szerkezet (source_id), citations hiány Q2/Q3-ban, UTF-8-sig CRLF minta, helyes builder kód |
 | 2026-05-22 | 1.0 | Fájl létrehozva; 01_html_to_md felváltja; CLI workflow, Q:N markerek, citations init dokumentálva |
