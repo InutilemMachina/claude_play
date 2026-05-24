@@ -86,18 +86,18 @@ Tantárgy-szintű context.md: ld. `templates/context_sablon.md`.
 
 # 4. Dokumentálási protokoll
 
+Az általános elvek (architektúra, hibakezelés, token-takarék, PDCA) a Cowork Instructions mezőben vannak rögzítve. Az alábbi tábla a projekt-specifikus célokat mutatja.
+
 | Mi történt | Hova | Formátum |
 |-----------|------|----------|
-| Teszt lefutott | `project_status.md §Do` | Dátum + checklist |
-| Új hiba | `pitfalls.md` új §N.M | Tünet / Gyökérok / Megoldás |
-| Skill javítva | `skills/NN_*.md §Változásjegyzék` | Táblasor |
+| Teszt lefutott | `project_status.md` > Do | Dátum + checklist |
+| Új hiba | `pitfalls.md`, új szekció | Tünet / Gyökérok / Megoldás |
+| Skill javítva | `skills/NN_*.md` > Változásjegyzék | Táblasor |
 | Pipeline változott | `pipeline.md` | In-place |
 | Képpipeline változott | `kepek_workflow.md` | In-place |
-| Következő teendők | `project_status.md §Plan` | Prioritástáblázat |
+| Következő teendők | `project_status.md` > Plan | Prioritástáblázat |
 
-**Aranyszabály:** Skills LINKELNEK `pitfalls.md`-be -- sosem másolják. Minden információnak egyetlen authoritative home-ja van; máshol: 1 sor + link.
-
-**Token-takarék:** `bash cp` sablonok másolásához · `bash cat << 'EOF'` JSON/ékezetes fájlhoz · Edit tool (csak a változó rész, nem teljes újraírás).
+**Aranyszabály:** Skills LINKELNEK `pitfalls.md`-be -- sosem másolják.
 
 # 5. Fájlkatalógus
 
