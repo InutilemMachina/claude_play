@@ -6,7 +6,8 @@ Fix 1_Jegyzet.md structure:
 4. Hivatkozasjelzek a vegere
 5. TOC ujrageneralas helyes anchorokkal
 """
-
+# TODO: ez a script nem egy általános generalizálható megoldás.
+# TODO: már régen rossz, ha valamit postfix módon kell javítani
 import re
 import os
 

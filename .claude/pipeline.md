@@ -11,46 +11,43 @@ description: Pipeline flowchart, IO táblázat, forrástípusok, checkpointok. E
 
 # 1. Vizualizáció
 
+NOTE: A mermaid flowchart-ot szándékosan kiegyenesítettem. Ezt `# 1. Vizualizáció` egyértelműen össsze kell dolgozni értelmesen a `# 2. IO táblázat` szakasszal.
+TODO: Ez így logikus felépítés?
 ```mermaid
 flowchart TD
-    START(["🚀 Indítás"]) --> PRE
-
-    subgraph PRE["Egyszeri setup"]
-        P1["👤 context.md kitöltése"] --> P2
-        P2["🤖 Mappastruktúra létrehozása"] --> P3
-        P3["👤 du_template.pptx elérhetővé tétele\n(templates/-ből másolás)"] --> P4
-        P4["👤 NLM notebook létrehozása\n+ Prompt B beállítása"]
-    end
-
-    PRE --> WEEK
-
-    subgraph WEEK["Heti bemenet + tartalom-generálás -- ismétlődő"]
-        direction TB
-        W0["👤 Forrás NLM-be töltése"] --> W0c
-        W0c["🐍 00c_mineru_extractor\nPDF → kepek/ + figure_catalog.json"] --> W1
-        W1["🔌 01_nlm_query_runner\nNLM CLI Q1-Q4 + Q5 ábra-query"] --> W2
-        W2["🤖 02_source_controller\nforrásrészek azonosítása"] --> W2CHK
-        W2CHK["👤 ✅ jóváhagyás 🛑"] --> W3
-        W3["🤖 03_excerpt_block_maker\nin-place blockquote-ok"] --> W4
-        W4["🤖 04_citations_maker\ncitations.json + globális atsorszámozás"] --> W4CHK
-        W4CHK["👤 ✅ szószedet 🛑"] --> W5
-        W5["🤖 05_mindmap_manager\nMermaid flowchart LR"] --> W5b
-        W5b["🤖 05b_figure_mapper\nfigure_catalog + Q5 → REVIEW placeholderek"] --> W6
-        W6["🤖 06_notes_collector\nTárgymutató"] --> W7
-        W7["🤖 07_typesetter\ntipográfia lint"] --> W8
-        W8["🤖 08_presentation_maker\n→ Prezentacio.md + .pptx 🐍"] --> W9
-        W9["🤖 09_question_bank_collector\nQ NLM-ből BSc/MSc"] --> W10
-        W10["🐍 10_bsc_filter\n→ bsc/"]
-    end
-
-    WEEK --> NEXT{"Van még hét?"}
-    NEXT -->|igen| WEEK
-    NEXT -->|nem| END(["✅ Kész"])
+    P1["👤 context.md kitöltése"] --> P2
+    P2["🤖 Mappastruktúra létrehozása \TODO: ezt lehetne automatizálni bash script?"] --> P3 
+    P3["👤 du_template.pptx elérhetővé tétele\n(templates/-ből másolás)TODO ott van, tessék a a másolást automatizálni"] --> P4
+    P4["👤 NLM notebook létrehozása\n+ Prompt B beállítása TODO ez legyen automatikus, már tudod hogy kell csinálni."] --> W0
+    W0["👤 Forrás NLM-be töltése TODO ez már automatiált"] --> W0c
+    W0c["🐍 00c_mineru_extractor\nPDF → kepek/ + figure_catalog.json"] --> W1
+    W1["🔌 01_nlm_query_runner\nNLM CLI Q1-Q4 + Q5 ábra-query
+    QUESTION: Mi az a Q1-Q4 + Q5???"] --> W2
+    W2["🤖 02_source_controller\nforrásrészek azonosítása 
+    TODO: ez még nem automatizált? "] --> W2CHK 
+    W2CHK["👤 ✅ jóváhagyás 🛑 QUESITON: mit kell itt jóváhagyni"] --> W3
+    W3["🤖 03_excerpt_block_maker\nin-place blockquote-ok"] --> W4
+    W4["🤖 04_citations_maker\ncitations.json + globális átsorszámozás: Miért és mit kell globálisan átsorszámozni?"] --> W4CHK
+    W4CHK["👤 ✅ szószedet 🛑 QUESITON: ennek a mindmapből kéne jönnie"] --> W5
+    W5["🤖 05_mindmap_manager\nMermaid flowchart LR
+    MOST IMPORTANT TODO: Miért nem a mindmap generálásával és lekérdezésével kezdjük a tartalom lekérdezését? annak a hirearchikus lekérdezése lenne a cél. "] --> W5b
+    W5b["🤖 05b_figure_mapper\nfigure_catalog + Q5 → REVIEW placeholderek"] --> W6
+    W6["🤖 06_notes_collector\nTárgymutató"] --> W7
+    W7["🤖 07_typesetter\ntipográfia lint"] --> W8
+    W8["🤖 08_presentation_maker\n→ Prezentacio.md + .pptx 🐍"] --> W9
+    W9["🤖 09_question_bank_collector\nQ NLM-ből BSc/MSc"] --> W10
+    W10["🐍 10_bsc_filter\n→ bsc/"]
 ```
 
 💡 **Egy NLM notebook = egy hét anyaga.** Prompt B és forrás-UUID-ek per-hét izoláltak, sorszámozás egyértelmű.
 
 # 2. IO táblázat
+TODO: Miért nincsenek itt hyperlink-ek?
+A cél struktúra legyen ez:
+| Input <br> Felelős <br> | Lépés száma. Lépés neve hyperlink-kel <br> automatizált?: 😎🤖🐍🔌💻| Output <br> Felelős <br> |  |
+|-------|-------|--------|---------|
+| 00_references_collector <br> 🤖+👤 | User PDF-ek, Deep Research | raw_sources/*.pdf + clean_sources/citations_seed.json | 🤖+👤 |
+
 
 | Lépés | Input | Output | Felelős |
 |-------|-------|--------|---------|
@@ -70,7 +67,7 @@ flowchart TD
 | 10_bsc_filter | N_*.md | bsc/ (MSc blokkok nélkül) | 🐍 |
 
 # 3. Forrástípusok
-
+QUESTION: Vajon tényleg olyan fontos ez a szakasz, van benne hozzáadott érték?
 - Tiszta/scannelt PDF (képpel, táblázattal, egyenlettel)
 - MS Office: Word, PowerPoint vagy ezek PDF változatai
 - Webes forrás: HTML, YouTube
@@ -78,6 +75,8 @@ flowchart TD
 ⚠️ **Képes PDF kétlépcsős eljárás:** MinerU 🐍 markdown-t és képeket külön fájlként
 kell NLM-be tölteni. Alt-text kötelező a jó RAG-eredményhez.
 Részletek: [kepek_workflow.md](kepek_workflow.md)
+QUESTION: ez bizonyított vagy csak betippelted?
+Ha igen, akkor biztos, hogy ennek a szakasznak itt a helye?
 
 # 4. Utasítás szintek
 
@@ -89,7 +88,7 @@ Részletek: [kepek_workflow.md](kepek_workflow.md)
 - Session protokoll, checkpoint logika, dokumentálási szabályok
 
 # 5. Checkpointok
-
+QUESTION: Ez aktualizálva van?
 | Checkpoint | Feltétel | Claude viselkedése |
 |------------|----------|--------------------|
 | Egyszeri setup | du_template.pptx + NLM Prompt B | Folytatja |
@@ -106,6 +105,7 @@ Részletek és notebook-lista: [nlm_integration.md](nlm_integration.md)
 # Nyitott kérdések
 
 - Nagy témák (3+ hetes anyag): hogyan osztja meg a forrást több NLM notebook? Több notebook = párhuzamos Q1-Q4, vagy szekvenciális?
+ANSWER: Egyetlen óriás tananyagot hozunk létre, amit az előadó több héten át tart. 
 
 # Változásjegyzék
 

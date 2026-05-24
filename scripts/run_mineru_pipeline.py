@@ -40,7 +40,7 @@ except ImportError:
 WARN_MB_DEFAULT = 20       # e felett figyelmeztetes + kerdes
 CONDA_ENV       = "mineru" # conda kornyezet neve
 MAGIC_PDF_CMD   = ["conda", "run", "-n", CONDA_ENV, "--no-capture-output",
-                   "magic-pdf", "-p", "{pdf}", "-o", "{out}", "-m", "auto"]
+                   "mineru", "-p", "{pdf}", "-o", "{out}", "-m", "auto", "-b", "pipeline"]
 
 # ── Helper-ek ─────────────────────────────────────────────────────────────────
 console = Console() if RICH else None

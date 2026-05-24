@@ -182,6 +182,8 @@ Felhasználó elfogadja vagy elveti a REVIEW flaggel jelölt blokkokat.
 # 8. Placeholder csere valódi képre
 
 👤 Manuális lépés, egyszer PDF-enként:
+TODO: A mineru-t te is tudod automatizáltan futtatni. 
+TODO: CRITICAL ezt a képorientált workflow-t kialakítani.
 1. mineru_pdf.py futtatása
 2. mineru_rename.py futtatása
 3. Képek másolása forrasok/kepek/-be

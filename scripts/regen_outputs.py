@@ -3,6 +3,7 @@ regen_outputs.py -- Regenerálja az összes heti pipeline output fájlt
                     helyes magyar ékezetekkel, az NLM query outputok alapján.
 2026-05-24
 """
+# TODO: az már régen rossz, ha újra kell valamit generálni, mert nem volt verziókövetve... de legalább most már van :D
 import pathlib
 
 ROOT = pathlib.Path(__file__).parent.parent

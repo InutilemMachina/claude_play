@@ -11,6 +11,7 @@ Usage:
   python scripts/heading_numberer.py <file.md> [--dry-run] [--base-level N]
   python scripts/heading_numberer.py --all-in <folder> [--dry-run]
 """
+# QUESTION: miért van erre  a sok processzálásra egyáltalán szükség? 
 
 import argparse
 import re
@@ -25,6 +26,7 @@ UNNUMBERED = {
     'valtozasjegyzek',
     'megjegyzes',
 }
+# QUESTION: hol helyezkednek el ezek egy egyetemi/akademiai jegyzetben? 
 
 def _normalize(s):
     """Lowercase + strip accents + remove spaces, for comparison."""
