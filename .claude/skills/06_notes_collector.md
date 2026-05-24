@@ -62,7 +62,38 @@ Inkább a ritkán előforduló, specifikus szakkifejezések (pl. `Micro-scan`, `
 
 ## 3.3. Általános dokumentum
 
-Csak a fejléc-alapú tartalomjegyzék elegendő — kulcsszavak nélkül.
+Csak a fejléc-alapú tartalomjegyzék elegendő -- kulcsszavak nélkül.
+
+## 3.4. NLM mindmap-alapú lekérdezési stratégia
+
+Az NLM mindmap-node-okra kattintva a rendszer hierarchikus kérdéssablonokat küld a notebooknak. Az alábbi sablon szerint kell a lekérdezéseket felépíteni:
+
+**Fő node (gyökér, 1. szint):**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt <fő node=X> témakörről.
+```
+
+**Gyerek node (2. szint):**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt, a(z) <szülő node=X> tágabb kontextusába tartozó <gyerek node=Y> témakörről.
+```
+
+**Unoka node (3. szint és mélyebb):**
+```
+Beszélgessen az ezekben a forrásokban tárgyalt, a(z) <szülő node=Y> tágabb kontextusába tartozó <gyerek node=Z> témakörről.
+```
+
+Ahol: `<szülő node>` mindig az adott node közvetlen szülője (egy szinttel feljebb), nem a gyökér.
+
+**Példa (Mátrix Profil mindmap):**
+
+| Szint | Sablon kitöltve |
+|-------|-----------------|
+| 1 (fő) | `...tárgyalt <fő node=Mátrix Profil> témakörről.` |
+| 2 (gyerek) | `...a(z) <szülő node=Mátrix Profil> tágabb kontextusába tartozó <gyerek node=Áttekintés> témakörről.` |
+| 3 (unoka) | `...a(z) <szülő node=Áttekintés> tágabb kontextusába tartozó <gyerek node=Alapvető Eszköz Idősor Elemzéshez> témakörről.` |
+
+**Workflow:** A mindmap összes releváns node-jára sorban le kell futtatni a megfelelő sablonnal. Az így kapott NLM-válaszok alkotják a `clean_sources/` bemeneti anyagát a 06-os lépéshez.
 
 # 4. Workflow
 
@@ -108,3 +139,4 @@ Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.m
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-24 | 1.1 | §3.4 hozzáadva: NLM mindmap-alapú lekérdezési stratégia (hierarchikus sablon) |
