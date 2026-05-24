@@ -23,42 +23,27 @@ majd egy `figure_catalog.json`-t épít, amelyet a `05b_figure_mapper` használ.
 
 # 2. Futtatas
 
-Mindhárom parancsot a **tantárgy week mappájából** kell futtatni
-(pl. `matrixprofil_teszt_2/`), hogy az útvonalak stimmeljenek.
+**Ajánlott:** `scripts/run_mineru_pipeline.py` -- vizuális progress, notebook/fájl számláló,
+nagy fájl kérdés, összefoglaló tábla. A claude_play gyökeréből futtatandó.
+
+```powershell
+# Teljes tantárgy (minden N_*/raw_sources/*.pdf)
+conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_teszt
+
+# Nagy fájl figyelmeztetési határ módosítása (alapértelmezett: 20 MB)
+conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_teszt --warn-mb 50
+```
+
+**Manuális (egy hét, egy PDF):**
 
 ```powershell
 # 1. MinerU: PDF-ek feldolgozasa -> kepek/ mappa
-conda run -n mineru python scripts/mineru_pdf.py 1_het/forrasok/ --output 1_het/forrasok/kepek/
+conda run -n mineru python scripts/mineru_pdf.py N_[tema]/raw_sources/ --output N_[tema]/clean_sources/kepek/
 
-# 2. Atnevezés: content_type_N_pPage.ext konvenció
-conda run -n mineru python scripts/mineru_rename.py 1_het/forrasok/kepek/ --dry-run
-conda run -n mineru python scripts/mineru_rename.py 1_het/forrasok/kepek/
-
-# 3. Katalogus epitese
-conda run -n mineru python scripts/build_figure_catalog.py 1_het/forrasok/kepek/
-# output: 1_het/forrasok/figure_catalog.json
+# 2. Katalogus epitese
+conda run -n mineru python scripts/build_figure_catalog.py N_[tema]/clean_sources/kepek/
+# output: N_[tema]/clean_sources/figure_catalog.json
 ```
-
-Az output struktúra:
-
-```
-1_het/forrasok/
-├── kepek/
-│   ├── yeh2016_paper/
-│   │   └── auto/                  <- MinerU saját könyvtárszintje
-│   │       ├── images/
-│   │       │   ├── image_1_p3.jpg
-│   │       │   ├── image_2_p7.jpg
-│   │       │   └── table_1_p5.jpg
-│   │       ├── yeh2016_paper.md
-│   │       └── yeh2016_paper_content_list.json
-│   └── zhu2016_paper/
-│       └── auto/ ...
-└── figure_catalog.json       <- build_figure_catalog.py epiti
-```
-
-⚠️ MinerU egy extra `auto/` szinttel ír ki -- a dokumentációban korábban ez nem szerepelt.
-
 # 3. figure_catalog.json epites
 
 A katalógust `scripts/build_figure_catalog.py` építi (önálló script, futtatható).
@@ -74,10 +59,12 @@ Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
 # 4. Kimenet
 
 | Fájl | Tartalom |
-|:-----|:---------|
-| `forrasok/kepek/SOURCE/images/*.jpg` | Átnevezett képek |
-| `forrasok/kepek/SOURCE/SOURCE.md` | Teljes paper MinerU-Markdown-ban |
-| `forrasok/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
+|:-----|:--------
+| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_sources/; raw_sources/ junction dokumentálva |-|
+| `clean_sources/kepek/SOURCE/images/*.jpg` | Átnevezett képek |
+| `clean_sources/kepek/SOURCE/SOURCE.md` | Teljes paper MinerU-Markdown-ban |
+| `clean_sources/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
 
 # 5. Ismert korlatok
 
@@ -103,4 +90,9 @@ Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
-|-------|--------|--------|
+|-------|--------
+| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_sources/; raw_sources/ junction dokumentálva ||--------
+| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_sources/; raw_sources/ junction dokumentálva ||
+

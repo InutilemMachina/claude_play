@@ -75,6 +75,24 @@ struktúrájúak -- **nem** `{id, ...}`.
 
 **Megoldás:** `{r["source_id"]: r for r in val["references"]}` lookup dict.
 
+
+## 2.3. PowerShell tobbsoros --prompt argument tores
+
+**Tunet:** `nlm chat configure <ID> --goal custom --prompt $variable` hibaval dob:
+`Got unexpected extra arguments (...)` -- a prompt szovege szokoznél szetdarabolodik.
+
+**Gyokérok:** PowerShell here-string (`@'...'@`) valtozot native command-nak atadva
+a CLI a szokozokat es sortoreseket argumentum-határkent ertelmezi.
+
+**Megolddas:** Python subprocess-en keresztul hivni a CLI-t:
+
+```python
+subprocess.run(
+    [r'path\to\nlm.exe', 'chat', 'configure', notebook_id,
+     '--goal', 'custom', '--prompt', prompt_text],
+    capture_output=True, text=True
+)
+```
 ## 2.3. PowerShell query timeout
 
 **Tünet:** `MCP error -32001: Request timed out` hosszú query szövegnél.
@@ -209,3 +227,37 @@ python scripts/mineru_pdf.py 1_het/forrasok/ --output 1_het/forrasok/kepek/
 - 2026-05-22 -- Létrehozva (matrixprofil_teszt_2 PoC futás tapasztalatai alapján)
 - 2026-05-22 -- 3.2-3.3 hozzáadva: excerpt_block_maker marker-sorrend bug; citations assembly hiányos konverzió
 - 2026-05-23 -- 4. fejezet: figure pipeline pitfalls hozzáadva (4.1-4.4)
+
+## §5. NLM Studio UI funkciók vs. pipeline
+
+### §5.1. NLM ábragaléria nem érhető el CLI-n
+
+**Tünet:** Az NLM Studio "Notebook guide" ábragalériája vizuálisan látható, de `nlm query notebook` nem adja vissza.
+**Gyökérok:** Az ábragaléria a webUI-ban renderelt funkció, nem CLI végpont.
+**Megoldás:** Pipeline ábraforrása kizárólag MinerU (`figure_catalog.json`). NLM ábragaléria nem szükséges.
+
+### §5.2. NLM mindmap CLI-n ELÉRHETŐ -- integrálni kell
+
+**Tünet:** Korábban UI-only-nak hittük, de `nlm mindmap create <notebook_id> --confirm` CLI-n is fut.
+**Kimenet:** Studio artifaktot generál (nem JSON/Mermaid -- formátum tesztelendő).
+**Teendő:** Tesztelni, hogy az output alkalmas-e Mermaid-konverzióra, és ha igen, `05_mindmap_manager`-be integrálni `nlm_query.py mindmap` parancson keresztül.
+
+### §5.3. HTML forrás képei elvesznek --text feltöltésnél
+
+
+
+**Tünet:** `nlm source add --text <html_szöveg>` csak a szöveget adja át, az <img> tagek által hivatkozott képek nem kerülnek be.
+**Gyökérok:** A `--text` opció plain text / stripped HTML, nem renderelt DOM.
+**Megoldás:** Ha a HTML nyilvánosan elérhető: `--url` opció. Ha lokális: PDF-konverzió (wkhtmltopdf). Ha csak szöveg kell: elfogadható veszteség.
+
+## §6. Karakterkódolás
+
+### §6.1. CP1250-mojibake PowerShell fájlszerkesztésnél
+
+**Tünet:** A PowerShell `[System.IO.File]::ReadAllText` + string replacement + `WriteAllText` utáni `.md` fájlokban a magyar karakterek (`á`, `é`, `ő` stb.) CP1250-mojibake formában jelennek meg (pl. `á`, `é`, `Ĺ'`).
+**Gyökérok:** A PowerShell MCP híd a stdout-ot CP1250-ként adja vissza; a string-cserék az eredeti UTF-8 byte-okat CP1250-ként értelmezik, majd UTF-8-ba visszakódolva dupla kódolás keletkezik.
+**Megoldás:**
+1. Fájl-szerkesztésre az Edit tool használata (nem PowerShell WriteAllText).
+2. NLM lekérdezések mentéséhez: `scripts/nlm_query.py` Python subprocess-en keresztül (`encoding='utf-8'`).
+3. Utólagos javítás: `utf8_bytes.decode('cp1250')` táblával csere -- de kerülendő.
+**Érintett fájlok (javítva 2026-05-23):** `.claude/pipeline.md`, `.claude/pitfalls.md`, `.claude/skills/00c_mineru_extractor.md`.

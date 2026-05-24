@@ -1,11 +1,11 @@
 ﻿---
-title: NLM_PROMPTS.MD — NLM es Claude meta-promptok
+title: NLM_PROMPTS.MD — NLM és Claude meta-promptok
 type: meta
 tags: [meta, reference]
 updated: 2026-05-21 (rev2)
 description: Bemásolandó prompt szövegek. A = Claude Project Instructions. B = NLM Custom Instructions (hat a CLI-re is). C = Data Tables Studio + Export-Tool workflow. Forrás: nlm_claude_integration.md + 2026 tesztek.
 ---
-# NLM Prompts — NLM es Claude Meta-promptok
+# NLM Prompts — NLM és Claude Meta-promptok
 
 Forrás: [nlm_claude_integration.md](nlm_claude_integration.md), 6. fejezet.
 
@@ -167,4 +167,4 @@ Minden sorhoz legyen megadva a forrás. Ha egy állítás több forrásból is a
 - 2026-05-21 — Létrehozva (Prompt A+B); nlm_claude_integration.md 6. fej. alapján
 - 2026-05-21 — Prompt C hozzáadva (Data Tables studio, 3 sablon)
 - 2026-05-21 — Duplikált "Prompt B" (Data Tables) → "Prompt C" javítva; YAML description sorrendje korrigálva; duplikált fejlécek eltávolítva
-- 2026-05-21 (rev2) — Prompt A: notebook_query hibás tool-név javítva → nlm query notebook CLI; szerepkör-leírás eltávolítva (CLAUDE.md fedi); citations.json linkelve. Prompt B: CLI-hatás dokumentálva (tesztelve MP notebookon); ékezet-mentes verzió beillesztve inline CLI-hez. Prompt C: Export-Tool workflow (cced3000) hozzáadva; Sheets→Export-Tool váltás; [!QUESTION] tagek megválaszolva; kvíz export státusz rögzítve.
+- 2026-05-21 (rev2) — Prompt A: notebook_query hibás tool-név javítva → nlm query notebook CLI; szerepkör-leírás eltávolítva (CLAUDE.md fedi); citations.json linkelve. Prompt B: CLI-hatás dokumentálva (tesztelve MP notebookon); ékezet-mentes verzió beillesztve inline CLI-hez. Prompt C: Export-Tool workflow (cced3000) hozzáadva; Sheets→Export-Tool váltás; [!QUESTION] tagek megválaszolva; kvíz export státusz rögzítv

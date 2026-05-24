@@ -8,6 +8,11 @@
 *.jpg
 *.jpeg
 
+# IDE és szerkesztő fájlok
+.vscode/
+**/raw_sources/
+**/clean_sources/
+
 # Kivétel: master sablon és brand assets
 !templates/du_template.pptx
 !templates/assets/
@@ -16,6 +21,7 @@
 **/kepek/
 **/mineru_output/
 **/auto/
+**/tests/
 
 # Backup fájlok
 *.bak
@@ -28,4 +34,4 @@ mineru_log.txt
 # OS
 .DS_Store
 Thumbs.db
-desktop.ini
+desktop.

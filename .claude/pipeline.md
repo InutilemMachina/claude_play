@@ -54,15 +54,15 @@ flowchart TD
 
 | Lépés | Input | Output | Felelős |
 |-------|-------|--------|---------|
-| 00_references_collector | User PDF-ek, Deep Research | forrasok/*.pdf + citations_seed.json | 🤖+👤 |
-| 00b_nlm_notebook_setup | sources | NLM notebook + Prompt B + UUID-k | 🔌 |
-| 00c_mineru_extractor | forrasok/*.pdf | kepek/ + figure_catalog.json | 🐍 |
-| 01_nlm_query_runner | NLM notebook + mindmap | nlm_q*_raw.txt (Q5=ábra) | 🔌 |
+| 00_references_collector | User PDF-ek, Deep Research | raw_sources/*.pdf + clean_sources/citations_seed.json | 🤖+👤 |
+| 00b_nlm_notebook_setup | raw_sources/ | NLM notebook + Prompt B + UUID-k | 🔌 |
+| 00c_mineru_extractor | raw_sources/*.pdf | clean_sources/kepek/ + figure_catalog.json | 🐍 |
+| 01_nlm_query_runner | NLM notebook | clean_sources/nlm_q*_raw.txt (Q5=ábra) | 🔌 |
 | 02_source_controller | nlm_q*_raw.txt | (belső) | 🤖 🛑 |
 | 03_excerpt_block_maker | N_Jegyzet.md draft | N_Jegyzet.md (in-place, blockquote-ok) | 🤖 |
-| 04_citations_maker | citations_seed.json + raw txt | N_Szozedet.md + citations.json | 🤖 🛑 |
+| 04_citations_maker | clean_sources/citations_seed.json + nlm_q*.txt | N_Szozedet.md + clean_sources/citations.json | 🤖 🛑 |
 | 05_mindmap_manager | mindmap_raw.md | N_Mindmap.md | 🤖 |
-| 05b_figure_mapper | figure_catalog.json + nlm_q5_raw.txt | N_Jegyzet.md (FIG REVIEW blokkok) | 🤖 |
+| 05b_figure_mapper | clean_sources/figure_catalog.json + nlm_q5_raw.txt | N_Jegyzet.md (FIG REVIEW blokkok) | 🤖 |
 | 06_notes_collector | N_Jegyzet.md | N_Jegyzet.md (in-place, Tárgymutató) | 🤖 |
 | 07_typesetter | N_Jegyzet.md | N_Jegyzet.md (in-place, lint) | 🤖 |
 | 08_presentation_maker | N_Jegyzet.md + template | N_Prezentacio.md + .pptx | 🤖+🐍 |
@@ -114,3 +114,5 @@ Részletek és notebook-lista: [nlm_integration.md](nlm_integration.md)
 | 2026-05-21 | 1.0 | Létrehozva, NLM-only pipeline |
 | 2026-05-21 | 1.1 | Linkjavítás, 03 in-place pontosítva |
 | 2026-05-23 | 2.0 | "elavult" eltávolítva; 01_nlm_query_runner + 00c + 05b beillesztve; IO táblázat hozzáadva; pipeline_next_steps.md strukturális javaslatai beépítve |
+| 2026-05-23 | 2.1 | IO tábla: forrasok/ → raw_sources//clean_sources/ szétválasztás |
+

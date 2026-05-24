@@ -9,21 +9,35 @@ description: Playground (claude_play) PDCA log. Session elején Claude olvassa b
 
 # Project Status -- Playground PDCA Log
 
-_Frissítve: 2026-05-23_
+_Frissítve: 2026-05-23 (2. update)_
 
 # 1. Plan (következő lépések)
 
+_Frissítve: 2026-05-24 -- ACT a diagnosztika alapján_
+
 | # | Feladat | Felelős | Megjegyzés |
 |:--|:--------|:--------|:-----------|
-| A | **00_references_collector PoC** -- Matrix Profile, 3-5 forrás Deep Research + letöltés | 🤖 | Skill kész, futtatás hiányzik |
-| B | **NLM Prompt B automatizálás** vizsgálata -- CLI parancs vagy Chrome-vezérlés | 🤖 | Új igény |
-| C | **NLM metapromptok pedagógiai felülvizsgálata** -- didaktikai hangnem, képek | 🤖+👤 | nlm_prompts.md átírás |
-| D | **du_template.pptx** megszerkesztése | 👤 | Hiányzik, bypass él; templates/-ben van placeholder |
-| E | **PDF-ek feltöltése** (MP I, II) + MinerU futtatása | 👤 | Hiányzik, kepek_workflow.md §8 |
-| F | **DFT teszt pipeline futtatása** | 🤖+👤 | sources: tests/dft/forrasok/ |
+| **P1** | **Pipeline output újrafuttatás** -- mind a 3 hét (03-10 skill-ek) ékezetes magyarral | 🤖+👤 | ❌ KRITIKUS -- 15 fájl 0% ékezet; csak az NLM clean_sources OK |
+| **P2** | **MatrixProfil HTML forrás** -- SingleFile mentés → NLM upload → lekérdezés | 🤖+👤 | Chrome-on manuális lépés; majd nlm_query.py |
+| **P3** | **matrixprofil Q4** újrafuttatás | 🤖 | Jelenleg [SIM] placeholder -- valós NLM query kell |
+| **P4** | **citations.json minőség** -- `file` és `title` mezők kitöltése | 🤖 | source_1 generikus → valós fájlnév |
+| B | **NLM Prompt B automatizálás** vizsgálata -- CLI vagy Chrome | 🤖 | Megjegyzés: ASCII-ot küld CLI-n; ékezetes UI-on kell beállítani |
+| C | **NLM metapromptok pedagógiai felülvizsgálata** | 🤖+👤 | nlm_prompts.md átírás |
+| D | **du_template.pptx** megszerkesztése | 👤 | Hiányzik, bypass él |
+| E | **PDF-ek feltöltése** (MP I, II) + MinerU futtatása | 👤 | kepek_workflow.md §8 |
 | G | **context_sablon.md lépésszámok frissítése** | 🤖 | C00-C08 oszlopok elavultak |
 
 # 2. Do (elvégzett munkák)
+
+## 2026-05-24 -- Diagnosztika + kódolásjavítás
+
+- ✅ pipeline.md: 55 mojibake csere (emoji + →); C1-control fallback logika
+- ✅ pitfalls.md: 13 csere (§, →, á, é, Á, 🗺, 💡)
+- ✅ 00c_mineru_extractor.md: 14 csere (§, →, Á, 🐍, 🔌)
+- ✅ nlm_prompts.md: cím "es" → "és" (2x)
+- ✅ .gitignore: `.raw_sources/` → `**/raw_sources/`, `.clean_sources/` → `**/clean_sources/`
+- ✅ project_status.md: §Check + §Plan frissítve (diagnosztika eredményei)
+- ❌ LELET: 15 pipeline output fájl 0% ékezetsűrűség -- újrafuttatás szükséges
 
 ## 2026-05-23 -- Meta-fájlok konszolidáció (2. kör)
 
@@ -75,28 +89,17 @@ _Frissítve: 2026-05-23_
 
 # 3. Check (tanulságok az utolsó futásból)
 
-Az alábbi tanulságok az MP 1. hét end-to-end tesztből (2026-05-22) származnak.
-Minden pitfall → [pitfalls.md](pitfalls.md)-be ment; skill javítások → az érintett skill fájlba.
+## 2026-05-22 -- MP 1. hét end-to-end teszt
 
 | Komponens | Eredmény | Tanulság |
 |:----------|:---------|:---------|
 | NLM CLI + Prompt B | ✅ PASS | Strukturált citáció, LaTeX képletek, táblázatok jól működnek |
 | 05_mindmap_manager | ✅ PASS | Export-Tool MD → Mermaid konverzió megbízható |
 | 06_notes_collector | ✅ PASS | Anchor-link ékezetes magyar szövegre is helyes |
-| 03_excerpt_block_maker | ✅ PASS | whitespace szabály (\\n\\n>) beépítve |
+| 03_excerpt_block_maker | ✅ PASS | whitespace szabály (\n\n>) beépítve |
 | 07_typesetter Rule D | ⚠️ 21 javítás | 03 whitespace fix után várhatóan csökken |
 | 09_question_bank_collector | ✅ PASS | NLM BSc/MSc differenciált kérdések |
 | 10_bsc_filter | ✅ PASS | Hármas szűrés (MSc blokk + Mermaid node + SZINT) rögtön jól működött |
-| Citation globális sorszámozás | ❌ | NLM query-nként [1]-től számoz → UUID-dedup szükséges (B opció, 04 skillben) |
-| 01_html_to_md | ⚠️ archív | NLM CLI direkten lekérdez, HTML export nem szükséges |
-| NLM Q2 ékezet | ⚠️ | ASCII query workaround működött; nlm_integration.md §2.2 |
+| Citation globális sorszámozás | ❌ | NLM query-nként [1]-től számoz → UUID-dedup szükséges (04 skillben) |
 | pptx_gyarto.py LaTeX | ❌ | python-pptx nem tud LaTeX-et -- elfogadott korlát |
-| Képek | ❌ | PDF-ek hiányoztak → placeholder rendszer (kepek_workflow.md) |
-
-# Változásjegyzék
-
-| Dátum | Verzió | Leírás |
-|-------|--------|--------|
-| 2026-05-22 | 1.0 | Létrehozva: Do szekciók, következő lépések |
-| 2026-05-23 | 2.0 | PDCA struktúra: Plan/Do/Check/Act; tanulságok táblázatba rendezve; pipeline_next_steps.md beolvasztva |
-| 2026-05-23 | 2.1 | §4 Act + §5 Arch törölve (git history + CLAUDE.md/pipeline.md lefedi) |
+| Képek | ❌
