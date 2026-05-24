@@ -69,18 +69,20 @@ claude_play/
 ├── templates/              shared -- nincs per-teszt másolat
 │   ├── du_template.pptx
 │   ├── context_sablon.md
-│   ├── project_status_sablon.md
 │   └── assets/
 ├── scripts/                Python szkriptek
-└── tests/[tema]/
-    ├── forrasok/            topic-szintű PDF-ek, HTML-ek
-    └── N_het/
-        ├── forrasok/        NLM queryok, citations, kepek/
-        ├── N_*.md
-        └── bsc/
+├── test_sources/[tema]/    nyers forrás PDF-ek, HTML-ek topik szerint
+│   └── forrasok/
+└── [TantargyNeve]/         éles tantárgy (tesztkör végén törlendő)
+    ├── context.md          leíró + pipeline státusz + blokkolók
+    └── N_[tema]/
+        ├── raw_sources/    junction → test_sources/[tema]/forrasok/
+        ├── clean_sources/  feldolgozott forrásanyag
+        ├── bsc/
+        └── N_*.md          heti outputok
 ```
 
-Tantárgy-szintű struktúra (éles, `claude_play/` testvérmappái): ld. `templates/context_sablon.md`.
+Tantárgy-szintű context.md: ld. `templates/context_sablon.md`.
 
 # 4. Dokumentálási protokoll
 
@@ -101,12 +103,12 @@ Tantárgy-szintű struktúra (éles, `claude_play/` testvérmappái): ld. `templ
 
 | Fájl | Leírás |
 |------|--------|
-| [pipeline.md](.claude/../pipeline.md) | Pipeline flowchart, IO táblázat, checkpointok |
-| [project_status.md](.claude/../project_status.md) | PDCA log: Plan / Do / Check |
-| [pitfalls.md](.claude/../pitfalls.md) | Ismert hibák + megoldások (skills ide linkelnek) |
-| [nlm_integration.md](.claude/../nlm_integration.md) | NLM CLI, Export-Tool, auth, notebook-lista |
-| [nlm_prompts.md](.claude/../nlm_prompts.md) | NLM Configure Chat promptok (Prompt B, C) |
-| [kepek_workflow.md](.claude/../kepek_workflow.md) | Képpipeline: MinerU → figure_catalog → 05b |
+| [pipeline.md](.claude/pipeline.md) | Pipeline flowchart, IO táblázat, checkpointok |
+| [project_status.md](.claude/project_status.md) | PDCA log: Plan / Do / Check |
+| [pitfalls.md](.claude/pitfalls.md) | Ismert hibák + megoldások (skills ide linkelnek) |
+| [nlm_integration.md](.claude/nlm_integration.md) | NLM CLI, Export-Tool, auth, notebook-lista |
+| [nlm_prompts.md](.claude/nlm_prompts.md) | NLM Configure Chat promptok (Prompt B, C) |
+| [kepek_workflow.md](.claude/kepek_workflow.md) | Képpipeline: MinerU → figure_catalog → 05b |
 | `.claude/skills/NN_*.md` | Pipeline skill-ek (00--10) |
 | `.claude/archive/` | Elavult fájlok -- nem töröljük |
 

@@ -102,6 +102,7 @@ A `nlm` CLI a pipeline lépések nagy részét közvetlenül végrehajtja:
 |---|---|
 | Notebook lista | `nlm notebook list` |
 | Lekérdezés | `nlm query notebook <ID> "<kérdés>" --json` |
+| Prompt B beállítás | `nlm chat configure <ID> --goal custom --prompt <szoveg>` (Python subprocess-en át) |
 | Gondolattérkép | `nlm mindmap ...` |
 | Kvíz | `nlm quiz ...` |
 | Flashcard | `nlm flashcards ...` |

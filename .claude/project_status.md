@@ -102,4 +102,28 @@ _Frissítve: 2026-05-24 -- ACT a diagnosztika alapján_
 | 10_bsc_filter | ✅ PASS | Hármas szűrés (MSc blokk + Mermaid node + SZINT) rögtön jól működött |
 | Citation globális sorszámozás | ❌ | NLM query-nként [1]-től számoz → UUID-dedup szükséges (04 skillben) |
 | pptx_gyarto.py LaTeX | ❌ | python-pptx nem tud LaTeX-et -- elfogadott korlát |
-| Képek | ❌
+| Képek | ❌ | PDF-ek hiányoztak → placeholder rendszer (kepek_workflow.md) |
+
+## 2026-05-24 -- 3 hetes teszt diagnosztika (teljes scan)
+
+| Komponens | Eredmény | Tanulság |
+|:----------|:---------|:---------|
+| pipeline.md emoji mojibake | ✅ JAVÍTVA | 55 csere (🚀👤🤖🐍🔌🛑💡✅⚠️→); C1-control fallback szükséges a 🐍-hez |
+| pitfalls.md mojibake | ✅ JAVÍTVA | 13 csere; §6.1 példa-stringek részben javultak (mellékhatás) |
+| 00c_mineru_extractor.md | ✅ JAVÍTVA | 14 csere |
+| Összes skill fájl (15 db) | ✅ TISZTA | Nincs mojibake |
+| NLM outputok (clean_sources) | ✅ OK | Helyes magyar ékezetekkel, táblázat + LaTeX + citáció ✓ |
+| nlm_prompts.md Prompt B | ✅ SZÁNDÉKOS | ASCII ékezetnélküliség dokumentált (PowerShell compat.) |
+| nlm_prompts.md cím | ✅ JAVÍTVA | "es" → "és" (2 helyen) |
+| .gitignore raw/clean_sources | ✅ JAVÍTVA | `.raw_sources/` → `**/raw_sources/` (pont hiba) |
+| **Pipeline outputok (15 fájl)** | ❌ **KRITIKUS** | **0% ékezetsűrűség** -- minden heti output ékezet nélküli magyar. Gyökérok: a pipeline-futás idején a skill fájlok mojibake-ben voltak → Claude ékezetnélkülien generált. Újrafuttatás szükséges. |
+| matrixprofil Q4 | ⚠️ SZIMULÁLT | [SIM] flag -- valós NLM query nem futott le |
+| citations.json | ⚠️ HIÁNYOS | `file` mező üres, `title` = 'source_1' generikus |
+
+# Változásjegyzék
+
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-22 | 1.0 | Létrehozva: Do szekciók, következő lépések |
+| 2026-05-23 | 2.0 | PDCA struktúra: Plan/Do/Check/Act; tanulságok táblázatba rendezve; pipeline_next_steps.md beolvasztva |
+| 2026-05-23 | 2.1 | §4 Act + §5 Arch törölve (git history + CLAUDE.md/pipeline.md lefedi) |
