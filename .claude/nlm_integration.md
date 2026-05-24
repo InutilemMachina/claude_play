@@ -5,6 +5,7 @@ status: active
 version: 2.1
 updated: 2026-05-23
 description: Tesztelt NLM-Claude architektúra. notebooklm-mcp-cli Python CLI, Windows-MCP PowerShell hídon. Export-Tool Studio workflow.
+---
 # NLM-Claude Integrációs Útmutató
 
 # 1. Összefoglalás

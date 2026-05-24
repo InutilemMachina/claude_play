@@ -1,74 +1,78 @@
 ---
-title: 2_PREZENTACIO.MD -- Diszkret Fourier-transzformacio
+title: 2_PREZENTACIO.MD -- DFT és FFT
 type: output
 het: 2
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 231a232e-6620-41a0-b30b-03a8a6c187b8
+notebook: 9447f8a8-d261-4522-8cc6-862befe1aabe
 ---
 
-# 2. Prezentaciio -- Diszkret Fourier-transzformacio
+# 2. Prezentáció -- DFT és FFT
 
-**Het:** 2. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 2. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## 1. dia -- Bevezetes: Miert fontos a DFT?
+## 1. dia -- DFT: idő- és frekvenciatartomány
 
-Az idotartomany-jelet frekvenciatartomanyba kepezi le.
+Az idő→frekvencia transzformáció alapja:
 
-- Visszafordithato (IDFT)
-- Alapja minden digitalis jelfeldolgozasnak
+$$\hat{X}(k) = \sum_{j=0}^{N-1} X(j) \cdot W_N^{jk}, \quad W_N = e^{2\pi i/N}$$
 
----
-
-## 2. dia -- Matematika: A DFT keplete
-
-$$X[k] = \sum_{n=0}^{N-1} x[n] e^{-j2\pi kn/N}$$
-
-$k$: frekvenciaindex, $N$: mintaszam
+- $N$ komplex szám → $N$ frekvenciakomponens
+- Mátrixszorzatként: $\hat{X} = W_N \cdot X$
 
 ---
 
-## 3. dia -- Spektrum: Amplitudo es fazis
+## 2. dia -- FFT: az algoritmikus forradalom
 
-- $|X[k]|$: amplitudo
-- $\angle X[k]$: fazis
-- $\Delta f = f_s / N$: frekkvenciafelbontas
+Közvetlen DFT vs. FFT:
 
----
+| Módszer | Műveletek |
+|:--------|:----------|
+| Közvetlen DFT | $N^2$ |
+| **FFT (Cooley-Tukey)** | $N \log N$ |
 
-## 4. dia -- Nyquist es Aliasing: Mintaveteli teorema
-
-- $f_{Nyquist} = f_s / 2$
-- Aliasing: $f > f_{Nyquist}$ komponensek teves ertelmezese
-- Megoldas: anti-aliasing szuro
+$N = 10^6$: $10^{12}$ → $2 \cdot 10^7$ művelet (**50 000-szeres gyorsulás**).
 
 ---
 
-## 5. dia -- FFT: Cooley-Tukey algoritmus
+## 3. dia -- Cooley-Tukey: rekurzív felbontás
 
-- DFT: $O(N^2)$
-- FFT: $O(N \log N)$
-- $N=1024$: ~100x gyorsabb
+$N$-pontos DFT → két $N/2$-pontos DFT:
 
----
+$$\hat{X}(k) = \hat{X}_{\text{páros}}(k) + W_N^k \cdot \hat{X}_{\text{páratlan}}(k)$$
 
-
-- Paros/paratlan indexek elvalasztasa
-- Rekurziv kozelites
-- Pillango (butterfly) muvelet
+- "Oszd meg és uralkodj" elv
 
 ---
 
-## 7. dia -- Alkalmazasok: Rezges, audio, szures
+## 4. dia -- Alkalmazások: mérnöki területek
 
-- Rezgesdiagnosztika: forgogepek hibafrekkvenciaia
-- Audio: hangszinkez
+| Terület | Példa |
+|:--------|:------|
+| Jelanalízis | Rezgésdiagnosztika, spektrumelemzés |
+| Hang/kép | MP3 tömörítés, MRI rekonstrukció |
+| Geofizika | Szeizmológia, nukleáris teszt-detektálás |
 
 ---
 
 
-# Valtozasnaplo
+Időtartomány konvolúció $\leftrightarrow$ frekvenciatartomány szorzat:
 
-| Datum | Verzio | Leiras |
+$$(f * g)(t) \xrightarrow{\mathcal{F}} F(\omega) \cdot G(\omega)$$
+
+**Szűrés $O(N^2)$ helyett $O(N \log N)$-re csökkentve.**
+
+---
+
+## 6. dia -- Összefoglalás
+
+1. DFT: $N$ pont → $N$ frekvenciakomponens; $O(N^2)$
+2. FFT: ugyanaz, $O(N \log N)$; Cooley-Tukey 1965
+3. IDFT: visszatranszformálás; számítása = DFT($\hat{X}(-k)$)
+
+
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (08_presentation_maker szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (08_presentation_maker) |

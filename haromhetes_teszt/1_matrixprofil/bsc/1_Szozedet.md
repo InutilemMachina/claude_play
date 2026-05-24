@@ -2,32 +2,32 @@
 title: 1_SZOZEDET.MD -- Matrix Profile
 type: output
 het: 1
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
 ---
 
 # 1. Szójegyzék -- Matrix Profile
 
-**Het:** 1. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 1. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-| Magyar terminus | Angol terminus | Definicio | Szint |
+| Magyar terminus | Angol terminus | Definíció | Szint |
 |:----------------|:---------------|:----------|:------|
-| *Matrix Profile* | *Matrix Profile* | Az idosor osszes reszsorozatparja kozotti z-normalizalt tavolsagot tartalmazo vektor. | BSc |
-| *Reszsorozat* | *Subsequence* | Az idosor egy m hosszu folytonos ablaka. | BSc |
-| *Kizarasi zona* | *Exclusion Zone* | A trivialis egyezesek elkerulesenek mechanizmusa ($\pm m/4$). | BSc |
-| *Motivum* | *Motif* | Az idosorban ismetlodo, tipikus minta. | BSc |
-| *Diszkord* | *Discord* | Az idosorban egyedi, anomalis reszsorozat. | BSc |
-| *STAMP* | *STAMP* | Anytime Matrix Profile algoritmus veletlen mintavetellel. | MSc |
-| *SCRIMP++* | *SCRIMP++* | Gyorsitott, interaktiv MP-szamito algoritmus. | MSc |
+| *Matrix Profile* | *Matrix Profile* | Vektor, amely minden részsorozat és legközelebbi szomszédja közötti z-normalizált euklideszi távolságot tárolja; $O(n)$ térkomplexitás. | BSc |
+| *részsorozat* | *subsequence* | Az idősor $m$ hosszúságú ablakkal kivágott szegmense: $T[i:i+m]$. | BSc |
+| *motívum* | *motif* | Visszatérő minta: a Matrix Profile globális minimumát adó részsorozat-pár. | BSc |
+| *anomália* | *anomaly / discord* | Ritka, szokatlan részsorozat: a Matrix Profile globális maximumát adó elem. | BSc |
+| *euklideszi távolság* | *Euclidean distance* | $D_{i,j} = \sqrt{\sum_{k=0}^{m-1}(T_{i+k}-T_{j+k})^2}$; a részsorozatok hasonlóságának alapmértéke. | BSc |
+| *z-normalizálás* | *z-normalization* | Középre igazítás és egységnyi szórásra skálázás; amplitúdófüggetlen összehasonlítást tesz lehetővé. | BSc |
+| *STOMP* | *STOMP (Scalable Time series Ordered Matrix Profile)* | 2016-os egzakt algoritmus; $O(n^2)$ idő, $O(n)$ memória; STUMPY magja. | MSc |
+| *SCRUMP* | *SCRUMP* | Közelítő, gyors Matrix Profile számítás; sebesség-kritikus esetekre. | MSc |
+| *Profile Index* | *Profile Index* | A Matrix Profile kísérőtömbje: minden elemhez tárolja a legközelebbi szomszéd indeksét. | MSc |
 
-## Irodalomjegyzek
+## Irodalomjegyzék
 
-[1] Yeh et al. (2016). *[SIM forras: yeh2016_paper.pdf]*.
-[2] Yeh et al. (2018). *[SIM forras: yeh2018_paper.pdf]*.
-[3] Zhu et al. (2016). *[SIM forras: zhu2016_paper.pdf]*.
+[1] STUMPY Documentation (2024). *STUMPY Basics Tutorial*. stumpy2024_webpage.
 
-# Valtozasnaplo
+# Változásnapló
 
-| Datum | Verzio | Leiras |
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (04_citations_maker szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (04_citations_maker) |

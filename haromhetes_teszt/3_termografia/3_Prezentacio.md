@@ -1,81 +1,96 @@
 ---
-title: 3_PREZENTACIO.MD -- Termografia
+title: 3_PREZENTACIO.MD -- Infravörös termográfia
 type: output
 het: 3
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 21de071f-0bf0-4c31-b4c2-e24f9d6d542a
+notebook: 2af3a356-2a36-47f1-8adc-1da4bc44de72
 ---
 
-# 3. Prezentaciio -- Termografia
+# 3. Prezentáció -- Infravörös termográfia
 
-**Het:** 3. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 3. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## 1. dia -- Bevezetes: Az IR termografia elve
+## 1. dia -- Bevezetés: az IR termográfia elve
 
-Minden test homerseklet-aranyan sugarz infravoros energiat.
+Minden $T > 0\ K$ hőmérsékletű test elektromágneses sugárzást bocsát ki.
 
-- Kontaktus-mentes
-- Beruhato-baratsagos
-- Valido idejuuben alkalmazhato
+- Érintésmentes és roncsolásmentes mérés
+- Infravörös tartomány: $0{,}75$--$1000\ \mu$m
+- Valós időben alkalmazható
 
 ---
 
-## 2. dia -- Stefan-Boltzmann: Sugarzasi teljesitmeny
+## 2. dia -- Stefan-Boltzmann: sugárzási teljesítmény
 
 $$W = \varepsilon \sigma T^4$$
 
-- $\varepsilon$: emisszivitas
-- $\sigma = 5.67 \cdot 10^{-8}$ W/m$^2$K$^4$
-- $T$: abszolut homerseklet
+| Jelölés | Jelentés | Érték |
+|:--------|:---------|:------|
+| $\varepsilon$ | emisszivitás | $0$--$1$ |
+| $\sigma$ | Stefan-Boltzmann állandó | $5{,}67 \cdot 10^{-8}\ \text{W/m}^2\text{K}^4$ |
+| $T$ | abszolút hőmérséklet | [K] |
 
 ---
 
-## 3. dia -- Emisszivitas: Anyagspecifikus korrrekciio
+## 3. dia -- Emisszivitás: anyagspecifikus korrekció
 
-- Feketetest: $\varepsilon = 1$
-- Csiszolt acel: $\varepsilon \approx 0.1$
-- Emberi bor: $\varepsilon \approx 0.98$
+- Fekete test: $\varepsilon = 1$
+- Csiszolt acél: $\varepsilon \approx 0{,}1$
+- Emberi bőr: $\varepsilon \approx 0{,}98$
 
----
-
-## 4. dia -- Hokamera felepitese: Fo egysegek
-
-- **Objektiv**: germaniumuulens
-- **Detektor**: mikrobolometer / hutott
-- **Jelfeldolgozo**: NUC, kalibracio
+**Alacsony $\varepsilon$ → a visszavert környezeti sugárzás dominálja a mért értéket!**
 
 ---
 
-## 5. dia -- [MSc] Hutott vs. nem hutott: Detektor osszehasonlitas
+## 4. dia -- Hőkamera felépítése: főegységek
 
-| | Mikrobolometer | Hutott (InSb) |
-|---|---|---|
-| Ar | Olcso | Draga |
-| Erzekeny | Kozepes | Magas |
-| Hutees | Nincs | LN2/Peltier |
+- **Objektív**: germániumlencse (IR-áteresztő, látható fényre átlátszatlan)
+- **Detektor**: mikrobolométer (nem hűtött) vagy hűtött rendszer
+- **Jelfeldolgozó**: NUC kalibráció, hőmérsékletté alakítás
 
 ---
 
-## 6. dia -- Alkalmazasok: Ipari termografia
+## 5. dia -- [MSc] Hűtött vs. nem hűtött detektor
 
-- **Villamos**: kontakthiba, tulterheles
-- **Gepeszet**: csapagyhiba, csoredes
-- **Epulet**: hoszigetelesi hianyok
-
----
-
-## 7. dia -- Osszefoglalas: Muveleti elvek
-
-1. Emisszivitas helyes beallitasa
-2. Korrekciio: reflexioo, atmoszfera
-3. **[MSc]** Rendszeres hoterkepes trendkovetes PM-ben
+| | Mikrobolométer | Hűtött (InSb/MCT) |
+|:--|:---------------|:------------------|
+| Ár | Olcsó | Drága |
+| Érzékenység | Közepes | Magas |
+| Hűtés | Nincs | LN₂ / Peltier |
+| Tartomány | LWIR ($8$--$14\ \mu$m) | MWIR/LWIR |
 
 ---
 
+## 6. dia -- Atmoszférikus ablakok
 
-# Valtozasnaplo
+A levegő csak bizonyos hullámhosszokon áteresztő:
 
-| Datum | Verzio | Leiras |
+- **$1$--$5\ \mu$m** (MWIR): magas hőmérsékletű tárgyakhoz
+- **$8$--$14\ \mu$m** (LWIR): szobahőmérsékletű tárgyakhoz
+
+Üveg $>5\ \mu$m-en átlátszatlan → speciális optika szükséges.
+
+---
+
+## 7. dia -- Alkalmazások: ipari termográfia
+
+- **Villamos diagnosztika**: kontakthiba, túlterhelés-detekció
+- **Épületgépészet**: hőszigetelési hiányok azonosítása
+- **[MSc] Megelőző karbantartás (PM)**: rendszeres hőtérképes trendkövetés
+
+---
+
+## 8. dia -- Összefoglalás: mérési elvek
+
+1. Emisszivitás helyes beállítása kötelező
+2. Reflexiós korrekció: $\varepsilon = 1 - \rho$ (átlátszatlan testeknél)
+3. Atmoszférikus ablak: $8$--$14\ \mu$m szobahőmérsékletű tárgyakhoz
+4. **[MSc]** Planck-görbe csúcsa: $\lambda_m = b/T$ → Wien-törvény
+
+
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (08_presentation_maker szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (08_presentation_maker) |

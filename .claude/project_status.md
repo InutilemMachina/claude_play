@@ -17,7 +17,7 @@ _Frissítve: 2026-05-24 -- ACT a diagnosztika alapján_
 
 | # | Feladat | Felelős | Megjegyzés |
 |:--|:--------|:--------|:-----------|
-| **P1** | **Pipeline output újrafuttatás** -- mind a 3 hét (03-10 skill-ek) ékezetes magyarral | 🤖+👤 | ❌ KRITIKUS -- 15 fájl 0% ékezet; csak az NLM clean_sources OK |
+| **P1** | **Pipeline output újrafuttatás** -- mind a 3 hét (03-10 skill-ek) ékezetes magyarral | 🤖+👤 | ✅ KÉSZ -- 30 fájl (15+15 bsc) ékezetes; `regen_outputs.py` |
 | **P2** | **MatrixProfil HTML forrás** -- SingleFile mentés → NLM upload → lekérdezés | 🤖+👤 | Chrome-on manuális lépés; majd nlm_query.py |
 | **P3** | **matrixprofil Q4** újrafuttatás | 🤖 | Jelenleg [SIM] placeholder -- valós NLM query kell |
 | **P4** | **citations.json minőség** -- `file` és `title` mezők kitöltése | 🤖 | source_1 generikus → valós fájlnév |
@@ -28,6 +28,12 @@ _Frissítve: 2026-05-24 -- ACT a diagnosztika alapján_
 | G | **context_sablon.md lépésszámok frissítése** | 🤖 | C00-C08 oszlopok elavultak |
 
 # 2. Do (elvégzett munkák)
+
+## 2026-05-24 -- P1 pipeline output újragenerálás
+
+- ✅ `scripts/regen_outputs.py` futtatva: 15+15 fájl újragenerálva ékezetes magyarral
+- ✅ Ékezetsűrűség: 5-13% minden pipeline outputban (✓ küszöb: >1.5%)
+- ✅ 0% maradék: `stumpy2024_webpage.md`, `rockmore1999_article.md` -- MinerU angol forrásanyag (helyes)
 
 ## 2026-05-24 -- Diagnosztika + kódolásjavítás
 

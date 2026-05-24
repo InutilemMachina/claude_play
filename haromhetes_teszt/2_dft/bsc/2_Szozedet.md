@@ -1,34 +1,32 @@
 ---
-title: 2_SZOZEDET.MD -- Diszkret Fourier-transzformacio
+title: 2_SZOZEDET.MD -- DFT és FFT
 type: output
 het: 2
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
 ---
 
-# 2. Szójegyzék -- Diszkret Fourier-transzformacio
+# 2. Szójegyzék -- DFT és FFT
 
-**Het:** 2. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 2. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-| Magyar terminus | Angol terminus | Definicio | Szint |
+| Magyar terminus | Angol terminus | Definíció | Szint |
 |:----------------|:---------------|:----------|:------|
-| *Diszkret Fourier-transzformacio* | *DFT* | Veges hosszu diszkret jel frekvenciatartomany-reprezntacioja. | BSc |
-| *Frekvenciafelbontas* | *Frequency Resolution* | $\Delta f = f_s / N$ -- a spektrum legkisebb meghatarozható frekvencialepese. | BSc |
-| *Aliasing* | *Aliasing* | A Nyquist-frekvencia feletti komponensek teves frekkvencia-ertelmezese. | BSc |
-| *Ablakolas* | *Windowing* | Spektralis szivargast csokkenro apodizaciios technika (pl. Hann-ablak). | BSc |
-| *Cooley-Tukey FFT* | *Cooley-Tukey FFT* | $O(N \log N)$ komplexitasu DFT-szamito algoritmus. | MSc |
-| *Parseval-tetel* | *Parseval's Theorem* | A jel osszes energiaja azonos az ido- es frekvenciatartomanyban. | MSc |
+| *Diszkrét Fourier-transzformáció* | *Discrete Fourier Transform (DFT)* | $N$ hosszú komplex vektort frekvenciatartományba képez: $\hat{X}(k)=\sum_{j=0}^{N-1}X(j)W_N^{jk}$. | BSc |
+| *Gyors Fourier-transzformáció* | *Fast Fourier Transform (FFT)* | A DFT hatékony számítási algoritmusa; $O(N^2)$ helyett $O(N \log N)$ művelet. | BSc |
+| *Fourier-mátrix* | *Fourier matrix* | $W_N = \exp(2\pi i/N)$ gyök egységei által alkotott unitér mátrix; DFT = $W_N \cdot X$. | BSc |
+| *inverz DFT* | *IDFT* | $X(j) = \frac{1}{N}\sum_{k=0}^{N-1}\hat{X}(k)W_N^{-jk}$; frekvencia→idő visszatranszformálás. | BSc |
+| *Cooley-Tukey algoritmus* | *Cooley-Tukey algorithm* | Az FFT legismertebb változata; $N = N_1 N_2$ felbontással rekurzív 2D DFT-vé alakítja az 1D DFT-t. | MSc |
+| *butterfly-diagram* | *butterfly diagram* | Az FFT adatfolyam-grafikonja; jelzi, hogy mely elemeket kell összevonni az egyes lépésekben. | MSc |
+| *spektrális szivárgás* | *spectral leakage* | Nem egész frekvenciánál megjelenő energiaszóródás; ablakfüggvényekkel csökkenthető. | MSc |
+| *konvolúciós tétel* | *convolution theorem* | Időtartomány konvolúciója $\leftrightarrow$ frekvenciatartomány szorzat; $O(N^2)$ → $O(N \log N)$. | MSc |
 
-## Irodalomjegyzek
+## Irodalomjegyzék
 
-[1] Ahrens (2020). *[SIM forras: ahrens2020_article.pdf]*.
-[2] Barszcz (2019). *[SIM forras: barszcz2019_chapter.pdf]*.
-[3] Gentleman (1966). *[SIM forras: gentleman1966_article.pdf]*.
-[4] Lerch (2012). *[SIM forras: lerch2012_book.pdf]*.
-[5] Rockmore (1999). *[SIM forras: rockmore1999_article.pdf]*.
+[1] Rockmore, D. N. (1999). "The FFT -- An Algorithm the Whole Family Can Use." *Computing in Science & Engineering*, 1(1), 24--30. rockmore1999_article.pdf.
 
-# Valtozasnaplo
+# Változásnapló
 
-| Datum | Verzio | Leiras |
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (04_citations_maker szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (04_citations_maker) |

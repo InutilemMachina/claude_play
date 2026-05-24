@@ -2,78 +2,81 @@
 title: 1_JEGYZET.MD -- Matrix Profile
 type: output
 het: 1
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 6d6525ba-4804-4d78-b771-9bf1278e85e9
+notebook: 013ea69e-ee02-4a13-9389-7f46d7fb37ae
 ---
 
 # 1. Heti Jegyzet -- Matrix Profile
 
-**Het:** 1. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 1. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## Tanulasi celok
+## Tanulási célok
 
-1. Megerteni a Matrix Profile matematikai definiciojat.
-2. Azonositani a $P$ vektor es $I$ vektor szerepet.
-3. Osszehasonlitani STAMP, STOMP es SCRIMP++ komplexitasat.
-4. Felsorolni a fo alkalmazasi teruletek (motivum, diszkord, szegmentacio).
+1. Megérteni a Matrix Profile definícióját és térkomplexitásának előnyét.
+2. Megmagyarázni a z-normalizálás szerepét a részsorozat-hasonlóság számításában.
+3. Azonosítani a motívum és az anomália fogalmát a Matrix Profile alapján.
+4. Összehasonlítani a STOMP és Brute Force algoritmus komplexitását.
 
 
 <!-- Q:1 -->
-## 2. Atekindes es motivacio
+## 2. Definíció és adatstruktúra
 
-A Matrix Profile (MP) egy idosor osszes reszsorozatparja kozotti tavolsagot tarolo vektor. Kizarolag a feltoltott forrasok alapjan: az MP egzakt, parameter-mentes es $O(n)$ memoriat igenyel. <sup>[[1]](#ref-1)</sup> <sup>[[2]](#ref-2)</sup>
+A **Matrix Profile** egy $O(n)$ méretű vektor, amely minden $m$ hosszú részsorozathoz tárolja a legközelebbi szomszéd z-normalizált euklideszi távolságát [1].
 
-> **💡 Lenyeg:** Az MP egyszerre kezeli a motivum-, diszkord- es szegmentacio-detekciiot anelkul, hogy elore meg kellene hatarozni a mintaszamot.
+> **💡 Lényeg:** A Matrix Profile csak a távolságmátrix minimumait tartja meg -- az $O(n^2)$ mátrix helyett $O(n)$ vektort. Ez teszi lehetővé a nagy idősorok hatékony kezelését.
 
 <!-- Q:2 -->
-## 3. Alapfogalmak es MP-struktura
+## 3. z-normalizált euklideszi távolság
 
-**Idosor** ($T$): $n$ hosszu valos szam-sorozat. **Reszsorozat** ($T_{i,m}$): $m$ hosszu ablak az $i$. poziciotol. **Kizarasi zona**: trivialis onegyezes megakadalyozasa. <sup>[[1]](#ref-1)</sup>
+A hasonlóság alapmértéke: $D_{i,j} = \sqrt{\sum_{k=0}^{m-1}(\hat{T}_{i+k} - \hat{T}_{j+k})^2}$, ahol $\hat{T}$ z-normalizált. [1]
 
-> **💡 Lenyeg:** A $P$ vektor minden reszsorozathoz a kizarasi zonan kivuli legkisebb tavolsagot tarolja.
+> **💡 Lényeg:** A z-normalizálás amplitúdófüggetlen összehasonlítást tesz lehetővé. Azonos formájú, de különböző méretű részsorozatok is hasonlónak minősülnek.
 
-> **🗺️ Fejezet osszegzes -- 3. Alapfogalmak**
+> **🗺️ Fejezet összegzés -- 3. z-normalizálás**
 
 <!-- Q:3 -->
-## 4. Algoritmusok
+## 4. Motívum és anomália
 
-**MASS** ($O(n \log n)$): FFT-alapu tavolsagprofil-szamitas. **STAMP**: veletlen sorrendu, anytime jelleggel. **STOMP**: rendezett, $O(n^2)$. <sup>[[2]](#ref-2)</sup> <sup>[[3]](#ref-3)</sup>
+A Matrix Profile **globális minimuma** a leghasonlóbb részsorozat-párt (motívum) jelöli; **globális maximuma** a legritkább, legszokatlanabb részsorozatot (anomália / discord) azonosítja. [1]
 
-> **💡 Lenyeg:** STOMP gyorsabb STAMP-nal, mert felhasznaalja az elozoleg szamolt tavolsagprofilokat.
+> **💡 Lényeg:** Egyetlen Matrix Profile számítással mind a motívumkeresés, mind az anomáliadetektálás elvégezhető -- nincs szükség külön modellekre.
 
 
-> **🗺️ Fejezet osszegzes -- 4. Algoritmusok**
+> **🗺️ Fejezet összegzés -- 4. Motívum és anomália**
 
 <!-- Q:4 -->
-## 5. Alkalmazasok
+## 5. Algoritmusok
 
+| Algoritmus | Időkomplexitás | Memória | Megjegyzés |
+|:-----------|:---------------|:--------|:-----------|
+| Brute Force | $O(n^2 m)$ | $O(n^2)$ | Naiv; 5 év adat: 4,4 év gépidő [1] |
+| **STOMP** | $O(n^2)$ | $O(n)$ | Egzakt; STUMPY magja; GPU/Dask [1] |
+| SCRUMP | $O(n^2)$ közelítő | $O(n)$ | Gyors közelítő; sebesség-kritikus esetekre [1] |
 
-> **💡 Lenyeg:** Egyetlen MP-szamitasbol motivum, diszkord es szegmentacio is kinyerheto.
+> **💡 Lényeg:** A STOMP a Brute Force belső hurkát vektorizálással váltja ki, drasztikusan csökkentve a számítási időt.
 
-> **🗺️ Fejezet osszegzes -- 5. Alkalmazasok**
+> **🗺️ Fejezet összegzés -- 5. Algoritmusok**
 
 
 ---
 
-## Targymutatoo
+## Tárgymutató
 
-- [1. Heti Jegyzet -- Matrix Profile](#1-heti-jegyzet----matrix-profile)
-  - [2. Atekindes es motivacio](#2-atekindes-es-motivacio)
-  - [3. Alapfogalmak es MP-struktura](#3-alapfogalmak-es-mp-struktura)
-  - [4. Algoritmusok](#4-algoritmusok)
-  - [5. Alkalmazasok](#5-alkalmazasok)
+- [2. Definíció és adatstruktúra](#2-definicio-es-adatstruktura)
+- [3. z-normalizált euklideszi távolság](#3-z-normalizalt-euklideszi-tavolsag)
+- [4. Motívum és anomália](#4-motivum-es-anomalia)
+- [5. Algoritmusok](#5-algoritmusok)
 
 ---
 
-## Hivatkozasok
+## Hivatkozások
 
-<a name="ref-1"></a>[1] Yeh et al. (2016). *yeh2016_paper.pdf*.
-<a name="ref-2"></a>[2] Yeh et al. (2018). *yeh2018_paper.pdf*.
-<a name="ref-3"></a>[3] Zhu et al. (2016). *zhu2016_paper.pdf*.
+<a name="ref-1"></a>[1] STUMPY Documentation (2024). *STUMPY Basics Tutorial*. stumpy2024_webpage.
 
-# Valtozasnaplo
 
-| Datum | Verzio | Leiras |
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (01-07 pipeline szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (01-07 pipeline) |

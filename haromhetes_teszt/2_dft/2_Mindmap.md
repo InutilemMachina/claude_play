@@ -1,42 +1,41 @@
 ---
-title: 2_MINDMAP.MD -- Diszkret Fourier-transzformacio
+title: 2_MINDMAP.MD -- DFT és FFT
 type: output
-tags: [mindmap, sim]
 het: 2
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
+notebook: 9447f8a8-d261-4522-8cc6-862befe1aabe
 ---
 
-# 2. Mindmap -- Diszkret Fourier-transzformacio
+# 2. Mindmap -- DFT és FFT
 
 ```mermaid
 flowchart LR
-  DFT["Diszkret Fourier-transzformacio"]
-  DFT --> ALAP["Alapfogalmak"]
-  ALAP --> SPEKTRUM["Frekvenciaspektrum"]
-  ALAP --> AMPLITUD["Amplitudo es fazis"]
-  ALAP --> NYQUIST["Nyquist-frekvencia (fs/2)"]
-  ALAP --> ALIASING["Aliasing"]
-  ALAP --> ABLAK["Ablakolas (Windowing)"]
-  DFT --> MAT["Matematika"]
-  MAT --> KEPLET["X[k] = sum x[n] e^-j2pi_kn/N"]
-  MAT --> IDFT["Inverz DFT"]
-  MAT --> PARSEVAL["[MSc] Parseval-tetel"]
-  DFT --> FFT["Gyors Fourier-transzformacio (FFT)"]
-  FFT --> COOLEY["Cooley-Tukey O(N log N)"]
-  FFT --> RADIX2["[MSc] Radix-2 DIT/DIF"]
-  DFT --> APP["Alkalmazasok"]
-  APP --> VIBR["Rezgesdiagnosztika"]
-  APP --> AUDIO["Audio-jelfeldolgozas"]
-  APP --> FILTER["[MSc] Digitalis szures spektrumban"]
+  DFT["DFT és FFT"]
+  DFT --> DEFINICIO["Definíció"]
+  DEFINICIO --> KEPLET["X̂(k) = Σ X(j)W_N^jk"]
+  DEFINICIO --> MATRIX["Fourier-mátrix W_N"]
+  DEFINICIO --> IDFT["Inverz DFT"]
+  DFT --> FFT["FFT algoritmusok"]
+  FFT --> CT["Cooley-Tukey (1965)"]
+  FFT --> KOMPLEX["O(N²) → O(N log N)"]
+  FFT --> BUTTERFLY["[MSc] Butterfly-diagram"]
+  DFT --> ALKAL["Alkalmazások"]
+  ALKAL --> JELFELDOLG["Jelfeldolgozás (MP3, modem)"]
+  ALKAL --> KEPFELDOLG["Képfeldolgozás (MRI)"]
+  ALKAL --> GEOFIZ["[MSc] Geofizika, csillagászat"]
+  DFT --> TULAJD["Tulajdonságok"]
+  TULAJD --> KONV["[MSc] Konvolúciós tétel"]
+  TULAJD --> SZIVARGAS["[MSc] Spektrális szivárgás"]
 ```
 
-# 2. Forras
 
-- Generalta: `nlm chat` szimulacio (2026-05-23)
-- Notebook: 231a232e-6620-41a0-b30b-03a8a6c187b8
+## Forrás
+
+- Generálta: `nlm_query.py` (2026-05-24)
+- Notebook: 9447f8a8-d261-4522-8cc6-862befe1aabe
 - Raw: `clean_sources/nlm_q1_raw.txt`
 
-# Valtozasnaplo
+# Változásnapló
 
-- 2026-05-23 -- [SIM] Letrehozva (05_mindmap_manager szimulacio)
+- 2026-05-24 -- 1.1: Újragenerálva -- ékezetek javítva (05_mindmap_manager)

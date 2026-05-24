@@ -1,10 +1,10 @@
 ---
 title: 1_MINDMAP.MD -- Matrix Profile
 type: output
-tags: [mindmap, sim]
 het: 1
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
+notebook: 013ea69e-ee02-4a13-9389-7f46d7fb37ae
 ---
 
 # 1. Mindmap -- Matrix Profile
@@ -12,29 +12,30 @@ status: DRAFT
 ```mermaid
 flowchart LR
   MP["Matrix Profile"]
-  MP --> ALAP["Alapfogalmak"]
-  ALAP --> TS["Idosor (Time Series)"]
-  ALAP --> SUB["Reszsorozat (m hosszu)"]
-  ALAP --> EZ["Kizarasi zona (m/4)"]
-  ALAP --> PV["MP vektor P"]
-  ALAP --> IV["MP Index I"]
+  MP --> DEF["Definíció"]
+  DEF --> VECT["Távolságvektor O(n)"]
+  DEF --> IDX["Profile Index"]
+  DEF --> ZNORM["z-normalizált euklideszi távolság"]
   MP --> ALGO["Algoritmusok"]
-  ALGO --> MASS["MASS (FFT, O(n log n))"]
-  ALGO --> STAMP["STAMP (anytime)"]
-  ALGO --> STOMP["STOMP (O(n^2))"]
-  ALGO --> SCRIMP["[MSc] SCRIMP++"]
-  MP --> APP["Alkalmazasok"]
-  APP --> MOTIF["Motivum kereses"]
-  APP --> DISCORD["Anomalia detekcia"]
-  APP --> FLUSS["[MSc] FLUSS szegmentacio"]
+  ALGO --> STOMP["STOMP -- egzakt O(n²)"]
+  ALGO --> SCRUMP["SCRUMP -- közelítő"]
+  ALGO --> BF["[MSc] Brute Force O(n²m)"]
+  MP --> MUVELET["Műveletek"]
+  MUVELET --> MOTIV["Motívumkeresés (min)"]
+  MUVELET --> ANOM["Anomáliadetektálás (max)"]
+  MUVELET --> SZEGM["[MSc] Szemantikus szegmentáció"]
+  MP --> IMPL["Implementáció"]
+  IMPL --> STUMPY["STUMPY (Python)"]
+  IMPL --> GPU["[MSc] GPU/Dask párhuzamosítás"]
 ```
 
-# 2. Forras
 
-- Generalta: `nlm chat` szimulacio (2026-05-23)
-- Notebook: 6d6525ba-4804-4d78-b771-9bf1278e85e9
+## Forrás
+
+- Generálta: `nlm_query.py` (2026-05-24)
+- Notebook: 013ea69e-ee02-4a13-9389-7f46d7fb37ae
 - Raw: `clean_sources/nlm_q1_raw.txt`
 
-# Valtozasnaplo
+# Változásnapló
 
-- 2026-05-23 -- [SIM] Letrehozva (05_mindmap_manager szimulacio)
+- 2026-05-24 -- 1.1: Újragenerálva -- ékezetek javítva (05_mindmap_manager)

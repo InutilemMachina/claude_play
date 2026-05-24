@@ -2,77 +2,82 @@
 title: 1_PREZENTACIO.MD -- Matrix Profile
 type: output
 het: 1
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 6d6525ba-4804-4d78-b771-9bf1278e85e9
+notebook: 013ea69e-ee02-4a13-9389-7f46d7fb37ae
 ---
 
-# 1. Prezentaciio -- Matrix Profile
+# 1. Prezentáció -- Matrix Profile
 
-**Het:** 1. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 1. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## 1. dia -- Bevezetes: Mi a Matrix Profile?
+## 1. dia -- Mi a Matrix Profile?
 
-Az idosor osszes reszsorozat-parjanak z-normalizalt tavolsaga.
+Minden részsorozat-pár legjobb szomszédjának távolsága -- egyetlen vektorban.
 
-- Egzakt
-- Parameter-mentes
-- $O(n)$ memoria
-
----
-
-## 2. dia -- Alapfogalmak: Reszsorozat es tavolsag
-
-- **Reszsorozat** $T_{i,m}$: $m$ hosszu ablak
-- **Kizarasi zona**: trivialis egyezes kizarasa
-- **MASS**: FFT-alapu tavolsagprofil $O(n\log n)$
+- Távolságvektor: $O(n)$ méret
+- z-normalizált euklideszi távolság
+- Kísérő Profile Index: szomszéd indeksei
 
 ---
 
-## 3. dia -- MP Struktura: A $P$ vektor es $I$ vektor
+## 2. dia -- Motívum és anomália
 
-$$P[i] = \min_{j \notin EZ(i)} d(T_{i,m}, T_{j,m})$$
+A Matrix Profile két alapvető bányászati művelete:
 
-- Alacsony ertek: motivum
-- Magas ertek: diszkord
-
----
-
-## 4. dia -- Algoritmusok: STAMP vs STOMP
-
-| | STAMP | STOMP |
-|---|---|---|
-| Jelleg | anytime | rendezett |
-| Komplexitas | $O(n^2)$ | $O(n^2)$ |
-| Ido | lassabb | gyorsabb |
+| Érték | Interpretáció | Alkalmazás |
+|:------|:--------------|:-----------|
+| Globális **minimum** | Legismétlődőbb minta | Motívumkeresés |
+| Globális **maximum** | Legszokatlanabb szakasz | Anomáliadetektálás |
 
 ---
 
+## 3. dia -- z-normalizálás: miért szükséges?
 
-- Inkrementalis frissites
-- Alkalmas streaming adatokra
-- Valoszinusegi kozelites
+Amplitúdófüggetlen összehasonlítás:
 
----
+$$\hat{T}_i = \frac{T_i - \mu}{\sigma}$$
 
-## 6. dia -- Alkalmazasok: Motivum, Diszkord, Szegmentacio
-
-- **Motivum**: ismetlodo minta (pl. EKG-ciklus)
-- **Diszkord**: anomalia
+- Azonos alakú, különböző léptékű részsorozatok → hasonlónak ítélve ✓
+- Nyers euklideszi távolság: amplitúdókülönbség dominál ✗
 
 ---
 
-## 7. dia -- Osszefoglalas: Tanulsagok
+## 4. dia -- STOMP vs. Brute Force
 
-- Matrix Profile = 1 szamitasbol 3 feladat
-- Python: STUMPY konyvtar
-- Skala: 100M+ adatpont
+| Algoritmus | Időkomplexitás | Memória |
+|:-----------|:---------------|:--------|
+| Brute Force | $O(n^2 m)$ | $O(n^2)$ |
+| **STOMP** | $O(n^2)$ | $O(n)$ |
+
+5 év adat brute force-szal: **4,4 év** számítási idő, **11,1 PB** memória.
 
 ---
 
 
-# Valtozasnaplo
+- Numba JIT + Dask: CPU/GPU párhuzamosítás
+- Akár 256 CPU mag vagy több GPU
+- SCRUMP: közelítő, sebesség-kritikus esetekre
 
-| Datum | Verzio | Leiras |
+---
+
+## 6. dia -- Alkalmazások
+
+- **Motívumkeresés:** ismétlődő gépviselkedés-minták
+- **Anomáliadetektálás:** ritkán előforduló hibaminták
+
+---
+
+## 7. dia -- Összefoglalás
+
+1. Matrix Profile = távolságvektor + Profile Index
+2. z-normalizálás → amplitúdófüggetlen összehasonlítás
+3. STOMP: $O(n^2)$, egzakt, párhuzamosítható (STUMPY)
+4. Min → motívum; Max → anomália
+
+
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (08_presentation_maker szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (08_presentation_maker) |

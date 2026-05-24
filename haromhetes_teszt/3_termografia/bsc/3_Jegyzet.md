@@ -1,81 +1,86 @@
 ---
-title: 3_JEGYZET.MD -- Termografia
+title: 3_JEGYZET.MD -- Infravörös termográfia
 type: output
 het: 3
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 21de071f-0bf0-4c31-b4c2-e24f9d6d542a
+notebook: 2af3a356-2a36-47f1-8adc-1da4bc44de72
 ---
 
-# 3. Heti Jegyzet -- Termografia
+# 3. Heti Jegyzet -- Infravörös termográfia
 
-**Het:** 3. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 3. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## Tanulasi celok
+## Tanulási célok
 
-1. Megerteni a Stefan-Boltzmann torveny fizikai tartalmat.
-2. Magyarazni az emisszivitas szerepet a pontatos homersekletsmeresen.
-3. Azonositani a hokamera fo epitoelemet (detektor, objektiv, jelfeldolgozo).
-4. Felsorolni tipikus ipari termografiai alkalmazasokat.
+1. Megérteni a Stefan-Boltzmann törvény fizikai tartalmát és a képlet tagjai szerepét.
+2. Megmagyarázni az emisszivitás szerepét a pontos hőmérséklet-mérésben.
+3. Azonosítani a hőkamera főegységeit (detektor, objektív, jelfeldolgozó).
+4. Felsorolni tipikus ipari termográfiai alkalmazásokat.
 
 
 <!-- Q:1 -->
 ## 2. Fizikai alapok
 
-Az infravoros (IR) termografia az anyagok homersukletsugaraztasi teljesitmenyenek meresere epul. A **Stefan-Boltzmann torveny** szerint $W = \varepsilon \sigma T^4$. <sup>[[1]](#ref-1)</sup>
+Az infravörös termográfia alapelve: minden $T > 0\ \text{K}$ hőmérsékletű test elektromágneses sugárzást bocsát ki. A **Stefan-Boltzmann törvény**: $W = \varepsilon \sigma T^4$. <sup>[[1]](#ref-1)</sup>
 
-> **💡 Lenyeg:** Az emisszivitas ($\varepsilon$) az anyagspecifikus korrrekcios tenyezo -- helytelen beallitasa szisztematikus mersikust okoz.
+| Fogalom | Képlet | Forrás |
+|:--------|:-------|:-------|
+| Stefan-Boltzmann (valós test) | $W = \varepsilon \sigma T^4$ | [1] |
+| Stefan-Boltzmann állandó | $\sigma = 5{,}67 \cdot 10^{-8}\ \text{W m}^{-2}\text{K}^{-4}$ | [1] |
+| Wien eltolódási törvény | $\lambda_m = 2897\ \mu\text{m}\cdot\text{K} / T$ | [1] |
+| Kirchhoff sugárzási törvénye | $\alpha + \rho + \tau = 1$ | [1] |
+
+> **💡 Lényeg:** Az emisszivitás ($\varepsilon$) az anyagspecifikus korrekciós tényező -- helytelen beállítása szisztematikus mérési hibát okoz.
 
 <!-- Q:2 -->
-## 3. Emisszivitas es meresihiba
+## 3. Emisszivitás és mérési hiba
 
-Az **emisszivitas** az anyag valodi sugarzasanak aranya a feketetest-sugarzashoz kepest. Feluleti allapot, szog es hullhamhossz-fueggese jelentos. <sup>[[2]](#ref-2)</sup> <sup>[[3]](#ref-3)</sup>
+Az **emisszivitás** a valódi test sugárzásának aránya az ideális fekete test sugárzásához képest ($\varepsilon \in [0,1]$). Felületi állapot-, szög- és hullámhossz-függése jelentős. <sup>[[1]](#ref-1)</sup>
 
-> **💡 Lenyeg:** Tukrozo feluletek (pl. csiszolt fem) alacssony emisszivitasuak ($\varepsilon < 0.1$), igy a kornyezet visszaverodeese dominalja a mert erteket.
+Átlátszatlan testeknél: $\tau = 0$ → $\varepsilon = \alpha = 1 - \rho$.
 
-> **🗺️ Fejezet osszegzes -- 3. Emisszivitas**
+> **💡 Lényeg:** Tükröző felületek (pl. csiszolt fém, $\varepsilon < 0{,}1$) esetén a visszavert környezeti sugárzás dominálhatja a mért értéket -- ez a leggyakoribb mérési hiba forrása.
+
+> **🗺️ Fejezet összegzés -- 3. Emisszivitás**
 
 <!-- Q:3 -->
-## 4. Hokamera felepitese
+## 4. Hőkamera felépítése
 
-Fo egysegek: **IR objektiv** (germanium), **detektor** (mikrobolometer vagy hutott), **jelfeldolgozo egyseg**. <sup>[[1]](#ref-1)</sup> <sup>[[4]](#ref-4)</sup>
+Főegységek: **IR objektív** (germániumlencse), **detektor** (mikrobolométer vagy hűtött), **jelfeldolgozó egység** (NUC, kalibrálás). <sup>[[1]](#ref-1)</sup>
 
-> **💡 Lenyeg:** A mikrobolometer nem hutott, ezert kompakt es olcso, de erzekenyseege alacsonyabb a hutott detektorcoknal.
+> **💡 Lényeg:** A mikrobolométer nem hűtött, ezért kompakt és olcsó, de érzékenysége alacsonyabb a hűtött detektorokénál.
 
 
-> **🗺️ Fejezet osszegzes -- 4. Hokamera**
+> **🗺️ Fejezet összegzés -- 4. Hőkamera**
 
 <!-- Q:4 -->
-## 5. Alkalmazasok
+## 5. Alkalmazások
 
 
-> **💡 Lenyeg:** A termografiai vizsgalat beruhazo-baratsagos: egyetlen menetjarat-mentes, kontaktus nelkuli felveteelekkel kiterjedt hibakatasztert ad.
+> **💡 Lényeg:** A termográfiai vizsgálat beruhazóbarát: egyetlen menetjárat-mentes, érintésmentes felvétellel kiterjedt hibakatasztert ad.
 
-> **🗺️ Fejezet osszegzes -- 5. Alkalmazasok**
+> **🗺️ Fejezet összegzés -- 5. Alkalmazások**
 
 
 ---
 
-## Targymutatoo
+## Tárgymutató
 
-- [3. Heti Jegyzet -- Termografia](#3-heti-jegyzet----termografia)
-  - [2. Fizikai alapok](#2-fizikai-alapok)
-  - [3. Emisszivitas es meresihiba](#3-emisszivitas-es-meresihiba)
-  - [4. Hokamera felepitese](#4-hokamera-felepitese)
-  - [5. Alkalmazasok](#5-alkalmazasok)
+- [2. Fizikai alapok](#2-fizikai-alapok)
+- [3. Emisszivitás és mérési hiba](#3-emisszivitas-es-meresi-hiba)
+- [4. Hőkamera felépítése](#4-hokamera-felepitese)
+- [5. Alkalmazások](#5-alkalmazasok)
 
 ---
 
-## Hivatkozasok
+## Hivatkozások
 
-<a name="ref-1"></a>[1] FLIR (2020). *FLIR-IR-Thermography_How-It-Works.pdf*.
-<a name="ref-2"></a>[2] Ismeretlen (2022). *HOKAMERA_ALAPOK_es_GYAKORLATI_ALKALMAZASOK_4.pdf*.
-<a name="ref-3"></a>[3] Ismeretlen (2021). *Infrared Energy, Emissivity, Reflection & Transmission.pdf*.
-<a name="ref-4"></a>[4] JAMP (2023). *JAMP-11-230.pdf*.
-<a name="ref-5"></a>[5] Rogalski (2014). *sensors-14-12305.pdf*.
+<a name="ref-1"></a>[1] Ismeretlen szerző (2021). *Műszaki Diagnosztika II -- A termográfia elméleti alapjai*. 10-Termografia-1.pdf.
 
-# Valtozasnaplo
 
-| Datum | Verzio | Leiras |
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (01-07 pipeline szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (01-07 pipeline) |

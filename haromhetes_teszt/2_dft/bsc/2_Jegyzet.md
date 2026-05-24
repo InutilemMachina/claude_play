@@ -1,85 +1,85 @@
 ---
-title: 2_JEGYZET.MD -- Diszkret Fourier-transzformacio
+title: 2_JEGYZET.MD -- DFT és FFT
 type: output
 het: 2
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
-notebook: 231a232e-6620-41a0-b30b-03a8a6c187b8
+notebook: 9447f8a8-d261-4522-8cc6-862befe1aabe
 ---
 
-# 2. Heti Jegyzet -- Diszkret Fourier-transzformacio
+# 2. Heti Jegyzet -- DFT és FFT
 
-**Het:** 2. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 2. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## Tanulasi celok
+## Tanulási célok
 
-1. Megerteni a DFT matematikai definiciojat es a $X[k]$ komplex ertek fizikai jelenteset.
-2. Meghatározni a Nyquist-frekvenciat es magyarazni az aliasing jelenseget.
-3. Osszehasonlitani a DFT es FFT szamitasi komplexitasat.
-4. Alkalmazni a DFT-t rezgesdiagnosztikai feladata megoldasara.
+1. Leírni a DFT matematikai definícióját és a Fourier-mátrix kapcsolatát.
+2. Megmagyarázni az FFT számítási előnyét a közvetlen DFT-vel szemben.
+3. Vázolni a Cooley-Tukey rekurzív felbontás elvét.
+4. Felsorolni a DFT/FFT legalább 3 mérnöki alkalmazási területét.
 
 
 <!-- Q:1 -->
-## 2. Atekindes es motivacio
+## 2. DFT definíciója és Fourier-mátrix
 
-A Diszkret Fourier-transzformacio (DFT) egy $N$ hosszu jelet a frekvenciatartomanyba kepez le. Kizarolag a feltoltott forrasok szerint: a DFT az idosor es frekvenciasor kozott bijektiv kapcsolatot teremt. <sup>[[1]](#ref-1)</sup>
+A DFT $N$ hosszú diszkrét jelet frekvenciatartományba transzformál: $\hat{X}(k) = \sum_{j=0}^{N-1} X(j) W_N^{jk}$, ahol $W_N = e^{2\pi i/N}$. [1]
 
-> **💡 Lenyeg:** A DFT visszafordithato: az IDFT az eredeti jelet allitja vissza pontosan.
+Mátrix formában: $\hat{X} = W_N \cdot X$, ahol $W_N$ az egységgyökök unitér Fourier-mátrixa. Az IDFT: $X(j) = \frac{1}{N}\sum_{k=0}^{N-1} \hat{X}(k) W_N^{-jk}$. [1]
+
+> **💡 Lényeg:** Az IDFT számítása lényegében megegyezik a DFT-ével (csak $W_N^{-jk}$ és $1/N$ faktorral). Ugyanaz az implementáció mindkét irányban használható.
 
 <!-- Q:2 -->
-## 3. Matematikai definicio
+## 3. FFT és Cooley-Tukey
 
-$$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j2\pi kn/N}, \quad k=0,1,\ldots,N-1$$
+Az FFT $O(N^2)$-ről $O(N \log N)$-re csökkenti a DFT számítási igényét. A Cooley-Tukey (1965) algoritmus $N = N_1 N_2$ esetén az $N$-pontos DFT-t két $N/2$-pontos DFT-re bontja rekurzívan. [1]
 
-A spektrum $N$ komplex erteket tartalmaz. <sup>[[2]](#ref-2)</sup> <sup>[[3]](#ref-3)</sup>
+> **💡 Lényeg:** Az FFT nem egy új transzformáció -- ugyanolyan eredményt ad, mint a közvetlen DFT. Csak a számítást csinálja gyorsabban.
 
-> **💡 Lenyeg:** Az $X[k]$ ertek amplitudoja es fazisa megadja a $k \cdot \Delta f$ frekvencian levo komponenst.
 
-> **🗺️ Fejezet osszegzes -- 3. Matematikai definicio**
+> **🗺️ Fejezet összegzés -- 3. FFT és Cooley-Tukey**
 
 <!-- Q:3 -->
-## 4. FFT algoritmus
+## 4. Alkalmazások
 
-A **Cooley-Tukey** FFT $O(N \log N)$ komplexitasal hajtja vegre a DFT-t divide-and-conquer elvvel. $N = 2^p$ eseten optimalis. <sup>[[3]](#ref-3)</sup>
+A DFT/FFT nélkülözhetetlen a következő területeken [1]:
 
-> **💡 Lenyeg:** $N = 1024$ eset: DFT $\approx 10^6$ muvelet, FFT $\approx 10^4$ -- 100x gyorsabb.
+- **Jelfeldolgozás**: rezgésdiagnosztika, modemek, MP3 kódolás
+- **Képfeldolgozás**: MRI rekonstrukció, mintázatfelismerés
+- **Geofizika**: szeizmológiai idősorok, nukleáris tesztek detektálása
 
+> **💡 Lényeg:** A digitális jelfeldolgozás legtöbb ága közvetve az FFT hatékonyságára épül -- nélküle a modern kommunikáció és orvosi képalkotás nem lenne megvalósítható.
 
-> **🗺️ Fejezet osszegzes -- 4. FFT algoritmus**
+> **🗺️ Fejezet összegzés -- 4. Alkalmazások**
 
 <!-- Q:4 -->
-## 5. Alkalmazasok
 
-**Rezgesdiagnosztika**: forgogepek hibafrekkvenciainak azonositasa. **Audio**: hangszinkezeeles, kodolas. <sup>[[2]](#ref-2)</sup>
+Időtartomány konvolúció $\leftrightarrow$ frekvenciatartomány szorzat: $(f * g)(t) \xrightarrow{\mathcal{F}} F(\omega) \cdot G(\omega)$. [1]
 
-> **💡 Lenyeg:** A spektrum csuccsai a dominans frekkvencia-komponensekre mutatnak; a sidebandok modulaciora utalnak.
+Ez lehetővé teszi a digitális szűrést $O(N^2)$ helyett $O(N \log N)$-nel: FFT → szorzás → IFFT.
 
+> **💡 Lényeg:** A konvolúciós tétel az oka, hogy az FFT a digitális szűrés (és így a rezgésdiagnosztika, audiofeldolgozás, képszűrés) alapeszközévé vált.
 
-> **🗺️ Fejezet osszegzes -- 5. Alkalmazasok**
+> **🗺️ Fejezet összegzés -- 5. Konvolúciós tétel**
 
-
----
-
-## Targymutatoo
-
-- [2. Heti Jegyzet -- Diszkret Fourier-transzformacio](#2-heti-jegyzet----diszkret-fourier-transzformacio)
-  - [2. Atekindes es motivacio](#2-atekindes-es-motivacio)
-  - [3. Matematikai definicio](#3-matematikai-definicio)
-  - [4. FFT algoritmus](#4-fft-algoritmus)
-  - [5. Alkalmazasok](#5-alkalmazasok)
 
 ---
 
-## Hivatkozasok
+## Tárgymutató
 
-<a name="ref-1"></a>[1] Ahrens (2020). *ahrens2020_article.pdf*.
-<a name="ref-2"></a>[2] Barszcz (2019). *barszcz2019_chapter.pdf*.
-<a name="ref-3"></a>[3] Gentleman (1966). *gentleman1966_article.pdf*.
-<a name="ref-4"></a>[4] Lerch (2012). *lerch2012_book.pdf*.
-<a name="ref-5"></a>[5] Rockmore (1999). *rockmore1999_article.pdf*.
+- [2. DFT definíciója és Fourier-mátrix](#2-dft-definicioja-es-fourier-matrix)
+- [3. FFT és Cooley-Tukey](#3-fft-es-cooley-tukey)
+- [4. Alkalmazások](#4-alkalmazasok)
+- [5. Konvolúciós tétel](#5-konvolucios-tetel)
 
-# Valtozasnaplo
+---
 
-| Datum | Verzio | Leiras |
+## Hivatkozások
+
+<a name="ref-1"></a>[1] Rockmore, D. N. (1999). "The FFT -- An Algorithm the Whole Family Can Use." *Computing in Science & Engineering*, 1(1), 24--30. rockmore1999_article.pdf.
+
+
+# Változásnapló
+
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (01-07 pipeline szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (01-07 pipeline) |

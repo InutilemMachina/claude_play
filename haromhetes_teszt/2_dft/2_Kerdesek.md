@@ -1,76 +1,76 @@
 ---
-title: 2_KERDESEK.MD -- Diszkret Fourier-transzformacio
+title: 2_KERDESEK.MD -- DFT és FFT
 type: output
 het: 2
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
 ---
 
-# 2. Kerdesek -- Diszkret Fourier-transzformacio
+# 2. Kérdések -- DFT és FFT
 
-**Het:** 2. het | **Datum:** 2026-05-23 | **Statusz:** DRAFT
+**Hét:** 2. hét | **Dátum:** 2026-05-24 | **Státusz:** DRAFT
 
-## 1. BSc kerdesek (SZINT:2-3)
+## 1. BSc kérdések (SZINT:2-3)
 
 **K1** SZINT:2
-Mit jelent a DFT $X[k]$ erteke?
-A) Az idosor $k$-adik mintajanak abszolut erteket
-B) Az adott frekvencian levo spektralis amplitudot es fazist
-C) Az idosor $k$-adik elemenek negyzetet
-D) A mozgo atlag $k$-adik erteket
+Melyik állítás igaz a DFT-re?
+A) Új matematikai transzformáció, amelyet az FFT helyettesített
+B) Diszkrét adatokat idő- és frekvenciatartomány között képez; az FFT a hatékony számítási módszere
+C) Csak valós bemeneti vektorokra alkalmazható
+D) Kizárólag $N = 2^k$ hosszú bemeneten működik
 
 **Helyes:** B
 
 **K2** SZINT:2
-Mi a Nyquist-frekvencia?
-A) A mintavetelezesi frekvencia ketszerese
-B) A mintavetelezesi frekvencia fele
-C) A jel legmagasabb frekvencia-komponense
-D) A DFT frekkvenciafelbontasa
+Mennyivel csökkenti az FFT a DFT számítási igényét $N$ elemre?
+A) $N^2$-ről $N/2$-re
+B) $N^2$-ről $N \log N$-re
+C) $N^3$-ről $N^2$-re
+D) $N \log N$-ről $N$-re
 
 **Helyes:** B
 
 **K3** SZINT:3
-Miert elonyos az FFT a DFT-vel szemben?
-A) $O(N^2)$ helyett $O(N \log N)$ a komplexitasa
-B) Pontosabb eredmenyt ad
-C) Nem igenyel komplex szamtart
-D) Realidosu megvalositasra nem alkalmas
+Melyik területen alkalmazzák a DFT-t rezgésdiagnosztikában?
+A) Kizárólag elektromos hálózatokban
+B) Periodikus jelek frekvenciakomponenseinek szétválasztásában (pl. forgógép hibafrekvenciák azonosítása)
+C) Digitális képek tömörítésében
+D) Adatbázis-lekérdezések gyorsításában
 
-**Helyes:** A
+**Helyes:** B
 
 **K4** SZINT:3
-Mi az ablakolas celja?
-A) A jel amplitudjanak novelesehez
-B) A spektralis szivargast (leakage) csokkentesehez
-C) Az aliasing kizarasahoz
-D) A DFT szamitasi idejeneek csokkentesehez
+Mire utal a spektrum egy adott csúcsa?
+A) Az adott időpillanatban mért értékre
+B) A jel egy adott frekvenciájú szinuszos komponensének amplitúdójára és fázisára
+C) A jel várható értékére az adott frekvenciasávban
+D) A minta hosszára
 
 **Helyes:** B
 
-## 2. MSc kerdesek (SZINT:4-5)
+## 2. MSc kérdések (SZINT:4-5)
 
 **K5** SZINT:4
-Mit mond ki a Parseval-tetel?
-A) A jel csucserteke azonos az ido- es frekkvenciatartomanyban
-B) A jel osszes energiaja azonos az ido- es frekkvenciatartomanyban
-C) A DFT minden eleme valos ertek
-D) Az IDFT inverze a DFT-nek
+Hogyan csökkenti a Cooley-Tukey algoritmus az $N$ pontos DFT komplexitását?
+A) Memóriacsökkentéssel és gyors IO-val
+B) Az $N$-pontos DFT-t két $N/2$-pontos DFT-re bontja rekurzívan, $O(N^2)$-ről $O(N \log N)$-re csökkentve az igényt
+C) Véletlen mintavételezéssel közelítő megoldást számít
+D) Csak a nemnulla frekvenciakomponenseket számolja ki
 
 **Helyes:** B
 
-**K6** SZINT:4
-Mi a radix-2 DIT FFT muvelete?
-A) Paros es paratlan indexu mintak szeparalasa rekurzivan
-B) Minden mintat par-indexu csoportba sorolas
-C) A jel negyedenkenti felbontasa
-D) Komplex szorzas elkerulese
+**K6** SZINT:5
+Mi a konvolúciós tétel jelentősége a jelfeldolgozásban?
+A) Lehetővé teszi a DFT és IDFT váltakozó alkalmazását
+B) Időtartomány-konvolúció $\leftrightarrow$ frekvenciatartomány-szorzat: $O(N^2)$ szűrés $O(N \log N)$-re csökkenthető
+C) Megmutatja, hogy minden szűrő frekvenciafüggetlen
+D) Biztosítja, hogy az inverz DFT valós értéket ad vissza
 
-**Helyes:** A
+**Helyes:** B
 
 
-# Valtozasnaplo
+# Változásnapló
 
-| Datum | Verzio | Leiras |
+| Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-23 | 1.0 | [SIM] Letrehozva (09_question_bank_collector szimulacio) |
+| 2026-05-24 | 1.1 | Újragenerálva -- ékezetek javítva (09_question_bank_collector) |

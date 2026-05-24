@@ -1,36 +1,40 @@
 ---
-title: 3_MINDMAP.MD -- Termografia
+title: 3_MINDMAP.MD -- Infravörös termográfia
 type: output
-tags: [mindmap, sim]
 het: 3
-updated: 2026-05-23
+updated: 2026-05-24
 status: DRAFT
+notebook: 2af3a356-2a36-47f1-8adc-1da4bc44de72
 ---
 
-# 3. Mindmap -- Termografia
+# 3. Mindmap -- Infravörös termográfia
 
 ```mermaid
 flowchart LR
-  TERMO["Termografia"]
+  TERMO["Infravörös termográfia"]
   TERMO --> FIZIKA["Fizikai alapok"]
-  FIZIKA --> STEFAN["Stefan-Boltzmann torveny"]
-  FIZIKA --> EMISSZ["Emisszivitas (epsilon, 0-1)"]
-  TERMO --> KAMERA["Hokamera felepitese"]
-  KAMERA --> DETEKTOR["IR detektor"]
-  DETEKTOR --> BOLOM["Mikrobolometer (nem hutott)"]
-  KAMERA --> OBJEKTIV["Germaniumulens"]
-  TERMO --> APP["Alkalmazasok"]
+  FIZIKA --> STEFAN["Stefan-Boltzmann: W=εσT⁴"]
+  FIZIKA --> EMISSZ["Emisszivitás ε ∈ [0,1]"]
+  TERMO --> KAMERA["Hőkamera felépítése"]
+  KAMERA --> OBJEKT["IR objektív (germánium)"]
+  KAMERA --> BOLOM["Mikrobolométer (nem hűtött)"]
+  TERMO --> MERESHIBAK["Mérési korlátok"]
+  MERESHIBAK --> REFLEXIO["Reflexió (alacsony ε)"]
+  MERESHIBAK --> ATMO["Atmoszférikus ablakok"]
+  MERESHIBAK --> UVEG["Üveg: átlátszatlan >5 μm"]
+  TERMO --> APP["Alkalmazások"]
   APP --> VILLAMOS["Villamos diagnosztika"]
-  APP --> EPULET["Epuletdiagnosztika"]
-  APP --> GEPHIBA["Gephiba-detekciio"]
+  APP --> EPULET["Épületgépészet"]
+  APP --> GEPESZET["Gépészeti PM"]
 ```
 
-# 2. Forras
 
-- Generalta: `nlm chat` szimulacio (2026-05-23)
-- Notebook: 21de071f-0bf0-4c31-b4c2-e24f9d6d542a
+## Forrás
+
+- Generálta: `nlm_query.py` (2026-05-24)
+- Notebook: 2af3a356-2a36-47f1-8adc-1da4bc44de72
 - Raw: `clean_sources/nlm_q1_raw.txt`
 
-# Valtozasnaplo
+# Változásnapló
 
-- 2026-05-23 -- [SIM] Letrehozva (05_mindmap_manager szimulacio)
+- 2026-05-24 -- 1.1: Újragenerálva -- ékezetek javítva (05_mindmap_manager)
