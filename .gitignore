@@ -13,6 +13,10 @@
 **/raw_sources/
 **/clean_sources/
 
+# Teszt projektmappák
+**/*teszt*/
+**/*test*/
+
 # Kivétel: master sablon és brand assets
 !templates/du_template.pptx
 !templates/assets/
