@@ -1,11 +1,11 @@
----
+﻿---
 title: PITFALLS.MD -- Ismert problémák és gyökéroka-megoldások
 type: meta
 tags: [meta, debug]
 updated: 2026-05-23
 description: Pipeline futás közben felfedezett hibák, gyökérokaik és bevált megoldásaik. Session elején opcionálisan beolvasható.
 ---
-QUESTION: Az egyes hibák miért nincsenek szétdobva a saját folyamatukat érintő fájlokba?
+QUESTION: Az egyes hibák miért nincsenek szétdobva a saját folyamatukat érintő fájlokba? Ezzel felszámolhatóvá válna ez a fájl/ cserébe mindegyik értintett fájl kicsit hosszabb lenne. De teljesíteni az "önamgát dokumentáló dokumentum" elvét.
 
 # Pitfalls -- Ismert Problémák és Megoldások
 
@@ -195,7 +195,30 @@ weboldal-rendererekként. HTML esetén nincs elérhető PDF-minőségű ábrakiv
 **Megoldás:** Weboldalt PDF-ként kell menteni (Edge: nyomtatás → Save as PDF,
 vagy SingleHTML bővítmény), majd a PDF kerül a `forrasok/` mappába.
 
-## 4.3. `conda run` + PowerShell Start-Job: visszatér, mielőtt MinerU befejezne
+
+## 4.3. MinerU kettos almappa-nesting (`clean_inputs/<stem>/<stem>/auto/`)
+
+**Tunet:** MinerU output `clean_inputs/<stem>/<stem>/auto/` ala kerul -- kettos szint.
+
+**Gyokerok:** A script `run_mineru(pdf, clean_dir / pdf.stem, pages)` meghivasa.
+MinerU maga hozza letre a `<pdf_stem>/` alkonyv tarat az `-o` parameteren belul,
+igy az eredmeny `clean_dir/<stem>/<stem>/auto/` lesz.
+
+**Megoldas:** `run_mineru(pdf, clean_dir, pages)` -- a `clean_dir`-t adjuk `-o`-nak,
+MinerU maga krealia a `<stem>/` szintet: `clean_dir/<stem>/auto/`. OK
+Javitva: `scripts/03_run_mineru_pipeline.py` (2026-05-24).
+
+**Utolagos lapitas (meglevo kettos struktura):**
+```powershell
+Get-ChildItem $base -Directory | ForEach-Object {
+    $inner = Join-Path $_.FullName $_.Name
+    if (Test-Path $inner) {
+        Get-ChildItem $inner | Move-Item -Destination $_.FullName -Force
+        Remove-Item $inner -Recurse -Force
+    }
+}
+```
+## 4.4. `conda run` + PowerShell Start-Job: visszatér, mielőtt MinerU befejezne
 
 **Tünet:** `Start-Job` befejezettnek jelöli a conda run hívást (pl. 15 sec alatt),
 de a MinerU Python processz még fut a háttérben.

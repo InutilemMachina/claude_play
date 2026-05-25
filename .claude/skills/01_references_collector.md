@@ -86,6 +86,8 @@ Claude megkapja:
 - `tema`: pl. `Mátrix Profil -- Elmélet és Alkalmazások`
 - (opcionális) `meglevo_forrasok`: már feltöltött fájlok listája
 
+QUESTION: nem tudom, hogy ez itt miért releváns. Az adott hét raw_sources mappáját töltjük fel közösen fájlokkal. 
+
 ## 3.2. Deep Research keresés
 
 Claude WebSearch-szel felkutatja a releváns forrásokat. Keresési stratégia:
@@ -169,6 +171,8 @@ NLM notebook feltöltési sorrend (preferált):
 
 Aztán 👤 feltölti az NLM notebookba, majd a `nlm_uuid`-eket a `04_citations_maker`
 visszatölti a JSON-ba a Prompt B kimenetéből.
+
+TODO A user nem tud nlm_uuid-kat és JSON-t szerkeszteni. Amikor minden forrás rendelkezésre áll, akkor azokat egyben feltöltjük
 
 # 4. Takarékossági szabály
 

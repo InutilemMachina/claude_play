@@ -8,6 +8,7 @@ description: Bemásolandó prompt szövegek. A = Claude Project Instructions. B 
 # NLM Prompts — NLM és Claude Meta-promptok
 
 Forrás: [nlm_claude_integration.md](nlm_claude_integration.md), 6. fejezet.
+TODO: A helyes lokáció: .claude\archive\nlm-claude_integration_research.md
 
 ## 1. Prompt A — Claude Project Custom Instructions
 
@@ -16,6 +17,9 @@ Forrás: [nlm_claude_integration.md](nlm_claude_integration.md), 6. fejezet.
 **Mikor:** Egyszeri setup — a `.claude/CLAUDE.md` tartalmával együtt másolandó be.
 
 **Megjegyzés:** A szerepkör-leírás és pipeline-szabályok a CLAUDE.md-ben részletezve vannak; Prompt A csak az NLM-specifikus forráskezelési szabályokat tartalmazza.
+TODO: szerepkör-leírás linkelése
+TODO: pipeline linkelése
+TODO: nem egyérteémű, hogy ez hova kapcsolódik, hova linkelhető: "Prompt A csak az NLM-specifikus forráskezelési szabályokat tartalmazza." hiszen ez maga a "Prompt A" és mégis "csak" a megjegyzésekbe került
 
 ```
 # SOURCE RECONCILIATION & FILE EXTENSION POLICY
@@ -70,9 +74,8 @@ Te egy rendkivul preciz, akademiai szintu kutatasi es adatintegracios assziszten
 
 **Megjegyzés az ékezetek hiányáról:** A Prompt B fenti verziója ékezetek nélküli (ASCII), mert Claude PowerShell-en keresztül is el tudja küldeni inline kérdésként. A Configure Chat-ben a webes UI-on manuálisan illeszd be az eredeti, ékezetes változatot (lásd image.png).
 
-![Prompt B a Configure Chat-ben](image.png)
-
 ## 3. Prompt C — NLM / Data Tables Studio (ceruza ikon)
+TODO: nem egyértelmű, hogy ez az NLM MCP-n keresztül is működik-e. a 3.1, 3.2, 3.3 parancsok esetében a Studio panel-en nem generálódtak le a kimenetek, hanem csak a chat ablakban generálódtak a fejezet-specifikus szöveges válaszok. Ez elfogadható, mégis meg kellene vizsgálni, hogy miért nem tudjuk a studio kimeneteket legenerálni automatizmussal.
 
 **Hova:** NotebookLM → Studio panel → Data Tables → ceruza ikon → "Customize Data Table" szövegmező
 
@@ -140,6 +143,7 @@ Csak olyan fogalmakat vegyél fel, amelyek legalább egy feltöltött forrásban
 ```
 
 **Megjegyzés:** A Gondolattérkép funkció nem promptolható, de az Export-Tool segítségével Markdown-ként exportálható — ez a 05_mindmap_manager lépés bemeneteként felhasználható.
+TODO: ellenőrizd le, hogy promptolható-e
 
 ### 3.3. Kérdésbank-alap táblázat (09_question_bank_collector előkészítője)
 
@@ -150,7 +154,7 @@ Különbség a Studio Kvíz/Tanulókártyáktól:
 - Ez a 3.3 tábla: strukturált nyers adat → Claude 09_question_bank_collector bemenete (SZINT jelölés, BSc/MSc szűrés Claude végzi)
 
 ```
-Készíts vizsgakérdés-alap táblázatot a feltöltött forrásokból.
+Készíts vizsgakérdés-alap táblázatot 20-30 kérdéssel a feltöltött forrásokból.
 
 Oszlopok:
 1. Téma / fejezet

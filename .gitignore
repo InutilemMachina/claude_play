@@ -14,12 +14,11 @@
 **/clean_sources/
 
 # Teszt projektmappák
-Termografia_teszt_v*
-haromhetes_teszt/
 test_sources/
+test_outputs/
+nlm_experiments/
 **/*teszt*/
 **/*test*/
-pipeline.md
 
 # Kivétel: master sablon és brand assets
 !templates/du_template.pptx

@@ -39,8 +39,12 @@ def _normalize(s):
     return s.replace(' ', '')
 
 def _strip_num(text):
-    """Remove leading dotted number: '1.2. Foo' -> 'Foo'."""
-    return re.sub(r'^[\d]+(?:\.[\d]+)*\.?\s+', '', text).strip()
+    """Remove leading dotted number or Roman numeral: '1.2. Foo' / 'II. Foo' -> 'Foo'."""
+    # Arabic dotted: 1. / 1.2. / 1.2.3.
+    text = re.sub(r'^[\d]+(?:\.[\d]+)*\.?\s+', '', text)
+    # Roman numeral prefix: I. / II. / XIV. etc.
+    text = re.sub(r'^[IVXLCDM]+\.\s+', '', text)
+    return text.strip()
 
 def _is_unnumbered(text):
     """True if this heading should stay without a number."""

@@ -2,117 +2,119 @@
 title: Pipeline.md -- NLM pipeline
 type: meta
 status: active
-version: 2.0
-updated: 2026-05-23
-description: Pipeline flowchart, IO táblázat, forrástípusok, checkpointok. Egyetlen NLM-alapú munkafolyamat leírása.
+version: 5.0
+updated: 2026-05-25
+description: Pipeline lépések 01-14 + 03b/03c/05/06b alaplépések, IO táblázat, mappastruktúra, checkpointok.
 ---
 
 # PIPELINE.MD -- NLM Pipeline
+NOTE: (IMPORTANT but not at the moment) Távlati cél, afféle északi csillag, ami felé orientálódnunk kell, hogy a pipeline minél inkább mentesüljön a Claude és az emberi vezérléstől, az egyes lépéseket script-ek sorozota kezelné.
 
-# 1. Vizualizáció
+NOTE: egyelőre az a legfontosabb, hogy a wip_outputs tartalmilag **magas minőségű** legyen. Később ezekből csinálunk egy prezentációt a `templates\due_prenetation_template.pptx` felhasználásával és egy jegyzetet a `templates\due_jegyzet_template.docx` felhasználásával. 
+A bonyolult formaiságok miatt majd megvizsgáljuk a Pandoc használatát is például. 
 
-NOTE: A mermaid flowchart-ot szándékosan kiegyenesítettem. Ezt `# 1. Vizualizáció` egyértelműen össsze kell dolgozni értelmesen a `# 2. IO táblázat` szakasszal.
-TODO: Ez így logikus felépítés?
-```mermaid
-flowchart TD
-    P1["👤 context.md kitöltése"] --> P2
-    P2["🤖 Mappastruktúra létrehozása \TODO: ezt lehetne automatizálni bash script?"] --> P3 
-    P3["👤 du_template.pptx elérhetővé tétele\n(templates/-ből másolás)TODO ott van, tessék a a másolást automatizálni"] --> P4
-    P4["👤 NLM notebook létrehozása\n+ Prompt B beállítása TODO ez legyen automatikus, már tudod hogy kell csinálni."] --> W0
-    W0["👤 Forrás NLM-be töltése TODO ez már automatiált"] --> W0c
-    W0c["🐍 00c_mineru_extractor\nPDF → kepek/ + figure_catalog.json"] --> W1
-    W1["🔌 01_nlm_query_runner\nNLM CLI Q1-Q4 + Q5 ábra-query
-    QUESTION: Mi az a Q1-Q4 + Q5???"] --> W2
-    W2["🤖 02_source_controller\nforrásrészek azonosítása 
-    TODO: ez még nem automatizált? "] --> W2CHK 
-    W2CHK["👤 ✅ jóváhagyás 🛑 QUESITON: mit kell itt jóváhagyni"] --> W3
-    W3["🤖 03_excerpt_block_maker\nin-place blockquote-ok"] --> W4
-    W4["🤖 04_citations_maker\ncitations.json + globális átsorszámozás: Miért és mit kell globálisan átsorszámozni?"] --> W4CHK
-    W4CHK["👤 ✅ szószedet 🛑 QUESITON: ennek a mindmapből kéne jönnie"] --> W5
-    W5["🤖 05_mindmap_manager\nMermaid flowchart LR
-    MOST IMPORTANT TODO: Miért nem a mindmap generálásával és lekérdezésével kezdjük a tartalom lekérdezését? annak a hirearchikus lekérdezése lenne a cél. "] --> W5b
-    W5b["🤖 05b_figure_mapper\nfigure_catalog + Q5 → REVIEW placeholderek"] --> W6
-    W6["🤖 06_notes_collector\nTárgymutató"] --> W7
-    W7["🤖 07_typesetter\ntipográfia lint"] --> W8
-    W8["🤖 08_presentation_maker\n→ Prezentacio.md + .pptx 🐍"] --> W9
-    W9["🤖 09_question_bank_collector\nQ NLM-ből BSc/MSc"] --> W10
-    W10["🐍 10_bsc_filter\n→ bsc/"]
+# 1. Lépések és IO
+
+| Input | Input felelős | Lépés | Automatizáltság / Checkpoint | Output |
+|:------|:--------------|:------|:-----------------------------|:-------|
+| User PDF-ek, URL-ek | 😎 | [01_references_collector](skills/01_references_collector.md) | 🤖+😎 | `raw_inputs/` + `citations_seed.json` |
+| `raw_inputs/` | 🤖+😎 | [02_nlm_notebook_setup](skills/02_nlm_notebook_setup.md) | 🔌 🛑 | NLM notebook + [Prompt B](nlm_prompts.md#2-prompt-b--notebooklm-custom-instructions) + UUID-k |
+| `raw_inputs/*.pdf` | 😎 | [03_mineru_extractor](skills/03_mineru_extractor.md) | 🐍 | `clean_inputs/<forrasnev>/` + `raw_outputs/figure_catalog.json` |
+| NLM notebook | 🔌 | `scripts/03b_qfig_parser.py` -- Qfig query → caption + keywords | 🐍 | `raw_outputs/figure_catalog.json` (caption + keywords feltöltve) |
+| `raw_outputs/figure_catalog.json` | 🐍 | `scripts/03c_dedup_figures.py` -- hash-alapú dedup | 🐍 | `raw_outputs/figure_catalog.json` (`duplicate` flag) |
+| NLM notebook (mindmap-vez.) | 🔌 | [04_nlm_query_runner](skills/04_nlm_query_runner.md) | 🔌 | `raw_outputs/nlm_q*.txt` + `raw_outputs/nlm_qfig_raw.txt` |
+| `raw_outputs/nlm_q*.txt` | 🔌 | `scripts/05_assemble.py` -- Q1-Q4 összefűzés | 🐍 🛑 | `wip_outputs/N_Jegyzet.md` (draft) |
+| `raw_outputs/nlm_q*.txt` | 🔌 | [05_source_controller](skills/05_source_controller.md) | 🤖 🛑 | (belső ellenőrzés) |
+| `wip_outputs/N_Jegyzet.md` draft | 🤖 | [06_excerpt_block_maker](skills/06_excerpt_block_maker.md) | 🤖 | `wip_outputs/N_Jegyzet.md` (blockquote-ok) |
+| `wip_outputs/N_Jegyzet.md` | 🐍 | `scripts/06b_table_caption_injector.py` -- táblázat feliratok felülre | 🐍 | `wip_outputs/N_Jegyzet.md` (táblázat captionök) |
+| `citations_seed.json` + `raw_outputs/` | 🤖 | [07_citations_maker](skills/07_citations_maker.md) | 🤖 🛑 | `wip_outputs/N_Szozedet.md` + `raw_outputs/citations.json` |
+| `raw_outputs/nlm_mindmap_raw.txt` | 🔌 | [08_mindmap_manager](skills/08_mindmap_manager.md) | 🤖 | `wip_outputs/N_Mindmap.md` |
+| `raw_outputs/figure_catalog.json` + `raw_outputs/` | 🐍 | [09_figure_mapper](skills/09_figure_mapper.md) | 🤖 | `wip_outputs/N_Jegyzet.md` (FIG blokkok) |
+| `wip_outputs/N_Jegyzet.md` | 🤖 | [10_notes_collector](skills/10_notes_collector.md) | 🤖 | `wip_outputs/N_Jegyzet.md` (Tartalomjegyzék) |
+| `wip_outputs/N_Jegyzet.md` | 🤖 | [11_typesetter](skills/11_typesetter.md) | 🤖 | `wip_outputs/N_Jegyzet.md` (lint + próza) |
+| `wip_outputs/N_Jegyzet.md` + template | 🤖 | [12_presentation_maker](skills/12_presentation_maker.md) | 🤖+🐍 | `wip_outputs/N_Prezentacio.md` → `clean_outputs/N_Prezentacio.pptx` |
+| NLM notebook (mindmap-vez.) | 🔌 | [13_question_bank_collector](skills/13_question_bank_collector.md) | 🔌+🤖 | `wip_outputs/N_Kerdesek.md` |
+| `wip_outputs/N_*.md` | 🤖 | [14_bsc_filter](skills/14_bsc_filter.md) | 🐍 | `clean_outputs/bsc/` |
+
+💡 **Egy NLM notebook = egy hét anyaga.** Prompt B és forrás-UUID-ek per-hét izoláltak.
+
+**NLM promptok:** [nlm_prompts.md](nlm_prompts.md) 
+- Prompt A (Claude),
+- Prompt B (NLM Configure Chat),
+- Prompt C (Data Tables Studio).
+
+💡 **03b→03c→04 sorrend:** Qfig query (03b) az NLM-ből tölti fel a figure_catalog caption+keywords mezőit; 03c deduplikálja; 04 futtatja Q1-Q4-et. A `scripts/05_assemble.py` összefűzi a Q-outputokat draft Jegyzetté.
+
+# 2. Mappastruktúra (heti mappa)
+
+```
+test_outputs/<TantargyNeve>/
+└── N_het/
+    ├── raw_inputs/          😎  nyers forrás PDF-ek, HTML-ek, DOCX-ok (NLM-be töltés előtt)
+    │   ├── szerzo2024_tipus.pdf
+    │   └── citations_seed.json
+    ├── clean_inputs/        🐍  MinerU kimenet, per-forrás almappák
+    │   ├── szerzo2024_tipus/
+    │   │   ├── images/
+    │   │   └── szerzo2024_tipus.md
+    │   └── figure_catalog.json
+    ├── raw_outputs/         🔌  NLM CLI JSON kimenetek
+    │   ├── nlm_q1_raw.txt
+    │   ├── nlm_mindmap_raw.txt
+    │   └── citations.json
+    ├── wip_outputs/         🤖  work-in-progress md + konverziók
+    │   ├── N_Jegyzet.md
+    │   ├── N_Szozedet.md
+    │   ├── N_Mindmap.md
+    │   ├── N_Prezentacio.md
+    │   └── N_Kerdesek.md
+    └── clean_outputs/       ✅  camera-ready végtermékek
+        ├── N_Prezentacio.pptx
+        ├── N_Jegyzet.docx
+        └── bsc/
 ```
 
-💡 **Egy NLM notebook = egy hét anyaga.** Prompt B és forrás-UUID-ek per-hét izoláltak, sorszámozás egyértelmű.
+# 3. Mindmap-vezérelt lekérdezés (04, 13)
 
-# 2. IO táblázat
-TODO: Miért nincsenek itt hyperlink-ek?
-A cél struktúra legyen ez:
-| Input <br> Felelős <br> | Lépés száma. Lépés neve hyperlink-kel <br> automatizált?: 😎🤖🐍🔌💻| Output <br> Felelős <br> |  |
-|-------|-------|--------|---------|
-| 00_references_collector <br> 🤖+👤 | User PDF-ek, Deep Research | raw_sources/*.pdf + clean_sources/citations_seed.json | 🤖+👤 |
+A lekérdezések a NLM mindmap csomópontjaira épülnek -- nem generikus kérdések.
+Az NLM belső query-sablonja:
 
+```
+Gyökér:   "Beszélgessen az ezekben a forrásokban tárgyalt <fő node> témakörről."
+2. szint: "Beszélgessen az ezekben a forrásokban tárgyalt,
+           a(z) <szülő> tágabb kontextusába tartozó <gyerek> témakörről."
+```
+TODO: több szint is lehetséges, erre való utalást kéne tenni, hogy Depth-First-Search pásztázza végig a mindmap-et. 
+Helyes sorrend: **02 (mindmap generálás) → 03 (MinerU) → 04 (lekérdezések mindmap alapján)**.
+Részletek: [04_nlm_query_runner.md](skills/04_nlm_query_runner.md) §3.1.
 
-| Lépés | Input | Output | Felelős |
-|-------|-------|--------|---------|
-| 00_references_collector | User PDF-ek, Deep Research | raw_sources/*.pdf + clean_sources/citations_seed.json | 🤖+👤 |
-| 00b_nlm_notebook_setup | raw_sources/ | NLM notebook + Prompt B + UUID-k | 🔌 |
-| 00c_mineru_extractor | raw_sources/*.pdf | clean_sources/kepek/ + figure_catalog.json | 🐍 |
-| 01_nlm_query_runner | NLM notebook | clean_sources/nlm_q*_raw.txt (Q5=ábra) | 🔌 |
-| 02_source_controller | nlm_q*_raw.txt | (belső) | 🤖 🛑 |
-| 03_excerpt_block_maker | N_Jegyzet.md draft | N_Jegyzet.md (in-place, blockquote-ok) | 🤖 |
-| 04_citations_maker | clean_sources/citations_seed.json + nlm_q*.txt | N_Szozedet.md + clean_sources/citations.json | 🤖 🛑 |
-| 05_mindmap_manager | mindmap_raw.md | N_Mindmap.md | 🤖 |
-| 05b_figure_mapper | clean_sources/figure_catalog.json + nlm_q5_raw.txt | N_Jegyzet.md (FIG REVIEW blokkok) | 🤖 |
-| 06_notes_collector | N_Jegyzet.md | N_Jegyzet.md (in-place, Tárgymutató) | 🤖 |
-| 07_typesetter | N_Jegyzet.md | N_Jegyzet.md (in-place, lint) | 🤖 |
-| 08_presentation_maker | N_Jegyzet.md + template | N_Prezentacio.md + .pptx | 🤖+🐍 |
-| 09_question_bank_collector | NLM notebook | N_Kerdesek.md (SZINT:2-5) | 🔌+🤖 |
-| 10_bsc_filter | N_*.md | bsc/ (MSc blokkok nélkül) | 🐍 |
+# 4. Checkpointok
 
-# 3. Forrástípusok
-QUESTION: Vajon tényleg olyan fontos ez a szakasz, van benne hozzáadott érték?
+A 🛑 jelölések az IO táblázatban (§1) mutatják a checkpoint lépéseket. Bővebb feltételek:
+
+| Checkpoint | Feltétel | Következő lépés |
+|:-----------|:---------|:----------------|
+| 02 után 🛑 | NLM notebook + Prompt B aktív | 03 + 04 párhuzamosan |
+| 05 után 🛑 | 😎 jóváhagyás (source check OK) | 06 indul |
+| 07 után 🛑 | 😎 szószedet jóváhagyva | 08-11 sorban |
+| 12 után | pptx generált | 13-14 |
+
+TODO: A 12 lépés utáni checkpoint nincs a táblázatban. 
+
+# 5. Forrástípusok
+
 - Tiszta/scannelt PDF (képpel, táblázattal, egyenlettel)
 - MS Office: Word, PowerPoint vagy ezek PDF változatai
-- Webes forrás: HTML, YouTube
+- Weblap: Edge `--print-to-pdf` mentéssel (képek megtartásához)
 
-⚠️ **Képes PDF kétlépcsős eljárás:** MinerU 🐍 markdown-t és képeket külön fájlként
-kell NLM-be tölteni. Alt-text kötelező a jó RAG-eredményhez.
-Részletek: [kepek_workflow.md](kepek_workflow.md)
-QUESTION: ez bizonyított vagy csak betippelted?
-Ha igen, akkor biztos, hogy ennek a szakasznak itt a helye?
-
-# 4. Utasítás szintek
-
-**NLM utasítások** (Configure Chat, notebook-szintű, max 10 000 karakter)
-- Szerepkör, citáció, ábrahivatkozás, kimeneti formátum
-- Sablon: [nlm_prompts.md](nlm_prompts.md) Prompt B
-
-**Claude utasítások** (Cowork Instructions + CLAUDE.md)
-- Session protokoll, checkpoint logika, dokumentálási szabályok
-
-# 5. Checkpointok
-QUESTION: Ez aktualizálva van?
-| Checkpoint | Feltétel | Claude viselkedése |
-|------------|----------|--------------------|
-| Egyszeri setup | du_template.pptx + NLM Prompt B | Folytatja |
-| Heti bemenet | NLM queryok megérkeztek | 01_nlm_query_runner indul |
-| 02_source_controller után | 👤 jóváhagyva | 03_excerpt_block_maker indul |
-| 04_citations_maker után | 👤 jóváhagyva | 05_mindmap_manager indul |
-| Bármelyik hiányzik | -- | Leáll, jelzi mi hiányzik |
-
-# 6. MCP / automatizálás
-
-Az aktív megoldás: `notebooklm-mcp-cli` (Python CLI) Windows-MCP PowerShell hídon.
-Részletek és notebook-lista: [nlm_integration.md](nlm_integration.md)
-
-# Nyitott kérdések
-
-- Nagy témák (3+ hetes anyag): hogyan osztja meg a forrást több NLM notebook? Több notebook = párhuzamos Q1-Q4, vagy szekvenciális?
-ANSWER: Egyetlen óriás tananyagot hozunk létre, amit az előadó több héten át tart. 
+⚠️ **Weblap PDF-ként:** `msedge --headless --print-to-pdf="output.pdf" "<URL>"` -- a sima HTML mentés képeket veszít.
 
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-25 | 5.0 | Új lépések: 03b (Qfig parser), 03c (dedup), 05_assemble.py (formalizálva), 06b (táblázat caption felülre); 04_nlm_query_runner.md: Qfig §4 + szekcióátszámozás; util_heading_numberer.py: Roman-numeral bug javítva; 10_notes_collector.py: ToC + figura beillesztés; 12_pptx_gyarto.py: add_picture + add_table szegmens-alapú renderelés |
+| 2026-05-25 | 4.0 | IO táblázat átstrukturálva (Input/Input felelős/Lépés/Automatizáltság/Output); Prompt B + összes NLM prompt linkelve; 🛑 checkpointok a táblázatba beolvasztva; 05_assemble hiányzó lépés jelölve; figure_catalog.json path javítva raw_outputs/-ra |
+| 2026-05-24 | 3.0 | Teljes újraírás: 01-14 számozás, raw/clean/wip/clean_outputs mappastruktúra, linkek, TODO-k eltávolítva, mindmap-vezérelt lekérdezés dokumentálva |
+| 2026-05-23 | 2.0 | IO táblázat, 00c + 05b beillesztve |
 | 2026-05-21 | 1.0 | Létrehozva, NLM-only pipeline |
-| 2026-05-21 | 1.1 | Linkjavítás, 03 in-place pontosítva |
-| 2026-05-23 | 2.0 | "elavult" eltávolítva; 01_nlm_query_runner + 00c + 05b beillesztve; IO táblázat hozzáadva; pipeline_next_steps.md strukturális javaslatai beépítve |
-| 2026-05-23 | 2.1 | IO tábla: forrasok/ → raw_sources//clean_sources/ szétválasztás |
-

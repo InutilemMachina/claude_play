@@ -120,7 +120,140 @@ def fill_shape(shape, color: RGBColor):
     shape.fill.fore_color.rgb = color
 
 
-def build_presentation(slides_data: list[dict], template_path: str | None) -> Presentation:
+def parse_body_segments(body_text: str) -> list[dict]:
+    """
+    Split body text into segments: text, image, or table.
+    Returns list of {'type': str, 'content': str | list}.
+    """
+    segments = []
+    current_text = []
+
+    def flush_text():
+        t = '\n'.join(current_text).strip()
+        if t:
+            segments.append({'type': 'text', 'content': t})
+        current_text.clear()
+
+    lines = body_text.split('\n')
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        # Image: ![alt](path)
+        img_m = re.match(r'^\s*!\[([^\]]*)\]\(([^)]+)\)\s*$', line)
+        if img_m:
+            flush_text()
+            segments.append({'type': 'image',
+                             'alt': img_m.group(1),
+                             'path': img_m.group(2)})
+            i += 1
+            continue
+
+        # GFM table: line starts with |
+        if re.match(r'^\s*\|', line):
+            flush_text()
+            table_lines = []
+            while i < len(lines) and re.match(r'^\s*\|', lines[i]):
+                table_lines.append(lines[i])
+                i += 1
+            segments.append({'type': 'table', 'content': table_lines})
+            continue
+
+        current_text.append(line)
+        i += 1
+
+    flush_text()
+    return segments
+
+
+def parse_gfm_table(table_lines: list[str]) -> tuple[list[str], list[list[str]]]:
+    """Parse GFM table lines into (headers, rows). Skips separator row."""
+    headers = []
+    rows = []
+    for line in table_lines:
+        if re.match(r'^\s*\|[-: |]+\|\s*$', line):
+            continue  # separator
+        cells = [c.strip() for c in re.split(r'(?<!\\)\|', line) if c.strip() != '']
+        if not headers:
+            headers = cells
+        else:
+            rows.append(cells)
+    return headers, rows
+
+
+def add_pptx_table(slide, left, top, width, height,
+                   headers: list[str], rows: list[list[str]],
+                   font_size=Pt(13), header_color=None, text_color=None):
+    """Add a python-pptx table to a slide."""
+    from pptx.util import Pt
+    from pptx.dml.color import RGBColor
+
+    if header_color is None:
+        header_color = RGBColor(0x1F, 0x49, 0x7D)
+    if text_color is None:
+        text_color = RGBColor(0x1A, 0x1A, 0x1A)
+
+    n_rows = len(rows) + 1  # +1 for header
+    n_cols = max(len(headers), max((len(r) for r in rows), default=0))
+    if n_rows < 1 or n_cols < 1:
+        return
+
+    # Clamp height so table fits
+    row_h = min(height // n_rows, Inches(0.45))
+
+    tbl = slide.shapes.add_table(n_rows, n_cols, left, top, width, row_h * n_rows).table
+
+    def set_cell(tbl, row_idx, col_idx, text, bold=False, fg=None, bg=None):
+        cell = tbl.cell(row_idx, col_idx)
+        cell.text = text
+        p = cell.text_frame.paragraphs[0]
+        if p.runs:
+            run = p.runs[0]
+        else:
+            run = p.add_run()
+            run.text = text
+        run.font.size = font_size
+        run.font.bold = bold
+        if fg:
+            run.font.color.rgb = fg
+        if bg:
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = bg
+
+    # Header row
+    for c, hdr in enumerate(headers[:n_cols]):
+        set_cell(tbl, 0, c, hdr, bold=True,
+                 fg=RGBColor(0xFF, 0xFF, 0xFF), bg=header_color)
+
+    # Data rows
+    for r, row in enumerate(rows):
+        for c in range(n_cols):
+            val = row[c] if c < len(row) else ''
+            set_cell(tbl, r + 1, c, val, fg=text_color)
+
+    return tbl
+
+
+def add_slide_image(slide, left, top, width, height, img_path: str, alt: str,
+                    md_dir: str | None = None):
+    """Add a picture to a slide. img_path may be relative to md_dir."""
+    from pptx.util import Pt
+    path = Path(img_path)
+    if not path.is_absolute() and md_dir:
+        path = Path(md_dir) / path
+    if not path.exists():
+        print(f"  ⚠️  Kép nem található, kihagyva: {path}")
+        return None
+    try:
+        pic = slide.shapes.add_picture(str(path), left, top, width, height)
+        return pic
+    except Exception as e:
+        print(f"  ⚠️  Kép betöltési hiba ({path}): {e}")
+        return None
+
+
+def build_presentation(slides_data: list[dict], template_path: str | None,
+                       md_dir: str | None = None) -> Presentation:
     if template_path and os.path.exists(template_path):
         prs = Presentation(template_path)
         print(f"Template betöltve: {template_path}")
@@ -192,42 +325,60 @@ def build_presentation(slides_data: list[dict], template_path: str | None) -> Pr
             body_top = Inches(1.25) if idx > 0 else Inches(2.1)
             body_h   = h - body_top - Inches(0.3)
 
-            # Render body: handle tables, code blocks, bullets
+            # Pre-clean: code fences + HTML comments
             body_text = sd['body']
-
-            # Clean up Markdown table formatting to plain text
-            if '|' in body_text:
-                lines = body_text.split('\n')
-                clean = []
-                for ln in lines:
-                    if re.match(r'^\s*\|[-: |]+\|\s*$', ln):
-                        continue  # separator row
-                    ln = re.sub(r'^\s*\|', '', ln)
-                    ln = re.sub(r'\|\s*$', '', ln)
-                    parts = [p.strip() for p in ln.split('|')]
-                    clean.append('  '.join(parts))
-                body_text = '\n'.join(clean)
-
-            # Strip code fences
             body_text = re.sub(r'```[^\n]*\n', '', body_text)
             body_text = re.sub(r'```', '', body_text)
-
-            # Strip HTML comments
             body_text = re.sub(r'<!--.*?-->', '', body_text, flags=re.DOTALL)
-
-            # Simplify LaTeX (keep as-is, pptx won't render it, but text stays)
             body_text = body_text.strip()
 
-            # Adjust font size based on length
-            n_chars = len(body_text)
-            fsize = Pt(14) if n_chars > 600 else Pt(16) if n_chars > 300 else Pt(18)
+            # Parse into segments (text / image / table)
+            segments = parse_body_segments(body_text)
 
-            add_textbox(
-                slide, m, body_top, w - 2*m, body_h,
-                body_text,
-                font_size=fsize,
-                color=text_color,
-            )
+            # Simple layout: divide body_h equally among segments
+            n_seg = len(segments)
+            seg_h = body_h // n_seg if n_seg else body_h
+            cur_top = body_top
+
+            for seg in segments:
+                if seg['type'] == 'image':
+                    # Leave room for alt-text caption below image
+                    img_h = int(seg_h * 0.85)
+                    add_slide_image(
+                        slide, m, cur_top, w - 2*m, img_h,
+                        seg['path'], seg.get('alt', ''),
+                        md_dir=md_dir,
+                    )
+                    # Alt text below image (small)
+                    if seg.get('alt'):
+                        cap_top = cur_top + img_h
+                        add_textbox(
+                            slide, m, cap_top, w - 2*m, seg_h - img_h,
+                            seg['alt'], font_size=Pt(11),
+                            color=C_ACCENT, align=PP_ALIGN.CENTER,
+                        )
+
+                elif seg['type'] == 'table':
+                    headers, rows = parse_gfm_table(seg['content'])
+                    if headers:
+                        add_pptx_table(
+                            slide, m, cur_top, w - 2*m, seg_h,
+                            headers, rows,
+                            font_size=Pt(12),
+                            text_color=text_color,
+                        )
+
+                else:  # text
+                    t = seg['content'].strip()
+                    if t:
+                        n_chars = len(t)
+                        fsize = Pt(13) if n_chars > 600 else Pt(15) if n_chars > 300 else Pt(17)
+                        add_textbox(
+                            slide, m, cur_top, w - 2*m, seg_h,
+                            t, font_size=fsize, color=text_color,
+                        )
+
+                cur_top += seg_h
 
         # Page number (not on cover)
         if idx > 0:
@@ -259,7 +410,7 @@ def main():
     slides_data = parse_marp(md_text)
     print(f"Parsed {len(slides_data)} slides from {md_path.name}")
 
-    prs = build_presentation(slides_data, args.template)
+    prs = build_presentation(slides_data, args.template, md_dir=str(md_path.parent))
     prs.save(out_path)
     print(f"✅ Mentve: {out_path}")
 

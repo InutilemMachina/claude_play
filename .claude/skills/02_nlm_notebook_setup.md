@@ -4,8 +4,8 @@ title: 00B_NLM_NOTEBOOK_SETUP -- NLM Notebook Setup
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-22
+version: 2.0
+updated: 2026-05-24
 description: NLM notebook letrehozasa CLI-vel. Notebook create + source add (PDF/URL) + Prompt B (chat configure) + mindmap create + citations_seed.json UUID-frissites. Pipeline 00b. lepese -- 00 es 01 kozott.
 ---
 
@@ -270,3 +270,104 @@ nlm chat configure <id>  # aktualis beallitas megjelenitese
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+
+# Auth és telepítés (átvéve nlm_integration.md-ből)
+
+_Forrás: .claude/nlm_integration.md -- 2026-05-24 beolvasztva_
+
+## 2. Telepített eszköz: `notebooklm-mcp-cli`
+
+## 2.1. Csomag azonosítás
+
+| Tulajdonság | Érték |
+|---|---|
+| Csomag neve | `notebooklm-mcp-cli` |
+| Típus | Python (uv tool) |
+| Verzió | 0.6.10 |
+| Szerző | Jacob Ben-David |
+| PyPI | https://pypi.org/project/notebooklm-mcp-cli/ |
+| GitHub | https://github.com/jacob-bd/notebooklm-mcp-cli |
+| Auth mechanizmus | Cookie kinyerés Edge-ből (`nlm login`) |
+| Binárisok | `nlm.exe`, `notebooklm-mcp.exe` |
+| Elérési út | `C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\` |
+| Credentials | `C:\Users\lasz\.notebooklm-mcp-cli\profiles\default` |
+| Cookie élettartam | 2-4 hét |
+
+**Nem tévesztendő össze:** `PleasePrompto/notebooklm-mcp` (https://github.com/PleasePrompto/notebooklm-mcp) -- npm csomag, Chrome Patchright automatizáció, teljesen más eszköz.
+
+## 2.2. Auth megújítás
+
+Ha `Authentication Error` jön:
+
+```bash
+nlm login
+# Edge megnyílik → Google bejelentkezés → OK után bezárja magát
+nlm notebook list  # ellenőrzés
+```
+
+## 3. Claude-ból való használat (Cowork session)
+
+## 3.1. Notebook lekérdezés
+
+Claude az alábbi mintával hívja a Windows-MCP PowerShell toolt:
+
+```powershell
+$env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
+nlm query notebook "<NOTEBOOK_ID_VAGY_ALIAS>" "<KÉRDÉS>" --json
+```
+
+Visszatérési struktúra (JSON) -- Prompt B aktív esetén:
+
+```json
+{
+  "value": {
+    "answer": "...",
+    "conversation_id": "...",
+    "sources_used": ["uuid1", "uuid2"],
+    "citations": {"1": "uuid1", "2": "uuid2"},
+    "references": [
+      {"source_id": "uuid1", "citation_number": 1, "cited_text": "..."}
+    ]
+  }
+}
+```
+
+Fontos: a `conversation_id`-t meg kell tartani a követő kérdésekhez (`--conversation-id <id>`).
+
+## 3.2. Pipeline lépések CLI-ből
+
+A `nlm` CLI a pipeline lépések nagy részét közvetlenül végrehajtja:
+
+| Lépés | CLI parancs |
+|---|---|
+| Notebook lista | `nlm notebook list` |
+| Lekérdezés | `nlm query notebook <ID> "<kérdés>" --json` |
+| Prompt B beállítás | `nlm chat configure <ID> --goal custom --prompt <szoveg>` (Python subprocess-en át) |
+| Gondolattérkép | `nlm mindmap ...` |
+| Kvíz | `nlm quiz ...` |
+| Flashcard | `nlm flashcards ...` |
+| Dia | `nlm slides ...` |
+| Jelentés | `nlm report ...` |
+| Pipeline futtatás | `nlm pipeline ...` |
+| Cross-notebook | `nlm cross ...` |
+
+
+
+## Notebook-lista
+
+
+| ID | Cím | Források | Prompt B |
+|---|---|---|---|
+| c894e121-3c39-4da0-af74-b1f2c82ffa69 | DFT | 9 | ❔ tesztelendő |
+| b26582da-9051-4a26-954b-4075013981e4 | Matrix Profile | 7 | ✅ aktív |
+| 9a4de53c-b8ea-4db9-8059-2add8a11700a | Dive into Time-Series Anomaly Detection | 1 | ❔ |
+| 8732cec4-a875-4afa-b0e1-27743febae1d | Introduction to Wavelets | 16 | ❔ |
+| 73a46dcf-c4ed-4148-8143-3b05c2dccbf5 | Áramlási rendellenességek | 41 | ❔ |
+| a053ecbf-4e39-4e9d-98e4-ac0063b62262 | Compressor Instabilities | 7 | ❔ |
+| 643cfc27-3cb1-4126-bd90-590b64a34402 | Tavakoli | 11 | ❔ |
+| fb2b02e6-7735-41f7-81db-73314a164255 | Termográfia a műszaki diagnosztikában | 33 | ❔ |
+| db5df32b-a4b2-41f0-b38a-38b3b30be8bc | synchrosqueezing and reassignment | 19 | ❔ |
+| cf7bc34a-7d46-44a6-821f-af02260f04ad | Sémák | 3 | ❔ |
+
+Alias beállítása: `nlm alias set <rövidnév> <ID>`
+

@@ -41,6 +41,7 @@ Mentesi hely: `forrasok/nlm_mindmap_raw.txt`.
 de tartalmat a CLI nem tud visszaolvasni (`nlm studio status` csak ID-t ad,
 `nlm export artifact` csak Google Docs/Sheets celudat kezel). Ezert a query workaround
 az elsodbeleges ut.
+NOTE: magyar ékezetes betűk: `celudat`=cellát/cédulát? Vagy `elsodbeleges`=elsodbeleges
 
 ## 2.2. Masodlagos: Export-Tool MD export
 

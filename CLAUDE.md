@@ -2,12 +2,26 @@
 title: CLAUDE.md -- Tantárgy-fejlesztés Meta-Instrukciók
 type: meta
 status: active
-version: 3.0
-updated: 2026-05-23
-description: Master index. Naming, struktúra, fájlkatalógus, PDCA protokoll.
+version: 4.0
+updated: 2026-05-24
+description: Master index. Session startup, naming, struktúra, fájlkatalógus, PDCA protokoll.
 ---
 
 # CLAUDE.MD -- Tantárgy-fejlesztés Meta-Instrukciók
+
+# 0. Session indítás
+
+**Beolvasandó minden session elején -- csak ez a két fájl:**
+
+1. `CLAUDE.md` (ez a fájl) -- konvenciók, struktúra, katalógus
+2. `.claude/pipeline.md` -- lépések 01-14, IO táblázat, mappastruktúra
+
+**Más fájlt csak akkor olvass be, ha a feladat explicit igényli:**
+- Skill fájl: ha az adott pipeline lépést futtatod
+- `project_status.md`: ha Plan/Do/Check frissítés kell
+- `pitfalls.md`: ha hibát diagnosztizálsz
+
+**Ne gondolkozz feleslegesen.** Ha a feladat egyértelmű a pipeline.md alapján, kezdj el dolgozni.
 
 # 1. Kommunikáció
 
@@ -25,15 +39,13 @@ description: Master index. Naming, struktúra, fájlkatalógus, PDCA protokoll.
 | ⚡ | HIBA / inkonzisztencia |
 | 💬 | NOTE |
 | 💡 | IDEA |
-| 📎 | LINK (projekten belül) |
-| 🔗 | LINK (projekten kívülre) |
 
 ## 1.2. Szerepkörök
 
 | Emoji | Ki | Mikor |
 |-------|----|-------|
 | 😎 | Felhasználó | Manuális teendő, döntés, checkpoint jóváhagyás |
-| 🤖 | Claude | Pipeline lépések (01-10) |
+| 🤖 | Claude | Pipeline lépések |
 | 🐍 | Python script | MinerU, pptx, audit |
 | 🔌 | NLM CLI | NLM lekérdezések (Windows-MCP PowerShell hídon) |
 | 💻 | Bash/terminal | Fájlműveletek, szkript-futtatás |
@@ -52,7 +64,7 @@ description: Master index. Naming, struktúra, fájlkatalógus, PDCA protokoll.
 
 - Tananyag (végtermék): mindig **magyar** nyelv
 - Meta és skill fájlok neve: **angol**; tartalmuk: **magyar**
-- Python kódok: **angol** (name + content); magyarázat: **magyar**
+- Python script-ek: `NN_script_neve.py` (NN = pipeline lépés); tartalmuk: **angol**
 - Heti outputok (`N` = hét száma): `N_Szozedet.md`, `N_Mindmap.md`, `N_Jegyzet.md`, `N_Prezentacio.md`, `N_Kerdesek.md`
 - Szóköz tilos -- alulvonás
 - Forrás PDF-ek: `vezeteknev2024_tipus.pdf`; azonos esetben: `vezeteknev2024a_tipus.pdf`
@@ -61,32 +73,32 @@ description: Master index. Naming, struktúra, fájlkatalógus, PDCA protokoll.
 
 ```
 claude_play/
-├── CLAUDE.md               ez a fájl
+├── CLAUDE.md                    ez a fájl (session startup)
 ├── .claude/
-│   ├── skills/NN_*.md      pipeline skill-ek
-│   ├── archive/            elavult fájlok
-│   └── settings.local.json
-├── templates/              shared -- nincs per-teszt másolat
-│   ├── du_template.pptx
+│   ├── pipeline.md              pipeline lépések 01-14
+│   ├── project_status.md        PDCA log
+│   ├── pitfalls.md              ismert hibák (skills ide linkelnek)
+│   ├── nlm_prompts.md           NLM Prompt B, C szövegek
+│   ├── skills/NN_*.md           pipeline skill-ek (01-14)
+│   └── archive/                 elavult fájlok
+├── templates/
 │   ├── context_sablon.md
 │   └── assets/
-├── scripts/                Python szkriptek
-├── test_sources/[tema]/    nyers forrás PDF-ek, HTML-ek topik szerint
-│   └── forrasok/
-└── [TantargyNeve]/         éles tantárgy (tesztkör végén törlendő)
-    ├── context.md          leíró + pipeline státusz + blokkolók
-    └── N_[tema]/
-        ├── raw_sources/    junction → test_sources/[tema]/forrasok/
-        ├── clean_sources/  feldolgozott forrásanyag
-        ├── bsc/
-        └── N_*.md          heti outputok
+├── scripts/NN_*.py              pipeline script-ek (NN prefix)
+├── test_sources/[tema]/         nyers forrás PDF-ek topik szerint
+└── test_outputs/<TantargyNeve>/ teszt kimenetek
+    └── N_het/
+        ├── raw_inputs/          nyers forrás fájlok (01 gyűjti)
+        │   └── citations_seed.json
+        ├── clean_inputs/        MinerU kimenet per-forrás (03 állítja elő)
+        │   └── <forrasnev>/
+        ├── raw_outputs/         NLM CLI kimenetek (04 állítja elő)
+        ├── wip_outputs/         md + konverziók (06-13)
+        └── clean_outputs/       végtermékek -- camera-ready (12, 14)
+            └── bsc/
 ```
 
-Tantárgy-szintű context.md: ld. `templates/context_sablon.md`.
-
 # 4. Dokumentálási protokoll
-
-Az általános elvek (architektúra, hibakezelés, token-takarék, PDCA) a Cowork Instructions mezőben vannak rögzítve. Az alábbi tábla a projekt-specifikus célokat mutatja.
 
 | Mi történt | Hova | Formátum |
 |-----------|------|----------|
@@ -94,41 +106,35 @@ Az általános elvek (architektúra, hibakezelés, token-takarék, PDCA) a Cowor
 | Új hiba | `pitfalls.md`, új szekció | Tünet / Gyökérok / Megoldás |
 | Skill javítva | `skills/NN_*.md` > Változásjegyzék | Táblasor |
 | Pipeline változott | `pipeline.md` | In-place |
-| Képpipeline változott | `kepek_workflow.md` | In-place |
 | Következő teendők | `project_status.md` > Plan | Prioritástáblázat |
 
 **Aranyszabály:** Skills LINKELNEK `pitfalls.md`-be -- sosem másolják.
+**Token-takarék:** fájlmásolás `bash cp`; JSON/ékezetes tartalom `bash heredoc`; szerkesztés `Edit tool`.
 
 # 5. Fájlkatalógus
 
 | Fájl | Leírás |
 |------|--------|
-| [pipeline.md](.claude/pipeline.md) | Pipeline flowchart, IO táblázat, checkpointok |
+| [pipeline.md](.claude/pipeline.md) | Pipeline lépések 01-14, IO táblázat, mappastruktúra |
 | [project_status.md](.claude/project_status.md) | PDCA log: Plan / Do / Check |
-| [pitfalls.md](.claude/pitfalls.md) | Ismert hibák + megoldások (skills ide linkelnek) |
-| [nlm_integration.md](.claude/nlm_integration.md) | NLM CLI, Export-Tool, auth, notebook-lista |
+| [pitfalls.md](.claude/pitfalls.md) | Ismert hibák + megoldások |
 | [nlm_prompts.md](.claude/nlm_prompts.md) | NLM Configure Chat promptok (Prompt B, C) |
-| [kepek_workflow.md](.claude/kepek_workflow.md) | Képpipeline: MinerU → figure_catalog → 05b |
-| `.claude/skills/NN_*.md` | Pipeline skill-ek (00--10) |
+| `.claude/skills/NN_*.md` | Pipeline skill-ek 01-14 |
 | `.claude/archive/` | Elavult fájlok -- nem töröljük |
-
-Pipeline részletek és NLM parancsok: ld. a fenti linkeken.
 
 # 6. Nyitott kérdések
 
 | # | Kérdés | Hol részletesen |
 |:--|:-------|:----------------|
-| 1 | Tantárgy .claude/: másolás vs hivatkozás éles tantárgynál? | Architektúra |
-| 2 | pymupdf telepítve a mineru env-be? Ha igen, mire? | Környezet |
-| 3 | Pedagógiai output szekciók kötelező tartalma, összefoglaló blokk formátuma | [skills/06_notes_collector.md](.claude/skills/06_notes_collector.md) |
-| 4 | Nagy témák (3+ hét) NLM notebook felosztás | [.claude/pipeline.md](.claude/pipeline.md) |
-| 5 | Export-Tool automatizálás, NLM CLI skill-ek | [skills/00b_nlm_notebook_setup.md](.claude/skills/00b_nlm_notebook_setup.md) |
-| 6 | bsc/ struktúra lapítása | [skills/10_bsc_filter.md](.claude/skills/10_bsc_filter.md) |
+| 1 | Tantárgy .claude/: másolás vs hivatkozás éles tantárgynál? | Architektúra döntés |
+| 2 | context_sablon.md lépésszámok (C00-C08 → 01-14) frissítése | [templates/context_sablon.md](templates/context_sablon.md) |
+| 3 | bsc/ struktúra lapítása | [skills/14_bsc_filter.md](.claude/skills/14_bsc_filter.md) |
+| 4 | NLM notebook-lista frissítése (Termografia_teszt_v2 + v3) | [skills/02_nlm_notebook_setup.md](.claude/skills/02_nlm_notebook_setup.md) |
 
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
 | 2026-05-21 | 1.0 | Létrehozva |
-| 2026-05-23 | 2.0 | Master index refaktor; PDCA protokoll; fájlkatalógus |
-| 2026-05-23 | 3.0 | Merge: .claude/CLAUDE.md beolvadt ide; §2.3 pipeline tábla → link; §6 quick-ref → link; §9 nyitott kérdések elosztva skill-ekbe |
+| 2026-05-23 | 3.0 | Master index refaktor; merge .claude/CLAUDE.md |
+| 2026-05-24 | 4.0 | §0 Session indítás szekció; 01-14 skill számozás; raw/clean/wip/clean_outputs mappastruktúra; kepek_workflow + nlm_integration archivált |

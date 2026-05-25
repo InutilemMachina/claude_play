@@ -1,18 +1,18 @@
 """
-run_mineru_pipeline.py -- MinerU pipeline vizualis folyamatkovetesssel
+03_run_mineru_pipeline.py -- MinerU pipeline vizualis folyamatkovetesssel
 
-Feladat: raw_sources/*.pdf -> clean_sources/kepek/ + figure_catalog.json
+Feladat: raw_inputs/*.pdf -> clean_inputs/<forrasnev>/ + figure_catalog.json
          Minden notebook (het-mappa) es fajl szamlaloval, MinerU progress-barral.
          Nagy fajloknal a felhasznalo donti el, feldolgozza-e.
 
 Futtatas (tantargy gyokerebol):
-    python ../../scripts/run_mineru_pipeline.py [--root <tantargy_mappa>] [--warn-mb 20]
+    python ../../scripts/03_run_mineru_pipeline.py [--root <tantargy_mappa>] [--warn-mb 20]
 
 Peldak:
     # Claude_play gyokerebol:
-    python scripts/run_mineru_pipeline.py --root haromhetes_teszt
+    python scripts/03_run_mineru_pipeline.py --root test_outputs/haromhetes_teszt
     # Tantargy mappan belulrol:
-    cd haromhetes_teszt && python ../scripts/run_mineru_pipeline.py
+    cd test_outputs/haromhetes_teszt && python ../../scripts/03_run_mineru_pipeline.py
 """
 
 import argparse
@@ -62,11 +62,11 @@ def count_pdf_pages(pdf_path: Path) -> int:
 def discover_notebooks(root: Path) -> list[tuple[str, list[Path]]]:
     """
     Visszaadja a het-mappak listajat (notebook_nev, pdf_lista) rendezett sorban.
-    Keresi: root/N_*/raw_sources/*.pdf
+    Keresi: root/N_*/raw_inputs/*.pdf
     """
     notebooks = []
     for week_dir in sorted(root.iterdir()):
-        raw = week_dir / "raw_sources"
+        raw = week_dir / "raw_inputs"
         if not raw.is_dir():
             continue
         pdfs = sorted(raw.glob("*.pdf"))
@@ -121,7 +121,7 @@ def should_process(pdf: Path, warn_mb: float) -> bool:
 
 def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
     """
-    Futtatja a magic-pdf-et, valosi idejU progress-barral.
+    Futtatja a mineru-t, valosi idejU progress-barral.
     Visszateres: True = siker, False = hiba.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -157,7 +157,7 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
             )
 
             for line in proc.stdout:
-                # tqdm / magic-pdf progress: "XX%|...| N/M [...]"
+                # tqdm / mineru progress: "XX%|...| N/M [...]"
                 m = re.search(r"(\d+)%\|.*?(\d+)/(\d+)", line)
                 if m:
                     pct   = int(m.group(1))
@@ -171,7 +171,7 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
                     )
                     continue
 
-                # magic-pdf soros log: "page_id: N" vagy "INFO - page N"
+                # mineru soros log: "page_id: N" vagy "INFO - page N"
                 m2 = re.search(r"page[_\s-]*(?:id[:\s]+)?(\d+)", line, re.I)
                 if m2 and pages:
                     done = int(m2.group(1)) + 1
@@ -214,7 +214,7 @@ def main():
 
     notebooks = discover_notebooks(root)
     if not notebooks:
-        sys.exit(f"HIBA: nincs raw_sources/*.pdf a {root} alatt.")
+        sys.exit(f"HIBA: nincs raw_inputs/*.pdf a {root} alatt.")
 
     nb_total = len(notebooks)
 
@@ -231,7 +231,7 @@ def main():
 
     for nb_idx, (nb_name, pdfs) in enumerate(notebooks, 1):
         week_dir  = root / nb_name
-        clean_dir = week_dir / "clean_sources" / "kepek"
+        clean_dir = week_dir / "clean_inputs"
         pdf_total = len(pdfs)
 
         if RICH:
@@ -267,7 +267,9 @@ def main():
                 continue
 
             # MinerU futtatasa
-            ok = run_mineru(pdf, clean_dir / pdf.stem, pages)
+            # clean_dir-t adjuk at (nem clean_dir/pdf.stem):
+            # MinerU maga hozza letre a <pdf_stem>/ alkonyvtarat belul
+            ok = run_mineru(pdf, clean_dir, pages)
 
             if ok:
                 if RICH:

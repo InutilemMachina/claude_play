@@ -1,22 +1,68 @@
 ---
-name: 07_typesetter
-title: 07_TYPESETTER — Typesetter
+name: 11_typesetter
+title: 11_TYPESETTER -- Typesetter
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-21
-description: Markdown tördelő és tipográfiai linting. Bekezdéstörések, LaTeX delimiterek, kép/blockquote körüli üres sorok javítása.
+version: 2.0
+updated: 2026-05-25
+description: Kétfázisú Markdown formázó. Fázis 1 -- bullet-to-prose Claude API-val. Fázis 2 -- whitespace/tipográfiai linting (A-G szabályok).
 ---
 
-# 07_typesetter_TYPESETTER.MD
+# 11_TYPESETTER.MD -- Typesetter
+
+**Script:** `scripts/11_typesetter.py`
+
+**Input:** `wip_outputs/N_Jegyzet.md` (bullet-listák + vegyes próza, NLM kimenet)
+**Output:** `wip_outputs/N_Jegyzet.md` (in-place felülírás -- összefüggő próza + linting)
+
+# 0. Kétfázisú működés
+
+| Fázis | Mit csinál | Eszköz |
+|:------|:-----------|:-------|
+| **1. Próza konverzió** | Bullet-point blokkok → összefüggő folyamatos próza | Claude API (`claude-sonnet-4-6`) |
+| **2. Linting** | Whitespace, bekezdéstörés, LaTeX, kép/blockquote spacing | Regex szabályok (A-G) |
+
+**Megőrzött elemek (mindkét fázisban érintetlenek):**
+- Markdown fejlécek (`##`, `###`)
+- Képhivatkozások (`![...]`)
+- HTML kommentek (`<!-- Q:N -->` szekció-markerek)
+- Blockquote-ok (`> `)
+- YAML front matter (`--- ... ---`)
+- `<sup>` citáció-jelölők, LaTeX képletek (`$...$`)
+
+## 0.1. Futtatás
+
+```powershell
+# ANTHROPIC_API_KEY legyen beállítva
+python scripts\11_typesetter.py test_outputs\<Tantargy>\N_het\wip_outputs\N_Jegyzet.md
+```
+
+Rule G (fejléc-számozás) külön:
+```powershell
+python scripts\util_heading_numberer.py test_outputs\<Tantargy>\N_het\wip_outputs\N_Jegyzet.md
+```
+
+## 0.2. Próza konverzió logikája (Fázis 1)
+
+Az NLM bullet-point válaszokat ad -- a typesetter ezeket alakítja folyamatos prózává.
+
+1. A Markdown szekciónként blokkokra bomlik: `preserve` | `bullets` | `prose`.
+2. Minden `bullets` blokk (min. 2 sor) a Claude API-ra kerül.
+3. Prompt: tartalom változatlan, csak formátum; magyar tudományos regiszter.
+4. Rövid (1 soros) bullet blokkok változatlanok maradnak.
+
+⚠️ **API-kulcs:** `ANTHROPIC_API_KEY` env változó kötelező. Ha hiányzik, a script leáll.
+⚠️ **Idempotencia:** Ha a fájlban már nincs bullet blokk, a script nem küld API-hívást.
+
+---
 
 Éberi szemmel (szedői perspektívából) olvassa át a Markdown fájlt, és javítja
 azokat a whitespace- / sortörés-hibákat, amelyek a renderelt nézetben
 összefolyó szöveget, hiányzó bekezdés-elválasztást vagy összenyomott blokkokat
 okoznak.
 
-> **Alapelv:** Kizárólag whitespace-t és sortöréseket módosítunk — a szöveges
+> **Alapelv (Fázis 2):** Kizárólag whitespace-t és sortöréseket módosítunk -- a szöveges
 > tartalom, fejléc-szövegek, hivatkozások, képútvonalak és LaTeX-formulák
 > érintetlenül maradnak.
 
@@ -178,5 +224,6 @@ Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.m
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-25 | 2.0 | Fázis 1 (bullet→próza, Claude API) hozzáadva; §0 szekció; YAML header javítva (07→11); scripts/11_typesetter.py elkészült |
 | 2026-05-22 | 1.0 | Szabály G hozzáadva (fejléc-hierarchia számozás, heading_numberer.py) |
 | 2026-05-21 | 1.0 | YAML header frissítve (name typo javítva: typesetterter → typesetter) |
