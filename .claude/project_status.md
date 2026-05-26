@@ -2,8 +2,8 @@
 title: Project Status -- Playground PDCA log
 type: log
 status: active
-version: 2.5
-updated: 2026-05-25
+version: 2.7
+updated: 2026-05-26
 description: Playground (claude_play) PDCA log. Session elején Claude olvassa be. NEM tantárgy-specifikus.
 ---
 
@@ -313,7 +313,8 @@ Ez a kimenet:
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-26 | 2.6 | Do §4: DFT DFS session + RESOURCE_EXHAUSTED; §5 Branch cleanup terv; P-elvek áthozva |
+| 2026-05-26 | 2.7 | Do §5: koherencia-check K1-K3/M1-M3; F17/F18 lezárva; pipeline.md v5.1 |
+| 2026-05-26 | 2.6 | Do §4: DFT DFS session + RESOURCE_EXHAUSTED; §6 Branch cleanup terv; P-elvek áthozva |
 | 2026-05-25 | 2.5 | Check: Fourier_teszt 01-14 step-by-step tanulságok; Plan F1-F10 prioritások |
 | 2026-05-25 | 2.3 | Check: NLM vs Vision API döntés + _assemble.py probléma dokumentálva |
 | 2026-05-25 | 2.2 | feature/content-quality Do szekció; Plan P-státuszok frissítve |
@@ -411,8 +412,11 @@ _Frissítve: 2026-05-25 (feature_test_step_by_step session után)_
 | **F14** | **Bullet whitespace Rule B** -- `11_typesetter.py` `*   **` → `* **` | lint rule | ✅ 2026-05-26 |
 | **F15** | **Table caption n-dash** -- `06b_table_caption_injector.py` `--` → `:` | lint rule | ⚙️ következő iteráció |
 | **F16** | **DFS NLM query resume** -- `--resume --sleep 5` flag a kvóta-limit miatt | pitfalls §2.8 | 🔲 holnap futtatandó |
-| **F17** | **Git branch cleanup** -- main-re squash + régi ágak törlése | lásd §4 Branch-állapot | 🔲 |
-| **F18** | **Automata elvárás dokumentálása** -- heurisztikák TILOSAK, minden lépés automatizálható kell legyen | feature/content-quality-ból áthozva | 🔲 pipeline.md-be |
+| **F17** | **Git branch cleanup** -- main-re squash + régi ágak törlése | lásd §4 Branch-állapot | ✅ |
+| **F18** | **Automata elvárás dokumentálása** -- heurisztikák TILOSAK, minden lépés automatizálható kell legyen | feature/content-quality-ból áthozva | ✅ pipeline.md §3 |
+| **M2** | **pipeline.md frissítés** -- `04_nlm_dfs_queries.py` beillesztve IO táblába + §3 | pipeline.md v5.1 | ✅ |
+| **M3** | **`04_nlm_query.py` státusz** -- egylekérdezéses wrapper, `04_nlm_dfs_queries.py` felülírja | archivba kerülhet; nem blokkoló | ⚙️ alacsony prioritás |
+| **A1** | **`util_regen_outputs.py` átnevezés** -- NN_ prefix hiányzik | scripts/ | 🔲 alacsony prioritás |
 
 # 4. Do -- 2026-05-26 (DFT_teszt DFS NLM session)
 
@@ -454,18 +458,10 @@ Branch célja: élethű `wip_outputs` -- utána pipeline teljes automatizálása
 | P5 | HTML források NLM-be URL-ként | igen (nlm CLI) | 🔲 következő session |
 | P6 | 09_figure_mapper: VLM keywords x NLM szöveg -> beillesztési pont | igen | ✅ script kész; P4 után futtatható |
 
-# 5. Branch cleanup terv (következő session)
+# 5. Do -- 2026-05-26 (koherencia-ellenőrzés + main lezárás)
 
-**Cél:** Egyetlen tiszta `main` ág; régi ágak törlése.
+## Teljes belső koherencia-ellenőrzés
 
-```
-Lépés 1: git checkout feature_test_step_by_step
-Lépés 2: git add -A && git commit -m "docs: 2026-05-26 DFT DFS session + branch cleanup terv"
-Lépés 3: git checkout main
-Lépés 4: git merge --squash feature_test_step_by_step
-Lépés 5: git commit -m "feat: squash merge feature_test_step_by_step (DFT teszt + DFS + refactor)"
-Lépés 6: git branch -d feature_test_step_by_step feature/content-quality refactor/v2
-Lépés 7: git push origin main --force-with-lease (ha remote is frissítendő)
-```
+Python analízis script (22 talált probléma, 3 kategória):
 
-**Mikor:** Következő session elején, mielőtt bármi más work indul.
+| Javítás | Mi

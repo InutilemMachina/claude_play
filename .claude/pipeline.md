@@ -2,8 +2,8 @@
 title: Pipeline.md -- NLM pipeline
 type: meta
 status: active
-version: 5.0
-updated: 2026-05-25
+version: 5.1
+updated: 2026-05-26
 description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO táblázat, mappastruktúra, checkpointok.
 ---
 
@@ -22,7 +22,7 @@ A bonyolult formaiságok miatt majd megvizsgáljuk a Pandoc használatát is pé
 | `1_raw_inputs/*.pdf` | 😎 | [03_mineru_extractor](skills/03_mineru_extractor.md) | 🐍 | `2_clean_inputs/<forrasnev>/` + `3_raw_outputs/figure_catalog.json` |
 | NLM notebook | 🔌 | `scripts/03-1_qfig_parser.py` -- Qfig query → caption + keywords | 🐍 | `3_raw_outputs/figure_catalog.json` (caption + keywords feltöltve) |
 | `3_raw_outputs/figure_catalog.json` | 🐍 | `scripts/03-2_dedup_figures.py` -- hash-alapú dedup | 🐍 | `3_raw_outputs/figure_catalog.json` (`duplicate` flag) |
-| NLM notebook (mindmap-vez.) | 🔌 | [04_nlm_query_runner](skills/04_nlm_query_runner.md) | 🔌 | `3_raw_outputs/nlm_q*.txt` + `3_raw_outputs/nlm_qfig_raw.txt` |
+| NLM notebook (mindmap-vez.) | 🔌 | [04_nlm_query_runner](skills/04_nlm_query_runner.md) + `scripts/04_nlm_dfs_queries.py` | 🔌+🐍 | `3_raw_outputs/nlm_q*.txt` + `dfs_query_log.txt` |
 | `3_raw_outputs/nlm_q*.txt` | 🔌 | `scripts/05_assemble.py` -- Q1-Q4 összefűzés | 🐍 🛑 | `4_wip_outputs/N_Jegyzet.md` (draft) |
 | `3_raw_outputs/nlm_q*.txt` | 🔌 | [05_source_controller](skills/05_source_controller.md) | 🤖 🛑 | (belső ellenőrzés) |
 | `4_wip_outputs/N_Jegyzet.md` draft | 🤖 | [06_excerpt_block_maker](skills/06_excerpt_block_maker.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (blockquote-ok) |
@@ -91,7 +91,7 @@ Gyökér:   "Beszélgessen az ezekben a forrásokban tárgyalt <fő node> témak
 2. szint: "Beszélgessen az ezekben a forrásokban tárgyalt,
            a(z) <szülő> tágabb kontextusába tartozó <gyerek> témakörről."
 ```
-TODO: több szint is lehetséges, erre való utalást kéne tenni, hogy Depth-First-Search pásztázza végig a mindmap-et. 
+A lekérdezések mélysége `--max-level` paraméterrel korlátozható. A DFS-bejárás `scripts/04_nlm_dfs_queries.py` valósítja meg (`--resume`, `--sleep`, RESOURCE_EXHAUSTED-védelem).
 Helyes sorrend: **02 (mindmap generálás) → 03 (MinerU) → 04 (lekérdezések mindmap alapján)**.
 Részletek: [04_nlm_query_runner.md](skills/04_nlm_query_runner.md) §3.1.
 
