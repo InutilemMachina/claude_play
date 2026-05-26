@@ -1,6 +1,6 @@
 ---
-name: 06_notes_collector
-title: 06_NOTES_COLLECTOR — Notes collector
+name: 10_notes_collector
+title: 10_NOTES_COLLECTOR — Notes collector
 type: skill
 tags: [meta, skill]
 status: active
@@ -9,7 +9,7 @@ updated: 2026-05-21
 description: Strukturált Tárgymutató (index) és Notes szekció generálása Markdown fájlba. Fejléc-alapú anchor linkek, kulcsszó-keresés.
 ---
 
-# 06_NOTES_COLLECTOR.MD — NOTES COLLECTOR
+# 10_NOTES_COLLECTOR.MD — NOTES COLLECTOR
 
 Beolvas egy Markdown fájlt, kiszámítja az összes fejléc anchor-linkjét, opcionálisan
 kulcsszavas mélylinkeket is beinjektál, majd egy **`## Tárgymutató`** blokkot szúr be
@@ -101,9 +101,9 @@ Ahol: `<szülő node>` mindig az adott node közvetlen szülője (egy szinttel f
 
 2. **Beolvasás:** Olvasd be a teljes fájlt a Read eszközzel.
 
-3. **Python feldolgozás:** Futtasd le a `scripts/generate_index.py` scriptet:
+3. **Python feldolgozás:** Futtasd le a `scripts/generate_index.py  # TODO: nem létezik, megírandó` scriptet:
    ```bash
-   python3 <skill_dir>/scripts/generate_index.py \
+   python3 <skill_dir>/scripts/generate_index.py  # TODO: nem létezik, megírandó \
      --file <útvonal> \
      [--keywords "kulcsszó1,kulcsszó2,kulcsszó3"]
    ```

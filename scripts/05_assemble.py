@@ -1,7 +1,7 @@
 """
 05_assemble.py -- NLM Q1-Q4 outputs assembler
 
-Reads nlm_q*.txt files from raw_outputs/, resolves local citation numbers
+Reads nlm_q*.txt files from 3_raw_outputs/, resolves local citation numbers
 to global IDs via citations_seed.json, and writes a draft N_Jegyzet.md.
 
 Does NOT insert figures -- that is handled downstream by 09_figure_mapper.py
@@ -10,15 +10,15 @@ and 10_notes_collector.py.
 Usage:
     python scripts/05_assemble.py --week-dir <path/to/N_het> [options]
 
-    --week-dir   Path to the weekly folder (contains raw_inputs/, raw_outputs/,
-                 wip_outputs/). Required.
+    --week-dir   Path to the weekly folder (contains 1_raw_inputs/, 3_raw_outputs/,
+                 4_wip_outputs/). Required.
     --queries    Space-separated query indices to assemble (default: 1 2 3 4).
     --q-order    Order in which queries appear in the output (default: 1 2 3 4).
     --title      Document title (default: read from citations_seed.json _meta.title).
     --week       Week number integer (default: read from citations_seed.json _meta.week).
     --subject    Subject name (default: read from citations_seed.json _meta.subject).
     --level      BSc or MSc (default: BSc).
-    --output     Output file path (default: wip_outputs/N_Jegyzet.md where N=week).
+    --output     Output file path (default: 4_wip_outputs/N_Jegyzet.md where N=week).
     --dry-run    Print to stdout instead of writing file.
 
 Example:
@@ -59,7 +59,7 @@ def build_uuid_to_global(seed: dict) -> dict:
         if k.startswith("_"):
             continue
         if isinstance(v, dict) and "nlm_uuid" in v:
-            result[v["nlm_uuid"]] = int(v["id"])
+            result[v["nlm_uuid"]] = int(k)
     return result
 
 
@@ -90,7 +90,7 @@ def build_reference_section(seed: dict) -> list[str]:
         year   = v.get("year", "?")
         fname  = v.get("filename") or v.get("file", "?")
         lines.append(
-            f'[{v["id"]}] {author}. "{title}," {year}. Fájl: `{fname}`'
+            f'[{k}] {author}. "{title}," {year}. Fájl: `{fname}`'
         )
     return lines
 
@@ -110,8 +110,8 @@ def default_section_title(idx: int, q_idx: int) -> str:
 
 def assemble(week_dir: Path, args) -> str:
     """Assemble draft Jegyzet.md text and return as string."""
-    raw_dir   = week_dir / "raw_outputs"
-    seed_path = week_dir / "raw_inputs" / "citations_seed.json"
+    raw_dir   = week_dir / "3_raw_outputs"
+    seed_path = week_dir / "1_raw_inputs" / "citations_seed.json"
 
     if not seed_path.exists():
         sys.exit(f"citations_seed.json not found: {seed_path}")
@@ -175,9 +175,12 @@ def assemble(week_dir: Path, args) -> str:
 
     body = [frontmatter, "", f"# {title}", ""]
 
-    # Intro (Q1) -- no section heading, no Q:N marker
+    # Intro (Q1) -- ## parent added so ### headings inside don't skip a level
     if 1 in answers and 1 in q_order:
         text, _ = answers[1]
+        body.append("<!-- Q:1 -->")
+        body.append("## 0. Bevezetés")
+        body.append("")
         body.append(text)
         body.append("")
 
@@ -209,7 +212,7 @@ def assemble(week_dir: Path, args) -> str:
 def main():
     parser = argparse.ArgumentParser(description="NLM Q1-Q4 → draft Jegyzet.md assembler")
     parser.add_argument("--week-dir", required=True, type=Path,
-                        help="Heti mappa (tartalmazza raw_inputs/, raw_outputs/, wip_outputs/)")
+                        help="Heti mappa (tartalmazza 1_raw_inputs/, 3_raw_outputs/, 4_wip_outputs/)")
     parser.add_argument("--queries", nargs="+", type=int, default=[1, 2, 3, 4],
                         help="Beolvasandó query indexek (default: 1 2 3 4)")
     parser.add_argument("--q-order", nargs="+", type=int, default=None,
@@ -220,7 +223,7 @@ def main():
     parser.add_argument("--level",   default="BSc", choices=["BSc", "MSc"],
                         help="BSc vagy MSc (default: BSc)")
     parser.add_argument("--output",  default=None, type=Path,
-                        help="Kimeneti fájl (default: wip_outputs/N_Jegyzet.md)")
+                        help="Kimeneti fájl (default: 4_wip_outputs/N_Jegyzet.md)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Kiírás stdout-ra fájl helyett")
     args = parser.parse_args()
@@ -243,15 +246,10 @@ def main():
         out_path = args.output.resolve()
     else:
         # Read week number from seed for filename
-        seed_path = week_dir / "raw_inputs" / "citations_seed.json"
+        seed_path = week_dir / "1_raw_inputs" / "citations_seed.json"
         seed = json.loads(seed_path.read_bytes().decode("utf-8-sig"))
         week_num = args.week or seed.get("_meta", {}).get("week", 1)
-        out_path = week_dir / "wip_outputs" / f"{week_num}_Jegyzet.md"
+        out_path = week_dir / "4_wip_outputs" / f"{week_num}_Jegyzet.md"
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(text, encoding="utf-8")
-    print(f"✅ Mentve: {out_path} ({out_path.stat().st_size} byte)")
-
-
-if __name__ == "__main__":
-    main()

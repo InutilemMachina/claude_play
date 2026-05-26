@@ -1,6 +1,6 @@
 ---
-name: 09_question_bank_collector
-title: 09_QUESTION_BANK_COLLECTOR — Question bank collector
+name: 13_question_bank_collector
+title: 13_QUESTION_BANK_COLLECTOR — Question bank collector
 type: skill
 tags: [meta, skill]
 status: active
@@ -8,7 +8,7 @@ version: 1.0
 updated: 2026-05-21
 description: N_Jegyzet.md → N_het/N_Kerdesek.md. Feleletválasztós A/B/C/D kérdések, SZINT:2-5, növekvő nehézséggel.
 ---
-# 09_QUESTION_BANK_COLLECTOR.MD — QUESTION BANK COLLECTOR
+# 13_QUESTION_BANK_COLLECTOR.MD — QUESTION BANK COLLECTOR
 _09. lépés_
 
 # 1. Cél

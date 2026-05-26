@@ -2,7 +2,7 @@
 title: Project Status -- Playground PDCA log
 type: log
 status: active
-version: 2.4
+version: 2.5
 updated: 2026-05-25
 description: Playground (claude_play) PDCA log. Session elején Claude olvassa be. NEM tantárgy-specifikus.
 ---
@@ -17,15 +17,122 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 
 | # | Feladat | Felelős | Megjegyzés |
 |:--|:--------|:--------|:-----------|
-| **R1** | **Termografia_teszt_v3 pipeline futtatás** -- új mappastruktúrával (raw_inputs/clean_inputs/raw_outputs/wip_outputs/clean_outputs) | 🤖+😎 | 🔲 következő prioritás |
+| **R1** | **Termografia_teszt_v3 pipeline futtatás** -- új mappastruktúrával (1_raw_inputs/2_clean_inputs/3_raw_outputs/4_wip_outputs/5_clean_outputs) | 🤖+😎 | 🔲 következő prioritás |
 | **R2** | **MinerU** -- `03_run_mineru_pipeline.py` tesztje Termografia_teszt_v3-on | 🐍 | 🔲 |
 | **R3** | **context_sablon.md** lépésszámok frissítése (C00-C08 → 01-14) | 🤖 | 🔲 |
 | **R4** | **nlm_integration.md notebook-lista** frissítése (Termografia v2+v3 hozzáadva) | 🤖 | 🔲 -- beolvadt 02_nlm_notebook_setup-ba |
 | **R5** | **NLM Prompt B pedagógiai felülvizsgálata** | 🤖+😎 | nlm_prompts.md átírás |
 | **R6** | **du_template.pptx** megszerkesztése | 😎 | hiányzik, bypass él |
-| **R7** | **03_mineru_extractor**: tesztelés -- per-forrás clean_inputs/<nev>/ almappa | 🐍 | 🔲 |
+| **R7** | **03_mineru_extractor**: tesztelés -- per-forrás 2_clean_inputs/<nev>/ almappa | 🐍 | 🔲 |
 
 # 2. Do (elvégzett munkák)
+
+## 2026-05-25 -- feature_test_step_by_step branch (Fourier_teszt)
+
+**01. lépés -- NOTE-ok:**
+
+- NOTE 💬 A pipeline eleje döcögős -- 01. lépésnél Claude azonnal visszakérdezett (forrásmetaadatok hiánya), holott a user tudta, mi kell. Nem bug, hanem nyitott design-kérdés: a pipeline belépési pontja nem elég önálló; skill pontosítás vagy strukturáltabb indítási kontextus kell.
+- NOTE 💬 Heti mappa alstruktúra számozva: `1_raw_inputs`, `2_clean_inputs`, `3_raw_outputs`, `4_wip_outputs`, `5_clean_outputs`. Fourier_teszt-en átvezetva; pipeline.md és CLAUDE.md frissítése szükséges.
+
+**01. lépés -- elvégzett:**
+
+- ✅ `test_outputs/Fourier_teszt/1_het/` mappastruktúra (számozott)
+- ✅ `azad2012_webpage.html` letöltve, `1_raw_inputs/`-ba mentve
+- ℹ️ Meglévő: `rockmore1999_article.pdf`, `typinski2014_slides.pdf`, `The Fast Fourier transform (FFT).pptx` (utóbbinak naming-javítás szükséges)
+
+**02. lépés -- NOTE-ok (NLM UI visszajelzés):**
+
+- NOTE 💬 Csak 3 forrás jelent meg -- a PPTX feltöltés NLM CLI-vel sikertelen (pitfalls.md §2.5).
+- NOTE 💬 Az NLM UI-ban a forráscímeket az NLM átnevezi (a fájlnév helyett a dokumentum tartalmából generál nevet) -- ezért a source listában nem látható könnyen, melyik fájlból melyik forrás lett, és melyik feltöltése nem sikerült. A `nlm source list <NB>` parancs visszaadja az eredeti fájlnevet is -- ezt érdemes a 02. lépés végén loggolni. (pitfalls.md §2.7)
+- NOTE 💬 A notebook középső ablakában automatikusan generált absztrakt szöveg jelenik meg -- felhasználható a tananyag bevezető szövegéként (pipeline integrálni kell, pl. 05_source_controller vagy 06_excerpt_block_maker inputjaként).
+- NOTE 💬 Mindmap sikeresen létrejött a Studio fülön.
+- NOTE 💬 Prompt B (Metaparancs) sikeresen beillesztve -- "Egyéni" mód aktív.
+- NOTE 💬 Válasz hossza: `Alapértelmezett` helyett `Hosszabb` legyen a pipeline alapbeállítása -- a `nlm chat configure` hívásban hozzáadandó: `--response-length long` (ellenőrizni kell a CLI-ben, hogy ez a helyes flag).
+
+**14. lépés -- eredmény:**
+
+- ⚠️ `14_bsc_filter.py` script nem létezik -- a skill is jelzi (§2: "Script még nem létezik"). A szűrést manuálisan végzem el.
+- ✅ `5_clean_outputs/bsc/` létrehozva, BSc-szűrt fájlok bemásolva (MSc blokkok kivágva).
+
+**14. lépés -- NOTE-ok (pre-futás):**
+
+- NOTE 💬 **Camera-ready scope:** Nem csak a prezentáció, hanem a Jegyzet is camera-ready formában exportálandó (`5_clean_outputs/`-ba). A 14_bsc_filter feladata nemcsak szűrés, hanem végtermék-előállítás: Jegyzet + Prezentáció + Szószedet + Mindmap + Kérdések mind kerüljenek `5_clean_outputs/bsc/`-ba.
+- NOTE 💬 **Dash kiirtás (pipeline-szintű):** Minden `4_wip_outputs/` és `5_clean_outputs/` fájlból el kell távolítani a `--` dupla kötőjelet, az n-dasht (`–`) és m-dasht (`—`). Magyarban ezek ritkák, a pipeline-ban szinte mindig hibák. Megoldandó: `11_typesetter.py` Rule H-ként, vagy önálló pre-export szűrőként.
+- ❌ **Kérdésbank NLM-alapú:** A 13_question_bank_collector NLM-queryt kell használjon, ne Claude-feladatot. Az NLM a forrásokból pontosabb, citált kérdéseket generál. A jelenlegi `1_Kerdesek.md` placeholder -- újragenerálandó NLM-queryvel a következő iterációban.
+- ⚠️ **MSc jelölés -- emberi döntés:** Az MSc/BSc határt ember dönti el (nem pipeline). A Mindmap csomópontjainak BSc/MSc besorolása kézi review után kerül a skillbe.
+- ⚠️ **NLM Mindmap export -- kritikus elem:** A Studio Gondolattérkép exportja (Ultra Explorer bővítmény, §2.2) az egész pipeline sarokköve. A mindmap-csomópontok adják a query-struktúrát (04), a BSc/MSc határt (13-14), és a pedagógiai szerkezetet (05, 06). Ha kell, külön session-t szánunk rá.
+
+**13. lépés -- elvégzett:**
+
+- ✅ `4_wip_outputs/1_Kerdesek.md` generálva: 6 BSc (SZINT 2-3) + 2 MSc (SZINT 4-5) kérdés, A/B/C/D formátum, helyes válaszokkal
+- NOTE 💬 **Forrás:** Claude-feladatként, `1_Jegyzet.md` alapján. NLM-query alapú generálás (13_question_bank_collector §NLM) tesztelendő a következő iterációban.
+
+**12. lépés -- NOTE-ok:**
+
+- NOTE 💬 **Mindmap camera-ready hiányzik:** `1_Mindmap.md` DRAFT státuszban van -- a pipeline-nak `5_clean_outputs/`-ba is kell egy camera-ready verziót előállítani (pl. renderelt kép vagy exportált PDF). Megoldandó: 12. vagy 14. lépés felelőssége definiálandó.
+- NOTE 💬 **Marp prezentáció hiányosságai:** (1) Nincs TOC-dia; (2) kevés szöveg -- a diákon csak bullet-ok, előadói szöveg (speaker notes) hiányzik; (3) a 06_excerpt_block_maker `💡 Lényeg` blokkjai ideálisak lennének speaker notes-ként.
+- NOTE 💬 **PPTX sablon nem alkalmazódott:** A `12_pptx_gyarto.py` nem a `due_prenetation_template.pptx` layoutjait használja -- a Marp tartalom a meglévő sablon-diák után kerül beillesztésre, nem felül. A sablon XML-ben nincs kódolva (placeholder mapping hiányzik).
+- NOTE 💬 **PPTX tipográfia:** Nyers Markdown szintaxis jelenik meg a diákon (pl. `**félkövér**` helyett félkövér formázás). A `12_pptx_gyarto.py` nem értelmezi a Markdown inline formázást python-pptx szinten.
+- ❔ **Architektúra döntés (nyitott):** Három lehetséges irány a PPTX generáláshoz: (1) XML-alapú PowerPoint sablon (python-pptx placeholder mapping); (2) Pandoc (Marp MD → PPTX, saját sablon); (3) fejlesztett Marp + böngészős export (pl. Headless Chrome). Döntés szükséges a 12. lépés következő iterációja előtt.
+
+**11. lépés -- NOTE-ok:**
+
+- NOTE 💬 **Phase 1 (bullet→próza Claude API) ejtve:** A `11_typesetter.py` Phase 1 funkcióját el kell hagyni. Indok: az NLM `--response-length long` beállítással eleve folyó prózát ad vissza -- ha ez működik, a Claude API-s konverzió felesleges overhead. Phase 1 eltávolítandó a scriptből; a `11_typesetter.py` csak Phase 2 (linting) maradjon. A script `--lint-only` flagje ezzel válik az egyetlen futtatási móddá.
+
+**10. lépés -- NOTE-ok:**
+
+- NOTE 💬 **ToC hierarchikus számozás hiányzik:** A ToC linkek nem tartalmazzák a sorszámokat (pl. `1. Matematikai...` helyett `Matematikai...`), mert a `##` fejlécek sem voltak egységesen számozva a Jegyzetben. Megoldandó: `util_heading_numberer.py` futtatása a `05_assemble.py` után, mielőtt a ToC generálódik.
+- NOTE 💬 **ToC leading spaces (Q1 szekció):** Az első 3 bejegyzés (`Mi a Fourier-transzformáció?` stb.) felesleges 2 szóközzel kezdődik a ToC-ban -- a `###` fejlécek `##` szülő nélkül szerepelnek. Gyökérok: Q1 kimenetben nincs `##` szintű szülő (ismert heading-hierarchia hiba, 06. lépés NOTE-jaiban rögzítve).
+
+**09. lépés -- eredmény:**
+
+- ⚠️ `09_figure_mapper` kihagyva: 56 entry, 0 keywords (03b_qfig_parser 0 egyezés miatt -- ismert hiba, pitfalls §3.2). Script korrekten figyelmeztet: `[Warning] No entries with vlm_done=True`. `figure_catalog.json` változatlan, `inserted_after_paragraph` mezők nem töltöttek ki. A 10_notes_collector ábrát nem illeszt be.
+- ❌ **KRITIKUS:** Képek nélkül a tananyag csonka -- az ábrai tartalom a pedagógiailag egyik legfontosabb elem. A 03b_qfig_parser 0 egyezése blokkolja az összes downstream képbeillesztést (09, 10). A gyökérok (BOM + szabad NLM formátum) megoldásáig a pipeline képek nélkül fut végig -- ez a legmagasabb prioritású nyitott hiba.
+
+**07. lépés -- NOTE-ok:**
+
+- NOTE 💬 **Szószedet forrása:** A `1_Szozedet.md` Claude által, a `1_Jegyzet.md` szövegéből lett összeállítva -- nem NLM-alapú. Következmény: (1) nem reprodukálható (más futáson más fogalmak); (2) nem auditálható (nincs Studio-beli nyom, nem látszik melyik forrásból jött az adat); (3) token-igényes. Megoldandó: a szószedet NLM-query alapra teendő (dedikált Prompt C vagy külön `nlm query` hívás), amelynek válasza a Studio-ban is megjelenik és UUID-alapú citációkkal érkezik. Ez konzisztens lenne a pipeline többi NLM-lépésével.
+
+**07. lépés -- elvégzett:**
+
+- ✅ `3_raw_outputs/citations.json` generálva (3 aktív forrás; [4] PPTX kihagyva, nlm_uuid null)
+- ✅ `4_wip_outputs/1_Szozedet.md` generálva (20 kulcsfogalom, 5 tematikus szekció, IEEE hivatkozásokkal)
+- ⚡ `[6-8]` feloldatlan hivatkozástartomány a `1_Jegyzet.md` 17. sorában (Q1 blokk) -- a `05_assemble.py` a range-formátumú local ID-kat nem konvertálja globálisra. Pitfalls §3.3-ban rögzített ismert hiba.
+
+**06b. lépés -- NOTE-ok (table_caption_injector):**
+
+- NOTE 💬 **n-dash a feliratban:** A generált caption `*1. táblázat -- (automatikus felirat)*` dupla kötőjelet (`--`) tartalmaz. A kimeneti dokumentumban n-dash kerülendő -- a scriptet javítani kell: `--` helyett `:` vagy vessző.
+- NOTE 💬 **Automatikus felirat placeholder:** Az `(automatikus felirat)` szöveg jelenik meg, holott kontextusbeli felirat kellene. A script jelenleg nem tudja kiolvasni a táblázat tartalmát és értelmes feliratot generálni. Megoldandó: (1) NLM-query alapú felirat generálás, vagy (2) Claude-feladatként a táblázat sorai alapján automatikus összefoglalás.
+
+**06. lépés -- NOTE-ok (excerpt_block_maker):**
+
+- ✅ A lépés sikeresen lefutott: 💡 Lényeg blockquote-ok minden ### szekció után, 🗺️ Fejezet összegzés minden ## szekció után; fejezet-címek pontosítva (pl. "1. Matematikai és geometriai alapok").
+- NOTE 💬 Lista whitespace: generált szövegben `*   **...**` forma (több szóköz) -- legyen `* **...**`. Megoldandó: 11_typesetter lint-szabályba felvéve.
+- NOTE 💬 Heading hierarchia: Q1 kimenetben `###` közvetlenül `#` alatt (nincs `##`); többi szekció Q2+ helyes `## + ###` struktúrát kap. VSCode vázlatban és ToC-ban inkonzisztens. Megoldandó: 05_assemble.py Q1-hez `## Bevezetés` szülőt generáljon, vagy Prompt B módosítás.
+- NOTE 💬 Formázási alternatíva: blockquote helyett `<div>` alapú doboz (markdown_textboxes.md 3. megoldás) -- 06_excerpt_block_maker.md v2-ben implementálandó.
+- NOTE 💬 Studio panel: NLM válaszokat a Studio panelbe is menteni kell (auditálhatóság) -- 02_nlm_notebook_setup.md-ben rögzítve.
+
+**05. lépés -- NOTE-ok (Jegyzet struktúra):**
+
+- NOTE 💬 `1_Jegyzet.md` jelenlegi struktúrája pedagógiailag nem megfelelő: (1) `# 1. Hét` cím után rögtön `### Mi a Fourier-transzformáció?` következik -- számozatlan, 3 db #, nincs absztrakt; (2) a Q1 bevezető kérdések (Mi a Fourier-transzformáció? Miért fontos? Alapfogalmak) jó kiindulás, de hallgató számára ismeretlen fogalmakat feltételez -- pedagógiai átgondolás szükséges; (3) az NLM notebook absztrakt szövege (középső panel) ideális lenne a cím után első elemként.
+
+**03b. lépés -- eredmény:**
+
+- ❌ 03b_qfig_parser: 0 egyezés. Okok: (1) BOM-os UTF-8 a nlm_qfig_raw.txt-ben (pitfalls §1.2); (2) az NLM szabad markdown formátumban válaszolt, nem a parser által várt strukturált FORRÁS/SZÁM/ALÁÍRÁS mezőkkel. A figure_catalog.json caption/keywords mezői üresek maradtak -- 03c és tovább ezzel fut.
+
+**03. lépés -- NOTE-ok:**
+
+- NOTE 💬 A mindmap már a 02. lépés végén kimenthető lenne (a 03. MinerU előtt), de az NLM műveletek legyenek csoportosítva -- a mindmap export is maradjon a 02-es NLM-blokkban (ne kerüljön a 03. elé).
+- NOTE 💬 NOTE (csak tervezés, nem implementálandó most): a heti mappa alstruktúrát logikai sorrendbe kell számozni: `1_raw_inputs → 1_raw_inputs`, `2_clean_inputs → 2_clean_inputs`, `3_raw_outputs → 3_raw_outputs`, `4_wip_outputs → 4_wip_outputs`, `5_clean_outputs → 5_clean_outputs`. Ez a változtatás az összes érintett scriptet (03, 05, 06b, 09, 10, 11, 12, 14...) egyszerre kell érintse -- ne félúton vezessük be. A Fourier_teszt mappáit visszanevezzük az eredeti nevekre (MinerU lefutása után), és a `03_run_mineru_pipeline.py`-ban elvégzett csere is visszaállítandó.
+- ⚠️ Általánosabb tanulság: mappastruktúra-konvenció változtatása pipeline KÖZBEN nem ajánlott -- minden scriptet egyszerre kell frissíteni.
+- NOTE 💬 MinerU futása során nem jelenik meg automatikusan egy terminal, ahol a user is nyomon követhetné az állapotot -- ez UX probléma, különösen hosszú fájloknál (1-5 perc/PDF). Start-Process indításkor felugrik egy cmd ablak, de üres -- a rich progress output nem jelenik meg benne. Megoldandó: vagy `-WindowStyle Hidden` (ha nincs szükség a kimenetre), vagy a stdout/stderr egy log fájlba irányítandó, amit a user megnyithat.
+- NOTE 💬 MinerU MCP-n át nem futtatható: az MCP tool-nak ~30 másodperces hard timeout-ja van, MinerU ennél sokkal tovább fut. Háttérfolyamat (Start-Process + polling) alternatíva token-pazarló. A MinerU futtatása 😎 manuális lépésként kezelendő, vagy külön terminálból indítandó -- a pipeline-ban ez egy természetes szünet.
+- NOTE 💬 MinerU részleges lefutás: `typinski2014_slides.pdf` feldolgozása lezárult; `rockmore1999_article.pdf` mappája létrejött (`2_clean_inputs/rockmore1999_article`), de a feldolgozás nem fejeződött be (vagy még fut). Az `azad2012_webpage.html` és a PPTX MinerU által nem feldolgozható -- ezek várhatóan kimaradnak. Gyökérok ismeretlen (méret? timeout? crash?). ❔ Nyitott: a részleges kimenettel továbblépünk-e, vagy rockmore újrafuttatás szükséges?
+
+**02. lépés -- saját munkafolyamat megfigyelések:**
+
+- NOTE 💬 HTML forrás letöltése helyi fájlba (`azad2012_webpage.html`) felesleges volt -- az NLM CLI csak URL-t fogad el webes tartalomnál, a helyi HTML fájlt visszautasítja. Token-pazarlás volt a helyi mentés. Ezentúl: weblap → URL direkten az NLM-be.
+- NOTE 💬 `citations_seed.json` a 01. lépés outputja, de az ebben a futásban skip-elődött (user hozta a forrásokat) -- a seed nélkül a 02. lépés nem indítható el. A két lépés szorosan függ egymástól.
 
 ## 2026-05-25 -- Content quality session (feature/content-quality)
 
@@ -108,6 +215,23 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 
 # 3. Check (tanulságok az utolsó futásból)
 
+## 2026-05-25 -- feature_test_step_by_step: Fourier_teszt teljes pipeline futás (01-14)
+
+| Komponens | Eredmény | Tanulság |
+|:----------|:---------|:---------|
+| 01-05 forrás + NLM + MinerU | ✅ | 3 forrás aktív (PPTX NLM-ből kizárva, null UUID) |
+| 06 excerpt_block_maker | ✅ | Legpedagógiailag értékesebb lépés; Q1-hez `##` szülő hiánya miatt `🗺️` nem generálódott |
+| 06b table_caption_injector | ✅ | `--` a caption-ban és `(automatikus felirat)` placeholder -- mindkettő javítandó |
+| 07 citations_maker (szószedet) | ⚠️ | Claude-alapú, nem NLM-alapú -- nem auditálható, nem reprodukálható |
+| 08 mindmap_manager | ✅ | Fourier_teszt: Studio export kész, `, N gyermek` suffix tisztítva, `4_wip_outputs/1_Mindmap.md` létezik |
+| 09 figure_mapper | ❌ | 0 kép -- 03b_qfig_parser 0 egyezés (BOM + szabad NLM formátum) blokkolja |
+| 10 notes_collector (ToC) | ⚠️ | ToC hierarchikus számozás hiányzik; leading spaces Q1-nél (heading hierarchia bug) |
+| 11 typesetter (lint-only) | ✅ | v3.0: Phase 1 kódból eltávolítva; Rule H (dash cleanup) implementálva; 305→186 sor |
+| 12 presentation_maker (PPTX) | ⚠️ | Sablon nem alkalmazódott; raw Markdown szintaxis látható; TOC-dia hiányzik |
+| 13 question_bank_collector | ⚠️ | Claude-alapú, nem NLM-query -- placeholder, újragenerálandó |
+| 14 bsc_filter | ⚠️ | Script nem létezik -- manuális; `_bsc` suffix konvenció rögzítve |
+| **Kritikus:** 03b_qfig_parser | ❌ | 0 kép az egész pipeline-ban -- legmagasabb prioritású bug |
+
 ## 2026-05-25 -- feature/content-quality: architektúrai döntések
 
 ### P4/P6 revízió: NLM ingyenes alternatíva a Claude Vision API helyett
@@ -189,6 +313,8 @@ Ez a kimenet:
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-26 | 2.6 | Do §4: DFT DFS session + RESOURCE_EXHAUSTED; §5 Branch cleanup terv; P-elvek áthozva |
+| 2026-05-25 | 2.5 | Check: Fourier_teszt 01-14 step-by-step tanulságok; Plan F1-F10 prioritások |
 | 2026-05-25 | 2.3 | Check: NLM vs Vision API döntés + _assemble.py probléma dokumentálva |
 | 2026-05-25 | 2.2 | feature/content-quality Do szekció; Plan P-státuszok frissítve |
 | 2026-05-22 | 1.0 | Létrehozva: Do szekciók, következő lépések |
@@ -203,10 +329,10 @@ Ez a kimenet:
 - ✅ `01_html_to_md.md` archivált (elavult skill)
 - ✅ `kepek_workflow.md` → `03_mineru_extractor.md`-be beolvasztva, archivált
 - ✅ `nlm_integration.md` → `02_nlm_notebook_setup.md`-be beolvasztva, archivált
-- ✅ `03_run_mineru_pipeline.py`: `magic-pdf` → `mineru`, `raw_inputs/`, `clean_inputs/<forrás>/`
+- ✅ `03_run_mineru_pipeline.py`: `magic-pdf` → `mineru`, `1_raw_inputs/`, `2_clean_inputs/<forrás>/`
 - ✅ `pipeline.md` v3.0: TODO-k eltávolítva, 01-14 lépések, IO táblázat aktív linkekkel
 - ✅ `CLAUDE.md` v4.0: §0 Session indítás szekció, új mappastruktúra, 01-14 katalógus
-- ✅ Mappastruktúra: `raw_inputs/` + `clean_inputs/` + `raw_outputs/` + `wip_outputs/` + `clean_outputs/`
+- ✅ Mappastruktúra: `1_raw_inputs/` + `2_clean_inputs/` + `3_raw_outputs/` + `4_wip_outputs/` + `5_clean_outputs/`
 - ✅ `test_outputs/` mint kimeneti gyökér mappa
 - ⚠️ MinerU teszt (Termografia_teszt_v2): process futott, de 0 fájl keletkezett -- R2 tesztelés szükséges
 
@@ -237,22 +363,22 @@ Ez a kimenet:
 Nem elvégzett (következő session):
 - [ ] P5: HTML források NLM-be URL-ként (`nlm source add --url`)
 - [ ] Q1-Q4 újrafuttatás a megtisztított (JAMP nélküli) notebookban
-- [ ] `11_typesetter.py` éles futtatása a meglévő `wip_outputs/1_Jegyzet.md`-n
+- [ ] `11_typesetter.py` éles futtatása a meglévő `4_wip_outputs/1_Jegyzet.md`-n
 - [ ] `03_build_figure_catalog.py --vlm` futtatás (131 kép)
 - [ ] `09_figure_mapper.py` futtatás a VLM catalog után
 
 ## Do -- 2026-05-25 (Termografia_teszt_v3 pipeline futás)
 
-- [x] raw_inputs -> raw_inputs átnevezés (v3 mappa)
-- [x] 03 MinerU: 4 PDF feldolgozva -> clean_inputs/<stem>/auto/ (kettős nesting bug javítva)
+- [x] 1_raw_inputs -> 1_raw_inputs átnevezés (v3 mappa)
+- [x] 03 MinerU: 4 PDF feldolgozva -> 2_clean_inputs/<stem>/auto/ (kettős nesting bug javítva)
 - [x] 02 NLM notebook "Termografia_teszt_v3" létrehozva (ID: 15b84ae7...)
 - [x] 02 Prompt B konfigurálva (Python subprocess)
-- [x] 04 Q1-Q4 NLM lekérdezések -> raw_outputs/ (Q1:5.6KB, Q2:3.4KB, Q3:3.9KB, Q4:3.6KB)
+- [x] 04 Q1-Q4 NLM lekérdezések -> 3_raw_outputs/ (Q1:5.6KB, Q2:3.4KB, Q3:3.9KB, Q4:3.6KB)
 - [x] 05 citations_seed.json létrehozva (4 forrás + notebook meta)
-- [x] 10 1_Jegyzet.md assembly -> wip_outputs/ (18.5 KB)
-- [x] 06 1_Szozedet.md -> wip_outputs/ (4 KB)
-- [x] 08 1_Mindmap.md -> wip_outputs/ (3.1 KB)
-- [x] 13 1_Kerdesek.md -> wip_outputs/ (4 KB)
+- [x] 10 1_Jegyzet.md assembly -> 4_wip_outputs/ (18.5 KB)
+- [x] 06 1_Szozedet.md -> 4_wip_outputs/ (4 KB)
+- [x] 08 1_Mindmap.md -> 4_wip_outputs/ (3.1 KB)
+- [x] 13 1_Kerdesek.md -> 4_wip_outputs/ (4 KB)
 - [x] pitfalls.md §4.3 hozzáadva (MinerU kettős nesting)
 - [x] scripts/03_run_mineru_pipeline.py javítva (clean_dir / pdf.stem -> clean_dir)
 
@@ -261,37 +387,85 @@ Nyitott:
 - [ ] 14 BSc filter futtatása
 - [ ] context.md v3 frissítése (notebook ID, státuszok)
 - [ ] util_heading_numberer.py: dupla prefix bug (### I. -> ### 1.1. I.)
-# 3. Plan -- feature/content-quality branch
+# 3. Plan -- következő session prioritások
 
-_Frissitve: 2026-05-25_
+_Frissítve: 2026-05-25 (feature_test_step_by_step session után)_
 
-Branch celja: eletszeru wip_outputs -- utan pipeline teljes automatizalasa.
-Heurisztikak TILOSAK (pl. page_idx koezelites) -- minden lepes automatizalhato kell legyen.
+## Prioritások (Fourier_teszt tanulságai alapján)
 
-## Prioritasok
+| # | Feladat | Megjegyzés | Státusz |
+|:--|:--------|:-----------|:--------|
+| **F1** | **03b_qfig_parser javítás** -- BOM + szabad NLM formátum kezelése | KRITIKUS: képek nélkül a pipeline csonka | 🔲 |
+| **F2** | **NLM Studio Mindmap export** -- Ultra Explorer automatizálás (Claude in Chrome MCP?) | Architektúrai sarokkő | ✅ 2026-05-26 (manuális; `, N gyermek` cleanup dokumentálva) |
+| **F3** | **Heading hierarchia fix** -- `05_assemble.py` Q1-hez `## Bevezetés` szülő VAGY Prompt B módosítás | ToC + excerpt_block_maker Q1 | ✅ 2026-05-26 |
+| **F4** | **Dash cleanup Rule H** -- `11_typesetter.py` Rule H: `--` / `–` / `—` eltávolítás | Pipeline-széles probléma | ✅ 2026-05-25 |
+| **F5** | **Phase 1 eltávolítás** -- `11_typesetter.py` Phase 1 (bullet→próza) kódból kivágni | User döntés: NLM long response elég | ✅ 2026-05-25 |
+| **F6** | **Szószedet NLM-alapra** -- `07_citations_maker` → NLM Prompt C query + Studio panel mentés | Auditálhatóság, reprodukálhatóság | ⚙️ terv rögzítve (`07_citations_maker.md` NOTE) |
+| **F7** | **Kérdésbank NLM-alapra** -- `13_question_bank_collector` NLM-query verzió | Jelenlegi placeholder | ⚙️ következő iteráció |
+| **F8** | **PPTX architektúra döntés** -- XML placeholder mapping vs Pandoc vs Marp+Headless Chrome | `12_pptx_gyarto.py` jelenleg nem használja a sablont | ⚙️ következő iteráció |
+| **F9** | **Camera-ready scope** -- minden végtermék `5_clean_outputs/` alá `_bsc` suffixszel | `14_bsc_filter.md`-ban rögzítve | ✅ 2026-05-26 (döntés dokumentálva) |
+| **F10** | **`14_bsc_filter.py` script megírása** -- `_bsc` suffix konvencióval | Jelenleg manuális | ⚙️ következő iteráció |
+| **F11** | **MinerU UX log** -- `mineru_run.log` automatikus írása | Start-Process empty CMD fix | ✅ 2026-05-26 |
+| **F12** | **01-02 seed függőség** -- seed skip workaround dokumentálva | `01_references_collector.md` NOTE | ✅ 2026-05-26 |
+| **F13** | **Studio audit trail** -- `04_nlm_query_runner.md` NOTE; válasz hossza config | dokumentáció | ✅ 2026-05-26 |
+| **F14** | **Bullet whitespace Rule B** -- `11_typesetter.py` `*   **` → `* **` | lint rule | ✅ 2026-05-26 |
+| **F15** | **Table caption n-dash** -- `06b_table_caption_injector.py` `--` → `:` | lint rule | ⚙️ következő iteráció |
+| **F16** | **DFS NLM query resume** -- `--resume --sleep 5` flag a kvóta-limit miatt | pitfalls §2.8 | 🔲 holnap futtatandó |
+| **F17** | **Git branch cleanup** -- main-re squash + régi ágak törlése | lásd §4 Branch-állapot | 🔲 |
+| **F18** | **Automata elvárás dokumentálása** -- heurisztikák TILOSAK, minden lépés automatizálható kell legyen | feature/content-quality-ból áthozva | 🔲 pipeline.md-be |
 
-| # | Feladat | Automatizhato? | Státusz |
-|:--|:--------|:---------------|:--------|
-| P1 | **11_typesetter**: WIP md -> olvasható próza (Claude API hívás) | igen (API) | ✅ script + skill kész; futtatás szükséges |
-| P2 | **JAMP forrás eltávolítás** NLM notebookból + citations_seed-ből | igen (nlm CLI) | ✅ KÉSZ |
-| P3 | **Q1 query redesign**: bevezető/összefoglaló csak, ne teljes lefedés | igen | ✅ KÉSZ |
-| P4 | **VLM captioning**: képenként Claude vision API -> értelmes caption | igen (API, lassú) | ✅ script kész; `--vlm` futtatás szükséges |
-| P5 | **HTML források NLM-be** URL-ként | igen (nlm CLI) | 🔲 következő session |
-| P6 | **09_figure_mapper**: VLM keywords × NLM szöveg → beillesztési pont | igen | ✅ script + skill kész; P4 után futtatható |
+# 4. Do -- 2026-05-26 (DFT_teszt DFS NLM session)
 
-## Architekturalis dontes (P4/P6)
+## DFT_teszt 04. lépés -- DFS query futás
 
-A kep-szoveg illesztes automatizalhato ut:
-  1. MinerU -> kep fajlok (clean_inputs/<stem>/auto/images/)
-  2. Claude vision API per kep -> caption + kulcsszavak (03_build_figure_catalog.py bovitese)
-  3. NLM szovegben kulcsszo-keresés -> beillesztési pont azonosítása
-  4. Assembly: kep a megfelelo bekezdes utan
+- ✅ `04_nlm_dfs_queries.py` megírva: mindmap DFS parser + query builder + NLM caller
+- ✅ Dry-run: 29 csomópont, helyes query szövegek (L0-L4 szintek)
+- ✅ `Start-Process` blokkoló hiba feloldva: `-RedirectStandardOutput` nélkül fut (script saját logot ír)
+- ✅ Q01-Q06 sikeresen lefutott (5-7 KB/query, összesen 6 DFS eredmény)
+- ❌ Q07-Q29 RESOURCE_EXHAUSTED: Google NLM napi kvóta kimerült 6 query után
+- ✅ 23 hibás (330 B) fájl törölve a `3_raw_outputs/`-ból
+- ✅ `04_nlm_dfs_queries.py` v1.1: `--resume`, `--sleep`, RESOURCE_EXHAUSTED detektálás
+- ✅ pitfalls.md §2.8 hozzáadva (RESOURCE_EXHAUSTED recovery folyamat)
+- ✅ self-attention.log bejegyzések 15-16
 
-Ez 100%-ban automatizalhato, heurisztika-mentes.
+## Git állapot -- 2026-05-26
 
-## Kernel kerdes
+| Branch | Állapot | Tartalom |
+|:-------|:--------|:---------|
+| `main` | base | A squash merge előtti állapot + squash commit (`5e622bb`) |
+| `feature_test_step_by_step` | AKTUÁLIS (uncommitted: 52 M) | Fourier_teszt teljes session + DFS script |
+| `feature/content-quality` | elavult, NEM mergelt main-re | 5 commit, P1-P6 prioritások -- értékes tartalom áthozva |
+| `refactor/v2` | elavult, NEM mergelt main-re | 4 commit, régi mappakonvenció (raw_inputs vs 1_raw_inputs) -- már felülírt |
 
-Melyik modell latja a kepeket?
-  - Claude vision (claude-sonnet-4-6): igen, API-n at
-  - NLM: nem latja a PDF abrakat, csak a szoveget
-  => VLM lepes: Claude, nem NLM
+**Implicit feltételezés:** `feature/content-quality` tartalmát a `feature_test_step_by_step` már befogadta squash merge-ként (`5e622bb`); az ág maga felesleges, de a benne lévő P-elvek dokumentálva lent.
+
+## Áthozott elvek -- feature/content-quality branch (nem volt main-en)
+
+**Automata elvárás (branch célkitűzése):**
+Branch célja: élethű `wip_outputs` -- utána pipeline teljes automatizálása.
+**Heurisztikák TILOSAK** (pl. page_idx közelítés) -- minden lépés automatizálható kell legyen.
+
+| # | Feladat | Automatizálható? | Státusz |
+|:--|:--------|:----------------|:--------|
+| P1 | 11_typesetter: WIP md -> olvasható próza (Claude API) | igen (API) | ✅ script + skill kész |
+| P2 | JAMP forrás eltávolítás NLM notebookból + citations_seed-ből | igen (nlm CLI) | ✅ KÉSZ |
+| P3 | Q1 query redesign: bevezető/összefoglaló csak | igen | ✅ KÉSZ |
+| P4 | VLM captioning: képenként Claude vision -> caption | igen (API, lassú) | ✅ script kész; `--vlm` futtatás szükséges |
+| P5 | HTML források NLM-be URL-ként | igen (nlm CLI) | 🔲 következő session |
+| P6 | 09_figure_mapper: VLM keywords x NLM szöveg -> beillesztési pont | igen | ✅ script kész; P4 után futtatható |
+
+# 5. Branch cleanup terv (következő session)
+
+**Cél:** Egyetlen tiszta `main` ág; régi ágak törlése.
+
+```
+Lépés 1: git checkout feature_test_step_by_step
+Lépés 2: git add -A && git commit -m "docs: 2026-05-26 DFT DFS session + branch cleanup terv"
+Lépés 3: git checkout main
+Lépés 4: git merge --squash feature_test_step_by_step
+Lépés 5: git commit -m "feat: squash merge feature_test_step_by_step (DFT teszt + DFS + refactor)"
+Lépés 6: git branch -d feature_test_step_by_step feature/content-quality refactor/v2
+Lépés 7: git push origin main --force-with-lease (ha remote is frissítendő)
+```
+
+**Mikor:** Következő session elején, mielőtt bármi más work indul.

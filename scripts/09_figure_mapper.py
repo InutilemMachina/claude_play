@@ -132,7 +132,7 @@ def main() -> None:
     # Sanity check: VLM must have run
     vlm_done_count = sum(1 for e in catalog.values() if e.get("vlm_done"))
     if vlm_done_count == 0:
-        print("[Warning] No entries with vlm_done=True. Run 03_build_figure_catalog.py --vlm first.")
+        print("[Warning] No entries with vlm_done=True. Run 03_util_figure_catalog.py --vlm first.")
         sys.exit(0)
 
     has_keywords = sum(1 for e in catalog.values() if e.get("keywords"))

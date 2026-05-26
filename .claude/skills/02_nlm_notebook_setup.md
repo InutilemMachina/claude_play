@@ -1,6 +1,6 @@
 ---
-name: 00b_nlm_notebook_setup
-title: 00B_NLM_NOTEBOOK_SETUP -- NLM Notebook Setup
+name: 02_nlm_notebook_setup
+title: 02_NLM_NOTEBOOK_SETUP -- NLM Notebook Setup
 type: skill
 tags: [meta, skill]
 status: active
@@ -9,7 +9,7 @@ updated: 2026-05-24
 description: NLM notebook letrehozasa CLI-vel. Notebook create + source add (PDF/URL) + Prompt B (chat configure) + mindmap create + citations_seed.json UUID-frissites. Pipeline 00b. lepese -- 00 es 01 kozott.
 ---
 
-# 00B_NLM_NOTEBOOK_SETUP.MD -- NLM Notebook Setup
+# 02_NLM_NOTEBOOK_SETUP.MD -- NLM Notebook Setup
 
 _00b. lepes -- 00_references_collector utan, 01_nlm_query_runner elott_
 
@@ -155,6 +155,11 @@ forrasokban, jelold meg: A forrasok nem tartalmaznak informaciot a kovetkezore: 
 # Kimenet: ✓ Chat configuration updated
 ```
 
+**Valasz hossza:** Az NLM alapertelmezetten "Alapertelmezett" valasz-hosszt allít be.
+A pipeline szamara `Hosszabb` valaszok szuksegesek -- ellenorizd, hogy a CLI tamogatja-e:
+`nlm chat configure $NB --response-length long` (flag neve tesztelendo; ha nem mukodik,
+manualis NLM UI-ban allitando be Hosszabb-ra).
+
 **Megjegyzes az ekezetek hianyrool:** A Prompt B ASCII valtozatot hasznal a PowerShell
 encoding-problema miatt. Az NLM webes UI-ban az ekezetes valtozat illesztheto be
 (lasd `nlm_prompts.md` 2. szekció, kepernyo).
@@ -171,6 +176,10 @@ nlm mindmap create $NB --title "<tantargy> <N>. het" --confirm
 A mindmap ID mentendo a `citations_seed.json` `_notebook.mindmap_id` mezojebe.
 
 ### 3.5.1. Mindmap tartalom lekerdezese (CLI workaround)
+
+NOTE: Ez a workaround NEM adja vissza a Studio panel mindmap struktúráját -- csak egy szabad szöveges rekonstrukciót kap az NLM-től. A tényleges mindmap (Studio panel > Gondolattérkép) vizuális gráf-struktúrája ettől eltér, és jelenleg nem exportálható CLI-n át. Az nlm_mindmap_raw.txt tartalma ezért nem megbízható alapja a 04. lépés query-szerkesztésének.
+
+NOTE: A Studio panel mindmapje angol nyelvű (az NLM az angol forrásszövegek alapján generálja), holott a tananyag magyar. Ez nyelvi inkonzisztenciát okoz: a mindmap csomópontok angol terminológiával épülnek fel, a belőlük generált query-k és kimenetek pedig magyarok. Megvizsgálandó: van-e mód a mindmap generálás nyelvének befolyásolására (pl. Prompt B-n keresztül).
 
 A CLI-nek nincs natív mindmap-read parancsa (`nlm studio status` csak ID-t ad,
 `nlm export artifact` csak Google Docs/Sheets celudat tamogat).
@@ -254,6 +263,10 @@ nlm chat configure <id>  # aktualis beallitas megjelenitese
 # Valtozasnaplo
 
 - 2026-05-22 -- Letrehozva; teljes CLI workflow dokumentalva (matrixprofil_teszt_2 PoC alapjan)
+
+# NOTE-ok (tesztelés visszajelzések)
+
+- NOTE 💬 **Studio panel mentés (auditálhatóság):** Az NLM query válaszait (nlm_q*.txt) a jobboldali Studio panelbe is le kell menteni. Indok: az NLM válaszok nem reprodukálhatók (azonos promptra más választ adhat), ezért az auditálhatóság megköveteli a Studio-ban is rögzített verziót. Megoldandó: 04_nlm_query_runner skill kiegészítése egy "Studio mentés" lépéssel (pl. `nlm studio artifact save` paranccsal, ha elérhető; egyébként UI-os manuális lépés).
 
 # Ismert hibák
 

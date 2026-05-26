@@ -1,32 +1,16 @@
 """
-11_typesetter.py -- Two-phase Markdown typesetter for NLM pipeline.
+11_typesetter.py -- Markdown linter for NLM pipeline output.
 
-Phase 1: Bullet-to-prose conversion via Claude API (claude-sonnet-4-6).
-Phase 2: Whitespace/formatting linting (rules A, C, D, E, F from skill).
+Phase 1 (bullet-to-prose) removed: NLM --response-length long already produces prose.
+Phase 2: Whitespace/formatting linting (rules A, C, D, E, F, H).
 
 Usage:
     python 11_typesetter.py <path_to_N_Jegyzet.md>
-
-Requirements:
-    pip install anthropic
-    ANTHROPIC_API_KEY environment variable must be set.
 """
 
 import re
 import sys
-import os
-import anthropic
 from pathlib import Path
-
-
-# ---- Configuration ----
-
-MODEL = "claude-sonnet-4-6"
-MAX_TOKENS = 4096
-
-# Minimum number of bullet lines in a block to trigger API conversion.
-# Single-line "lists" (e.g. standalone "* Note:") are left as-is.
-MIN_BULLET_LINES = 2
 
 
 # ---- File I/O ----
@@ -41,141 +25,7 @@ def save_md(path: Path, text: str):
     path.write_text(text, encoding="utf-8")
 
 
-# ---- Block parser ----
-
-def is_bullet_line(line: str) -> bool:
-    """Return True if line is a bullet or numbered list item (any indent level)."""
-    stripped = line.lstrip()
-    return (
-        re.match(r"^\*\s+", stripped) is not None or
-        re.match(r"^-\s+", stripped) is not None or
-        re.match(r"^\d+\.\s+", stripped) is not None
-    )
-
-
-def is_preserved_line(line: str) -> bool:
-    """Lines that must never be sent to the API or modified by linting."""
-    stripped = line.strip()
-    return (
-        stripped.startswith("#") or      # Markdown headers
-        stripped.startswith("![") or     # Image references
-        stripped.startswith("<!--") or   # HTML comments (Q:N markers)
-        stripped.startswith(">") or      # Blockquotes
-        stripped.startswith("---") or    # HR / YAML delimiter
-        stripped == ""                   # Empty lines
-    )
-
-
-def split_into_blocks(text: str):
-    """
-    Split text into blocks of (type, lines).
-    Types: 'preserve' | 'bullets' | 'prose'
-
-    YAML front matter (--- ... ---) is always a single 'preserve' block.
-    """
-    lines = text.split("\n")
-    blocks = []
-    i = 0
-
-    # Extract YAML front matter as one preserve block
-    if lines and lines[0].strip() == "---":
-        j = 1
-        while j < len(lines) and lines[j].strip() != "---":
-            j += 1
-        blocks.append(("preserve", lines[: j + 1]))
-        i = j + 1
-
-    current_type = None
-    current_lines = []
-
-    while i < len(lines):
-        line = lines[i]
-
-        if is_preserved_line(line):
-            ltype = "preserve"
-        elif is_bullet_line(line):
-            ltype = "bullets"
-        else:
-            ltype = "prose"
-
-        if ltype == current_type:
-            current_lines.append(line)
-        else:
-            if current_type is not None:
-                blocks.append((current_type, current_lines))
-            current_type = ltype
-            current_lines = [line]
-        i += 1
-
-    if current_lines:
-        blocks.append((current_type, current_lines))
-
-    return blocks
-
-
-# ---- Phase 1: Prose conversion ----
-
-PROSE_PROMPT = """\
-A következő szöveg egy magyar nyelvű műszaki/tudományos tananyag egy szekciójából való bullet-point lista.
-Alakítsd összefüggő, folyamatos magyar prózává egyetlen bekezdésbe vagy logikusan tagolt bekezdésekbe.
-
-Kötelező szabályok:
-1. A tartalom VÁLTOZATLAN marad -- csak a formátumot alakítjuk prózává.
-2. Megőrizendő elemek: <sup>...</sup> hivatkozások, LaTeX képletek ($...$),
-   **félkövér** és *dőlt* formázás, számok és egységek.
-3. Magyar tudományos/oktató regiszter, tömör mondatok.
-4. Ne adj hozzá új tartalmat, ne hagyj el semmit.
-5. Visszaadandó: CSAK a konvertált próza szöveg -- semmi magyarázat, komment.
-
-Bullet lista:
-{bullet_text}"""
-
-
-def convert_bullets_to_prose(bullet_text: str, client: anthropic.Anthropic) -> str:
-    """Call Claude API to convert a bullet block to flowing prose."""
-    prompt = PROSE_PROMPT.format(bullet_text=bullet_text)
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.content[0].text.strip()
-
-
-def phase1_prose_conversion(text: str, client: anthropic.Anthropic) -> str:
-    """
-    Walk through all blocks; convert 'bullets' blocks (>= MIN_BULLET_LINES) to prose.
-    Preserve everything else exactly.
-    """
-    blocks = split_into_blocks(text)
-    result_parts = []
-    converted = 0
-    skipped = 0
-
-    for btype, lines in blocks:
-        block_text = "\n".join(lines)
-
-        if btype == "bullets" and len(lines) >= MIN_BULLET_LINES:
-            print(
-                f"  [Phase 1] Converting bullet block "
-                f"({len(lines)} lines, {len(block_text)} chars)..."
-            )
-            prose = convert_bullets_to_prose(block_text, client)
-            result_parts.append(prose)
-            converted += 1
-        else:
-            if btype == "bullets":
-                skipped += 1  # too short; left as-is
-            result_parts.append(block_text)
-
-    print(
-        f"[Phase 1] Done: {converted} block(s) converted, "
-        f"{skipped} short block(s) left as-is."
-    )
-    return "\n".join(result_parts)
-
-
-# ---- Phase 2: Linting ----
+# ---- Linting rules ----
 
 def rule_a_sup_paragraph_break(text: str) -> tuple[str, int]:
     """
@@ -201,6 +51,16 @@ def rule_d_blockquote_spacing(text: str) -> tuple[str, int]:
     pattern = re.compile(r"([^\n>])\n(> )")
     count = len(pattern.findall(text))
     text = pattern.sub(r"\1\n\n\2", text)
+    return text, count
+
+
+def rule_b_bullet_whitespace(text: str) -> tuple[str, int]:
+    """Rule B: Collapse extra spaces after bullet marker (* or -).
+    Fixes NLM output artifact: '* ' or '-  ' with multiple spaces.
+    """
+    pattern = re.compile(r"^(\s*[*-])\s{2,}", re.MULTILINE)
+    count = len(pattern.findall(text))
+    text = pattern.sub(r"\1 ", text)
     return text, count
 
 
@@ -230,12 +90,61 @@ def rule_f_latex_check(text: str) -> list[str]:
     return warnings
 
 
+def rule_h_dash_cleanup(text: str) -> tuple[str, int]:
+    """
+    Rule H: Remove dashes forbidden in Hungarian academic output.
+    Targets: -- (double hyphen), en-dash (U+2013), em-dash (U+2014).
+    Strategy: replace with comma + space, unless surrounded by whitespace
+    (standalone separator) -- then replace with comma alone.
+    Does NOT touch YAML front matter (lines before second ---).
+    Does NOT touch code blocks (``` fences).
+    """
+    count = 0
+
+    # Split off YAML front matter to protect it
+    yaml_end = -1
+    if text.startswith("---"):
+        second = text.find("\n---", 3)
+        if second != -1:
+            yaml_end = second + 4  # past the closing ---\n
+
+    header = text[:yaml_end] if yaml_end != -1 else ""
+    body = text[yaml_end:] if yaml_end != -1 else text
+
+    # Regex: optional spaces + dash(es) + optional spaces (not inside code fences)
+    # Replace " -- " / " – " / " — " with ", " (drop surrounding spaces)
+    pattern = re.compile(r" *(--|[–—]) *")
+
+    def replacer(m):
+        nonlocal count
+        count += 1
+        return ", "
+
+    # Process line by line to skip ``` code fences
+    in_fence = False
+    lines = body.split("\n")
+    result = []
+    for line in lines:
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+        if in_fence or line.strip().startswith("#"):
+            result.append(line)
+        else:
+            result.append(pattern.sub(replacer, line))
+    body = "\n".join(result)
+
+    return header + body, count
+
+
 def phase2_linting(text: str) -> str:
-    """Apply rules A, C, D, E, F. Rule G (heading numbering) uses a separate util."""
+    """Apply rules A, B, C, D, E, F, H. Rule G (heading numbering) uses a separate util."""
     print("[Phase 2] Linting...")
 
     text, n_a = rule_a_sup_paragraph_break(text)
     print(f"  Rule A (sup paragraph breaks): {n_a} fix(es)")
+
+    text, n_b = rule_b_bullet_whitespace(text)
+    print(f"  Rule B (bullet whitespace):    {n_b} fix(es)")
 
     text, n_c = rule_c_image_spacing(text)
     print(f"  Rule C (image blank lines):    {n_c} fix(es)")
@@ -254,6 +163,9 @@ def phase2_linting(text: str) -> str:
     else:
         print("  Rule F (LaTeX):                OK")
 
+    text, n_h = rule_h_dash_cleanup(text)
+    print(f"  Rule H (dash cleanup):         {n_h} fix(es)")
+
     print("[Phase 2] Done.")
     return text
 
@@ -270,29 +182,17 @@ def main():
         print(f"ERROR: File not found: {md_path}")
         sys.exit(1)
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY environment variable not set.")
-        sys.exit(1)
-
     print(f"[11_typesetter] Input: {md_path}")
     text = load_md(md_path)
     original_len = len(text)
 
-    # Phase 1: Prose conversion (Claude API)
-    client = anthropic.Anthropic(api_key=api_key)
-    text = phase1_prose_conversion(text, client)
-
-    # Phase 2: Whitespace linting
     text = phase2_linting(text)
-
-    # Write back in-place
     save_md(md_path, text)
     print(
         f"[11_typesetter] Written back: {md_path} "
         f"({original_len} -> {len(text)} chars)"
     )
-    print("[11_typesetter] NOTE: Run util_heading_numberer.py for Rule G (heading numbering).")
+    print("[11_typesetter] TIP: Run 11_util_heading_numberer.py for Rule G (heading numbering).")
 
 
 if __name__ == "__main__":

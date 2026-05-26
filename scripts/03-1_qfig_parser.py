@@ -1,5 +1,5 @@
 """
-03b_qfig_parser.py -- Parse Qfig NLM output and update figure_catalog.json
+03-1_qfig_parser.py -- Parse Qfig NLM output and update figure_catalog.json
 
 Reads the nlm_qfig_raw.txt (structured text output from NLM Vision query),
 extracts FORRÁS / SZÁM / ALÁÍRÁS / LEÍRÁS / TÉMAKÖR fields per figure/table,
@@ -14,12 +14,12 @@ Matching strategy:
 figure_catalog.json format: {key: entry_dict} (MinerU dict output).
 
 Usage:
-    python scripts/03b_qfig_parser.py --week-dir <path/to/N_het> [options]
+    python scripts/03-1_qfig_parser.py --week-dir <path/to/N_het> [options]
 
     --week-dir     Path to the weekly folder. Required.
-    --qfig-file    Path to nlm_qfig_raw.txt (default: raw_outputs/nlm_qfig_raw.txt).
+    --qfig-file    Path to nlm_qfig_raw.txt (default: 3_raw_outputs/nlm_qfig_raw.txt).
                    Accepts plain text OR JSON-wrapped NLM CLI output.
-    --catalog      Path to figure_catalog.json (default: raw_outputs/figure_catalog.json).
+    --catalog      Path to figure_catalog.json (default: 3_raw_outputs/figure_catalog.json).
     --dry-run      Print matched pairs to stdout, do not write catalog.
 """
 
@@ -184,18 +184,18 @@ def main():
         description="Qfig NLM output -> figure_catalog.json updater"
     )
     parser.add_argument("--week-dir", required=True, type=Path,
-                        help="Heti mappa (tartalmazza raw_outputs/)")
+                        help="Heti mappa (tartalmazza 3_raw_outputs/)")
     parser.add_argument("--qfig-file", default=None, type=Path,
-                        help="nlm_qfig_raw.txt (default: raw_outputs/nlm_qfig_raw.txt)")
+                        help="nlm_qfig_raw.txt (default: 3_raw_outputs/nlm_qfig_raw.txt)")
     parser.add_argument("--catalog", default=None, type=Path,
-                        help="figure_catalog.json (default: raw_outputs/figure_catalog.json)")
+                        help="figure_catalog.json (default: 3_raw_outputs/figure_catalog.json)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Párosítás kiírása, katalógus nem frissül")
     args = parser.parse_args()
 
     week_dir     = args.week_dir.resolve()
-    qfig_path    = (args.qfig_file or week_dir / "raw_outputs" / "nlm_qfig_raw.txt").resolve()
-    catalog_path = (args.catalog   or week_dir / "raw_outputs" / "figure_catalog.json").resolve()
+    qfig_path    = (args.qfig_file or week_dir / "3_raw_outputs" / "nlm_qfig_raw.txt").resolve()
+    catalog_path = (args.catalog   or week_dir / "3_raw_outputs" / "figure_catalog.json").resolve()
 
     if not qfig_path.exists():
         sys.exit(f"Nem található: {qfig_path}")

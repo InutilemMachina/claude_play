@@ -25,8 +25,8 @@ Ha `keywords == []` minden entrynél, a mapper figyelmeztet és kilép.
 
 | Fájl | Honnan | Tartalom |
 |:-----|:-------|:---------|
-| `raw_outputs/figure_catalog.json` | 03_mineru_extractor + VLM | 100 entry, `keywords` feltöltve |
-| `wip_outputs/N_Jegyzet.md` | 06-08 kimenet | Összefüggő próza + szekciók |
+| `3_raw_outputs/figure_catalog.json` | 03_mineru_extractor + VLM | 100 entry, `keywords` feltöltve |
+| `4_wip_outputs/N_Jegyzet.md` | 06-08 kimenet | Összefüggő próza + szekciók |
 
 # 2. Mit csinál pontosan
 
@@ -38,7 +38,7 @@ Minden `figure_catalog.json` entrynél (ahol `keywords` nem üres):
 4. A `match_score` mezőbe kerül az egyezések száma.
 5. Ha `match_score < MIN_MATCHES` (default: 1): `inserted_after_paragraph = null` (nem illeszthető).
 
-**Output:** `raw_outputs/figure_catalog.json` in-place frissítve.
+**Output:** `3_raw_outputs/figure_catalog.json` in-place frissítve.
 
 # 3. Kulcsszó-egyeztetés algoritmusa
 
@@ -93,7 +93,7 @@ for key, entry in catalog.items():
     "page": 2,
     "type": "image",
     "caption": "Infravörös hőkamera rendszerfelépítése...",
-    "path": "clean_inputs/11-Termografia-2/auto/images/abc123.jpg",
+    "path": "2_clean_inputs/11-Termografia-2/auto/images/abc123.jpg",
     "keywords": ["thermal camera", "focal plane array", "detector"],
     "vlm_done": true,
     "inserted_after_paragraph": 4,
@@ -133,8 +133,8 @@ a beillesztési sorrend `match_score` szerint csökkenő.
 
 ```powershell
 python scripts\09_figure_mapper.py `
-    test_outputs\<Tantargy>\N_het\raw_outputs\figure_catalog.json `
-    test_outputs\<Tantargy>\N_het\wip_outputs\N_Jegyzet.md
+    test_outputs\<Tantargy>\N_het\3_raw_outputs\figure_catalog.json `
+    test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
 ```
 
 Opcionális flag:

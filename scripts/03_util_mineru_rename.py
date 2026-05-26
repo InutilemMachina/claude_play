@@ -9,7 +9,7 @@ Counter is per content_type, no leading zeros.
 Page number is 1-based (page_idx + 1), matching the PDF reader page number.
 
 Usage:
-    python mineru_rename.py <output_root> [--dry-run]
+    python 03_util_mineru_rename.py <output_root> [--dry-run]
 """
 
 import argparse
@@ -172,4 +172,4 @@ if __name__ == "__main__":
 
 
 # Example usage:
-#   python mineru_rename.py ./mineru_tests/ --dry-run
+#   python 03_util_mineru_rename.py ./mineru_tests/ --dry-run

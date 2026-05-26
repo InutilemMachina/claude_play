@@ -4,17 +4,17 @@ title: 11_TYPESETTER -- Typesetter
 type: skill
 tags: [meta, skill]
 status: active
-version: 2.0
+version: 3.0
 updated: 2026-05-25
-description: Kétfázisú Markdown formázó. Fázis 1 -- bullet-to-prose Claude API-val. Fázis 2 -- whitespace/tipográfiai linting (A-G szabályok).
+description: Markdown linter NLM pipeline outputhoz. Fázis 1 (bullet-to-prose) eltávolítva. Fázis 2: whitespace/tipográfiai linting (A, C, D, E, F, H szabályok).
 ---
 
 # 11_TYPESETTER.MD -- Typesetter
 
 **Script:** `scripts/11_typesetter.py`
 
-**Input:** `wip_outputs/N_Jegyzet.md` (bullet-listák + vegyes próza, NLM kimenet)
-**Output:** `wip_outputs/N_Jegyzet.md` (in-place felülírás -- összefüggő próza + linting)
+**Input:** `4_wip_outputs/N_Jegyzet.md` (bullet-listák + vegyes próza, NLM kimenet)
+**Output:** `4_wip_outputs/N_Jegyzet.md` (in-place felülírás -- összefüggő próza + linting)
 
 # 0. Kétfázisú működés
 
@@ -35,12 +35,12 @@ description: Kétfázisú Markdown formázó. Fázis 1 -- bullet-to-prose Claude
 
 ```powershell
 # ANTHROPIC_API_KEY legyen beállítva
-python scripts\11_typesetter.py test_outputs\<Tantargy>\N_het\wip_outputs\N_Jegyzet.md
+python scripts\11_typesetter.py test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
 ```
 
 Rule G (fejléc-számozás) külön:
 ```powershell
-python scripts\util_heading_numberer.py test_outputs\<Tantargy>\N_het\wip_outputs\N_Jegyzet.md
+python scripts\11_util_heading_numberer.py test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
 ```
 
 ## 0.2. Próza konverzió logikája (Fázis 1)
@@ -164,7 +164,7 @@ Minden `$` nyitónak legyen záró `$` párja (inline math). Minden `$$` nyitón
 Minden `#`/`##`/`###` fejléc (kivéve: dokumentumcím és speciális szekciók)
 pontozott számozást kap: `# 1.`, `## 1.1.`, `### 1.1.1.` stb.
 
-**Végrehajtás:** `scripts/heading_numberer.py <fajl>` -- nem kézzel.
+**Végrehajtás:** `scripts/11_util_heading_numberer.py <fajl>` -- nem kézzel.
 
 Speciális (számozatlan) szekciók: `Tárgymutató`, `Forrásjegyzék`,
 `Változásjegyzék`, `Változásnapló`.
@@ -178,7 +178,7 @@ grep '^##' fajl.md | grep -v '## [0-9]'
 # 2. Workflow
 
 1. **Beolvasás:** Teljes `.md` fájl beolvasása.
-2. **Szabály G alkalmazása:** `heading_numberer.py` futtatása (script).
+2. **Szabály G alkalmazása:** `11_util_heading_numberer.py` futtatása (script).
 3. **Szabály A alkalmazása:** Regex-szel megkeressük az összes `</sup>.` + nagybetű mintát, és üres sort szúrunk be.
 4. **Szabály B alkalmazása:** Megkeressük a soron belüli számozott alpont-címeket (`N. Cím`), kiemeljük saját bekezdésbe félkövér címmel.
 5. **Szabály C alkalmazása:** Ellenőrizzük a `![…]` sorok előtti/utáni üres sorokat, szükség esetén beszúrjuk.
@@ -224,6 +224,7 @@ Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.m
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-26 | 3.1 | Rule B hozzáadva: bullet whitespace (`*   **` → `* **`); phase2_linting sorrend: A,B,C,D,E,F,H |
+| 2026-05-25 | 3.0 | Fázis 1 (bullet→próza, Claude API) eltávolítva (NOTE G); Rule H (dash cleanup) hozzáadva; `--lint-only` flag eltávolítva (egyetlen mód); 305→186 sor |
 | 2026-05-25 | 2.0 | Fázis 1 (bullet→próza, Claude API) hozzáadva; §0 szekció; YAML header javítva (07→11); scripts/11_typesetter.py elkészült |
-| 2026-05-22 | 1.0 | Szabály G hozzáadva (fejléc-hierarchia számozás, heading_numberer.py) |
-| 2026-05-21 | 1.0 | YAML header frissítve (name typo javítva: typesetterter → typesetter) |
+| 2026-05-22 | 1.0 | Szabály G hozzáadva (fejléc-hierarchia számozás, 

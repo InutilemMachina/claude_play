@@ -1,7 +1,7 @@
 """
 03_run_mineru_pipeline.py -- MinerU pipeline vizualis folyamatkovetesssel
 
-Feladat: raw_inputs/*.pdf -> clean_inputs/<forrasnev>/ + figure_catalog.json
+Feladat: 1_raw_inputs/*.pdf -> 2_clean_inputs/<forrasnev>/ + figure_catalog.json
          Minden notebook (het-mappa) es fajl szamlaloval, MinerU progress-barral.
          Nagy fajloknal a felhasznalo donti el, feldolgozza-e.
 
@@ -62,11 +62,11 @@ def count_pdf_pages(pdf_path: Path) -> int:
 def discover_notebooks(root: Path) -> list[tuple[str, list[Path]]]:
     """
     Visszaadja a het-mappak listajat (notebook_nev, pdf_lista) rendezett sorban.
-    Keresi: root/N_*/raw_inputs/*.pdf
+    Keresi: root/N_*/1_raw_inputs/*.pdf
     """
     notebooks = []
     for week_dir in sorted(root.iterdir()):
-        raw = week_dir / "raw_inputs"
+        raw = week_dir / "1_raw_inputs"
         if not raw.is_dir():
             continue
         pdfs = sorted(raw.glob("*.pdf"))
@@ -123,8 +123,10 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
     """
     Futtatja a mineru-t, valosi idejU progress-barral.
     Visszateres: True = siker, False = hiba.
+    Log: mineru_run.log a pdf szulo mappajaban (Start-Process UX fix).
     """
     out_dir.mkdir(parents=True, exist_ok=True)
+    log_path = pdf.parent.parent / "mineru_run.log"
     cmd = [
         c.replace("{pdf}", str(pdf)).replace("{out}", str(out_dir))
         for c in MAGIC_PDF_CMD
@@ -156,31 +158,32 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
                 errors="replace",
             )
 
-            for line in proc.stdout:
-                # tqdm / mineru progress: "XX%|...| N/M [...]"
-                m = re.search(r"(\d+)%\|.*?(\d+)/(\d+)", line)
-                if m:
-                    pct   = int(m.group(1))
-                    done  = int(m.group(2))
-                    total = int(m.group(3))
-                    prog.update(
-                        task,
-                        completed=done,
-                        total=max(total, 1),
-                        detail=f"{done}/{total} oldal",
-                    )
-                    continue
+            with open(log_path, "a", encoding="utf-8") as log_f:
+                log_f.write(f"\n--- {pdf.name} ---\n")
+                for line in proc.stdout:
+                    log_f.write(line)
+                    # tqdm / mineru progress: "XX%|...| N/M [...]"
+                    m = re.search(r"(\d+)%\|.*?(\d+)/(\d+)", line)
+                    if m:
+                        done  = int(m.group(2))
+                        total = int(m.group(3))
+                        prog.update(
+                            task,
+                            completed=done,
+                            total=max(total, 1),
+                            detail=f"{done}/{total} oldal",
+                        )
+                        continue
 
-                # mineru soros log: "page_id: N" vagy "INFO - page N"
-                m2 = re.search(r"page[_\s-]*(?:id[:\s]+)?(\d+)", line, re.I)
-                if m2 and pages:
-                    done = int(m2.group(1)) + 1
-                    pct  = min(int(done / pages * 100), 100)
-                    prog.update(
-                        task,
-                        completed=done,
-                        detail=f"{done}/{pages} oldal",
-                    )
+                    # mineru soros log: "page_id: N" vagy "INFO - page N"
+                    m2 = re.search(r"page[_\s-]*(?:id[:\s]+)?(\d+)", line, re.I)
+                    if m2 and pages:
+                        done = int(m2.group(1)) + 1
+                        prog.update(
+                            task,
+                            completed=done,
+                            detail=f"{done}/{pages} oldal",
+                        )
 
             proc.wait()
             if proc.returncode == 0:
@@ -214,7 +217,7 @@ def main():
 
     notebooks = discover_notebooks(root)
     if not notebooks:
-        sys.exit(f"HIBA: nincs raw_inputs/*.pdf a {root} alatt.")
+        sys.exit(f"HIBA: nincs 1_raw_inputs/*.pdf a {root} alatt.")
 
     nb_total = len(notebooks)
 
@@ -231,7 +234,7 @@ def main():
 
     for nb_idx, (nb_name, pdfs) in enumerate(notebooks, 1):
         week_dir  = root / nb_name
-        clean_dir = week_dir / "clean_inputs"
+        clean_dir = week_dir / "2_clean_inputs"
         pdf_total = len(pdfs)
 
         if RICH:
@@ -309,12 +312,10 @@ def main():
     else:
         print("\n--- Osszefoglalo ---")
         for nb, f, s in results:
-            print(f"  {s:10s}  {nb}/{f}")
-        print(f"\nOK: {ok_n}  Kihagyva: {skip_n}  Hiba: {err_n}")
-
-    # Visszateresi kod: 0 ha nincs hiba, 1 ha van
-    sys.exit(1 if err_n else 0)
+            print(f"  {nb}  {f}  {s}")
+        print(f"\n{ok_n} OK  {skip_n} kihagyva  {err_n} hiba")
 
 
 if __name__ == "__main__":
     main()
+       

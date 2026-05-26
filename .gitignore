@@ -16,6 +16,7 @@
 # Teszt projektmappák
 test_sources/
 test_outputs/
+.claude/archive
 nlm_experiments/
 **/*teszt*/
 **/*test*/
@@ -32,11 +33,15 @@ nlm_experiments/
 
 # Backup fájlok
 *.bak
+*.pyc
+.fuse*
+
 
 # Logfájlok
 *.log
 mineru_err.txt
 mineru_log.txt
+!self-attention.log
 
 # OS
 .DS_Store

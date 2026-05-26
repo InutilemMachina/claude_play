@@ -12,15 +12,15 @@ Figures are inserted with caption BELOW (standard image convention):
     ![caption](path)
     *N. ábra -- caption text* <sup>[[source]](#ref-source)</sup>
 
-Tables already have captions ABOVE (injected by 06b_table_caption_injector.py).
+Tables already have captions ABOVE (injected by 06_table_caption_injector.py).
 
 Usage:
     python scripts/10_notes_collector.py --week-dir <path/to/N_het> [options]
 
     --week-dir   Path to the weekly folder. Required.
-    --notes      Path to N_Jegyzet.md (default: wip_outputs/<week>_Jegyzet.md,
+    --notes      Path to N_Jegyzet.md (default: 4_wip_outputs/<week>_Jegyzet.md,
                  auto-detected from week number in YAML frontmatter).
-    --catalog    Path to figure_catalog.json (default: raw_outputs/figure_catalog.json).
+    --catalog    Path to figure_catalog.json (default: 3_raw_outputs/figure_catalog.json).
     --no-figures Skip figure insertion (ToC only).
     --no-toc     Skip ToC generation (figures only).
     --dry-run    Print result to stdout, do not write file.
@@ -46,8 +46,8 @@ def extract_yaml_week(text):
 
 
 def find_notes_file(week_dir, text_hint=None):
-    """Auto-detect N_Jegyzet.md in wip_outputs/."""
-    wip = week_dir / "wip_outputs"
+    """Auto-detect N_Jegyzet.md in 4_wip_outputs/."""
+    wip = week_dir / "4_wip_outputs"
     if text_hint:
         week = extract_yaml_week(text_hint)
         if week:
@@ -101,16 +101,16 @@ def extract_paragraphs_with_positions(text):
 def build_figure_block(entry, fig_num, week_dir):
     """
     Build the Markdown block to insert for one figure.
-    Path is made relative to the Markdown file's folder (wip_outputs/).
+    Path is made relative to the Markdown file's folder (4_wip_outputs/).
     """
     path_str = entry.get("path", "")
     caption  = entry.get("caption", "").strip()
     if not caption:
         caption = f"ábra {fig_num}"
 
-    # Make path relative from wip_outputs/ -> needs ../ prefix since
-    # catalog paths are relative to week_dir (e.g. clean_inputs/src/auto/images/...)
-    rel_path = "../" + path_str  # wip_outputs/ is one level below week_dir
+    # Make path relative from 4_wip_outputs/ -> needs ../ prefix since
+    # catalog paths are relative to week_dir (e.g. 2_clean_inputs/src/auto/images/...)
+    rel_path = "../" + path_str  # 4_wip_outputs/ is one level below week_dir
 
     lines = [
         "",
@@ -261,11 +261,11 @@ def main():
         description="ToC generator + figure inserter for N_Jegyzet.md"
     )
     parser.add_argument("--week-dir", required=True, type=Path,
-                        help="Heti mappa (tartalmazza wip_outputs/, raw_outputs/)")
+                        help="Heti mappa (tartalmazza 4_wip_outputs/, 3_raw_outputs/)")
     parser.add_argument("--notes", default=None, type=Path,
                         help="N_Jegyzet.md elérési útja (auto-detect ha nem adott)")
     parser.add_argument("--catalog", default=None, type=Path,
-                        help="figure_catalog.json (default: raw_outputs/figure_catalog.json)")
+                        help="figure_catalog.json (default: 3_raw_outputs/figure_catalog.json)")
     parser.add_argument("--no-figures", action="store_true", help="Ábrák beillesztése kihagyva")
     parser.add_argument("--no-toc",     action="store_true", help="ToC generálás kihagyva")
     parser.add_argument("--dry-run",    action="store_true", help="stdout, fájl érintetlen")
@@ -280,7 +280,7 @@ def main():
     else:
         notes_path = find_notes_file(week_dir)
         if notes_path is None:
-            sys.exit(f"Nem található *_Jegyzet.md a wip_outputs/ mappában: {week_dir}")
+            sys.exit(f"Nem található *_Jegyzet.md a 4_wip_outputs/ mappában: {week_dir}")
 
     if not notes_path.exists():
         sys.exit(f"Nem található: {notes_path}")
@@ -292,7 +292,7 @@ def main():
     n_figs = 0
     if not args.no_figures:
         catalog_path = (
-            args.catalog or week_dir / "raw_outputs" / "figure_catalog.json"
+            args.catalog or week_dir / "3_raw_outputs" / "figure_catalog.json"
         ).resolve()
         if not catalog_path.exists():
             print(f"  WARN  figure_catalog.json nem található -- ábrák kihagyva: {catalog_path}",

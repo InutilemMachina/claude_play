@@ -1,6 +1,6 @@
 ---
-name: 00c_mineru_extractor
-title: 00C_MINERU_EXTRACTOR -- MinerU Figure Extractor
+name: 03_mineru_extractor
+title: 03_MINERU_EXTRACTOR -- MinerU Figure Extractor
 type: skill
 tags: [meta, skill, figures]
 status: active
@@ -9,7 +9,7 @@ updated: 2026-05-24
 description: MinerU futtatása forrasok/*.pdf-re. figure_catalog.json építése content_list.json alapján. Helye a pipeline-ban: 00_references_collector utan, 00b_nlm_notebook_setup elott (vagy párhuzamosan).
 ---
 
-# 00C_MINERU_EXTRACTOR.MD -- MinerU Figure Extractor
+# 03_MINERU_EXTRACTOR.MD -- MinerU Figure Extractor
 _00c. lepes_
 
 # 1. Cel es helye a pipeline-ban
@@ -27,7 +27,7 @@ majd egy `figure_catalog.json`-t épít, amelyet a `05b_figure_mapper` használ.
 nagy fájl kérdés, összefoglaló tábla. A claude_play gyökeréből futtatandó.
 
 ```powershell
-# Teljes tantárgy (minden N_*/raw_inputs/*.pdf)
+# Teljes tantárgy (minden N_*/1_raw_inputs/*.pdf)
 conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_teszt
 
 # Nagy fájl figyelmeztetési határ módosítása (alapértelmezett: 20 MB)
@@ -38,15 +38,15 @@ conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_tesz
 
 ```powershell
 # 1. MinerU: PDF-ek feldolgozasa -> kepek/ mappa
-conda run -n mineru python scripts/mineru_pdf.py N_[tema]/raw_inputs/ --output N_[tema]/clean_inputs/kepek/
+conda run -n mineru python scripts/03_util_mineru_pdf.py N_[tema]/1_raw_inputs/ --output N_[tema]/2_clean_inputs/kepek/
 
 # 2. Katalogus epitese
-conda run -n mineru python scripts/build_figure_catalog.py N_[tema]/clean_inputs/kepek/
-# output: N_[tema]/clean_inputs/figure_catalog.json
+conda run -n mineru python scripts/03_util_figure_catalog.py N_[tema]/2_clean_inputs/kepek/
+# output: N_[tema]/2_clean_inputs/figure_catalog.json
 ```
 # 3. figure_catalog.json epites
 
-A katalógust `scripts/build_figure_catalog.py` építi (önálló script, futtatható).
+A katalógust `scripts/03_util_figure_catalog.py` építi (önálló script, futtatható).
 A `*_content_list.json` fájlok minden PDF-re tartalmazzák:
 - `type`: image, table, chart, equation, seal
 - `page_idx`: 0-alapú oldalszám
@@ -61,12 +61,28 @@ Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
 | Fájl | Tartalom |
 |:-----|:--------
 | 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_inputs/; raw_inputs/ junction dokumentálva |-|
-| `clean_inputs/kepek/SOURCE/images/*.jpg` | Átnevezett képek |
-| `clean_inputs/kepek/SOURCE/SOURCE.md` | Teljes paper MinerU-Markdown-ban |
-| `clean_inputs/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva |-|
+| `2_clean_inputs/kepek/SOURCE/images/*.jpg` | Átnevezett képek |
+| `2_clean_inputs/kepek/SOURCE/SOURCE.md` | Teljes paper MinerU-Markdown-ban |
+| `2_clean_inputs/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
 
 # 5. Ismert korlatok
+
+NOTE: Megvizsgálandó, hogy a `03_run_mineru_pipeline.py` GPU-t használ-e alapértelmezetten -- ha nem, explicit GPU-flag szükséges a pipeline számítógép-független futásához. Jelenlegi backend: `-b pipeline` -- CPU vagy GPU, ellenőrizendő.
+
+NOTE: A `03_run_mineru_pipeline.py` nagy fájloknál (alapértelmezett küszöb: 20 MB) ugyan figyelmeztet és megkérdezi a felhasználót, de az oldalszám alapú figyelmeztetés hiányzik. A typinski2014_slides.pdf 70 oldalas volt -- a script kérdés nélkül elindította. Az előugró terminal üressége miatt a felhasználónak nem volt lehetősége tájékozódni és dönteni. Szükséges: oldalszám-alapú küszöb (pl. >50 oldal → megerősítés kérése), és a figyelmeztetés megjelenítése a terminálban akkor is, ha a folyamat háttérben fut.
+
+NOTE: A MinerU futtatásakor vegyük figyelembe a többmagos CPU/GPU feldolgozás lehetőségét. Szabály: az elérhető magok legfeljebb fele használható MinerU-ra (pl. 8 magos gépen max. 4). Implementálandó: `os.cpu_count() // 2` alapján dinamikusan beállított worker-szám, átadva a MinerU CLI megfelelő flag-jének (meghatározandó, hogy `-w` vagy más).
+
+NOTE (архitektúrai gap): A nem-PDF forrástípusok (HTML, PPTX, DOCX) feldolgozása **nincs meghatározva** a pipeline-ban. Jelenleg csak annyi ismert, hogy "a MinerU nem kezeli ezeket" -- de az hiányzik, hogy **mi bontja ezeket elemekre determinisztikus módon** (szöveg + képek + táblázatok → `2_clean_inputs/<forrás>/`). Ez tervezési hiányosság: minden forrástípushoz definiálni kell egy determinisztikus extraktort:
+
+| Forrástípus | Jelenlegi kezelés | Szükséges megoldás |
+|:------------|:-----------------|:-------------------|
+| PDF | MinerU ✅ | -- |
+| HTML (helyi) | Semmi ❌ | Meghatározandó (pl. trafilatura, BeautifulSoup, Pandoc) |
+| HTML (URL) | NLM-be URL-ként ✅ (de `2_clean_inputs` nem keletkezik) | Szöveg + képek kinyerése is kell |
+| PPTX | NLM CLI visszautasítja ❌ | PDF konverzió (Office COM / LibreOffice), majd MinerU |
+| DOCX | Ismeretlen | Pandoc → MD, vagy python-docx |
 
 - Kéthasábos akadémiai PDF-nél a caption és a kép párosítása nem mindig pontos.
 - Egyenlet-képek (`equation_N_pP.jpg`) általában nem kerülnek a Jegyzetbe
@@ -92,9 +108,9 @@ Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
 | Dátum | Verzió | Leírás |
 |-------|--------
 | 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_inputs/; raw_inputs/ junction dokumentálva ||--------
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva ||--------
 | 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → clean_inputs/; raw_inputs/ junction dokumentálva ||
+| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva ||
 
 # Képpipeline részletek (átvéve kepek_workflow.md-ből)
 
@@ -102,7 +118,7 @@ _Forrás: .claude/kepek_workflow.md -- 2026-05-24 beolvasztva_
 
 ## 4. figure_catalog.json
 
-A scripts/build_figure_catalog.py a *_content_list.json fájlokból épít katalógust.
+A scripts/03_util_figure_catalog.py a *_content_list.json fájlokból épít katalógust.
 
 ```json
 {

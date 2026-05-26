@@ -1,6 +1,6 @@
 ---
-name: 04_citations_maker
-title: 04_CITATIONS_MAKER — Citations Maker
+name: 07_citations_maker
+title: 07_CITATIONS_MAKER — Citations Maker
 type: skill
 tags: [meta, skill]
 status: active
@@ -9,7 +9,7 @@ updated: 2026-05-22
 description: UUID-alapú citáció-kezelés. citations.json építése NLM Prompt B kimenetéből + globális atsorszámozás (B opció). Checkpoint: 👤 jóváhagyás.
 ---
 
-# 04_CITATIONS_MAKER.MD — Citations Maker
+# 07_CITATIONS_MAKER.MD — Citations Maker
 _04. lépés -- 🛑 Checkpoint: 👤 jóváhagyás szükséges_
 
 # 1. Háttér -- Miért kell?
@@ -20,7 +20,7 @@ jelent a Q2-es szekciókban mint a Q4-esekben.
 
 **B opció (UUID-alapú dedup + globális atsorszámozás):**
 - `forrasok/citations.json` minden forrást **UUID alapján** tárol (NLM Prompt B adja).
-- `scripts/citations_renumber.py` visszaalakítja a query-lokális számokat globálisakra.
+- `scripts/07_citations_renumber.py` visszaalakítja a query-lokális számokat globálisakra.
 - Szekció-markerek (`<!-- Q:N -->`) teszik pontossá a cserét; markerek nélkül csak
   egyértelmű (minden queryben azonos) mappingek kerülnek alkalmazásra.
 
@@ -91,7 +91,7 @@ Szabályok:
 ## 3.2. Citáció-számok javítása (citations_renumber.py)
 
 ```bash
-python scripts/citations_renumber.py --het N --tantargy <mappa>
+python scripts/07_citations_renumber.py --het N --tantargy <mappa>
 ```
 
 A szkript:
@@ -144,7 +144,7 @@ Forrásjegyzék:
 | Fájl | Szerepe |
 |:-----|:--------|
 | `forrasok/citations.json` | Master forrásregiszter (UUID-alapú) |
-| `scripts/citations_renumber.py` | Renumber script |
+| `scripts/07_citations_renumber.py` | Renumber script |
 | `forrasok/nlm_q*_raw.txt` | NLM query JSON (Prompt B kimenet) |
 | `N_Jegyzet.md` | In-place módosítás célpontja |
 
@@ -155,10 +155,6 @@ Forrásjegyzék:
 → [pitfalls.md §1.2](../pitfalls.md) -- PowerShell Out-File UTF-8-sig + CRLF
 → [pitfalls.md §3.3](../pitfalls.md) -- Assembly lépés hiányos konverzió
 
-# Változásjegyzék
+# NOTE-ok (tesztelés visszajelzések)
 
-| Dátum | Verzió | Leírás |
-|-------|--------|--------|
-| 2026-05-22 | 1.0 | §3.0 hozzáadva: multi-file és Q1 tartomány-hivatkozások utólagos konverziója (tesztelve PoC futáson) |
-| 2026-05-22 | 1.0 | B opció implementálva: UUID-dedup + citations_renumber.py; checkpoint formátum hozzáadva |
-| 2026-05-21 | 1.0 | YAML header frissítve |
+- NOTE 💬 **Szószedet NLM-alapra teendő:** A jelenlegi `1_Szozedet.md` Claude-feladatból jön (`1_Jegyzet.md` alapján), nem NLM-queryből. Következmény: (1) nem reprodukálható; (2) nem auditálható (nincs Studio-beli nyom); (3) token-igényes. Megoldandó: dedikált `nlm query` hívás Prompt C szöveggel (definiálandó `nlm_pr

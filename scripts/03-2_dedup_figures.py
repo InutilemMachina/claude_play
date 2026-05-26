@@ -1,5 +1,5 @@
 """
-03c_dedup_figures.py -- Hash-based figure deduplication for figure_catalog.json
+03-2_dedup_figures.py -- Hash-based figure deduplication for figure_catalog.json
 
 MinerU saves figures with their SHA-256 hash as filename. If two pages in the
 same (or different) source reference the same image, the path contains the same
@@ -11,10 +11,10 @@ Downstream tools (09_figure_mapper, 10_notes_collector) skip duplicate=True entr
 figure_catalog.json format: {key: entry_dict} (MinerU dict output).
 
 Usage:
-    python scripts/03c_dedup_figures.py --week-dir <path/to/N_het> [options]
+    python scripts/03-2_dedup_figures.py --week-dir <path/to/N_het> [options]
 
     --week-dir   Path to the weekly folder. Required.
-    --catalog    Path to figure_catalog.json (default: raw_outputs/figure_catalog.json).
+    --catalog    Path to figure_catalog.json (default: 3_raw_outputs/figure_catalog.json).
     --dry-run    Print duplicate entries, do not write catalog.
     --reset      Clear all duplicate flags before processing (re-run from scratch).
 """
@@ -30,7 +30,7 @@ def extract_hash(path_str):
     """
     Extract the image hash from a MinerU path.
     MinerU filenames are SHA-256 hex strings (64 chars) as stem.
-    Example: clean_inputs/src/auto/images/705c8f...bc96b.jpg -> '705c8f...bc96b'
+    Example: 2_clean_inputs/src/auto/images/705c8f...bc96b.jpg -> '705c8f...bc96b'
     """
     stem = Path(path_str).stem
     if re.fullmatch(r'[0-9a-fA-F]{64}', stem):
@@ -88,9 +88,9 @@ def main():
         description="Hash-based figure deduplication for figure_catalog.json"
     )
     parser.add_argument("--week-dir", required=True, type=Path,
-                        help="Heti mappa (tartalmazza raw_outputs/)")
+                        help="Heti mappa (tartalmazza 3_raw_outputs/)")
     parser.add_argument("--catalog", default=None, type=Path,
-                        help="figure_catalog.json (default: raw_outputs/figure_catalog.json)")
+                        help="figure_catalog.json (default: 3_raw_outputs/figure_catalog.json)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Duplikátumok listázása, katalógus nem frissül")
     parser.add_argument("--reset", action="store_true",
@@ -99,7 +99,7 @@ def main():
 
     week_dir = args.week_dir.resolve()
     catalog_path = (
-        args.catalog or week_dir / "raw_outputs" / "figure_catalog.json"
+        args.catalog or week_dir / "3_raw_outputs" / "figure_catalog.json"
     ).resolve()
 
     if not catalog_path.exists():

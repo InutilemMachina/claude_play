@@ -1,5 +1,5 @@
 ---
-name: 03_excerpt_block_maker
+name: 06_excerpt_block_maker
 title: 03_EXCERPT_BLOCK_MAKER — Excerpt block maker
 type: skill
 tags: [meta, skill]
@@ -62,8 +62,17 @@ Minden `##` szintű fejezet összes alfejezetének lezárása után — egy hier
 
 → [pitfalls.md §3.2](../pitfalls.md) -- Q:N marker belekerül a body_lines-ba
 
+# NOTE-ok (tesztelés visszajelzések)
+
+- NOTE 💬 **Lista whitespace:** A generált szövegben a felsorolásjel után (`*`) felesleges szóközök kerülnek (pl. `*   **Kompakt jelölés:**`). Elég egyetlen szóköz (`* **...**`). Megoldandó: a 11_typesetter.py lint-szabályai közé felvenni (`*{3,}` → `* `).
+- NOTE 💬 **Heading hierarchia:** A Q1 kimenetben a `###` fejlécek közvetlenül a `#` főcím alá kerülnek (`##` szint kihagyásával). A többi szekció (Q2+) `##` + `###` struktúrát kap, de a Q1 bevezető rész nem. Következmény: VSCode vázlatban (és ToC-ban) a szintek nem konzisztensek. Megoldandó: 05_assemble.py Q1 kezelése: vagy `## Bevezetés` szülő szekciót kell köré generálni, vagy az NLM Prompt B-t kell módosítani, hogy a Q1 is `##` szintű fejezeteket tartalmazzon.
+- NOTE 💬 **Formázás alternatíva:** A `> **💡 Lényeg:**` és `> **🗺️ Fejezet összegzés**` blockquote-ok helyett a `markdown_textboxes.md` **3. megoldása** javasolt (`<div style="background-color: rgba(120, 120, 120, 0.08); border-radius: 6px; padding: 15px; margin: 15px 0;">`). Ez Obsidian/VSCode preview-ban lekerekített, szürke hátteres dobozként jelenik meg. A fájl archiválva: `.claude/archive/markdown_textboxes.md`. Implementáció: skill következő verziójában.
+- NOTE 💬 **Ingyenes alternatívák:** A 06. lépés Claude-feladat (nem script). Ingyenes alternatívák a blockquote generáláshoz: (1) Ollama helyi LLM (pl. llama3, mistral) -- azonos prompt-logika, de lassabb, hardver-függő; (2) szabály-alapú kivonat (első/utolsó mondat per szekció) -- deterministikus, de minőség korlátozott; (3) NLM maga query-n át -- de ez extra NLM hívás, token-ár nélkül, de lassabb. Ajánlott: helyi Ollama a reprodukálhatóság és offline futás miatt.
+- NOTE 💬 **Pipeline-szintű megfigyelés (saját):** A 06. lépés az egyetlen hely, ahol a pedagógiai minőség számottevően javul -- a `💡 Lényeg` és `🗺️ Fejezet összegzés` blokkok valóban hozzáadnak értéket. A többi lépés inkább strukturális/technikai. Ha a pipeline-t le kell csökkenteni, ez az egyik lépés, amelyet mindenképpen meg kell tartani.
+
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-22 — Whitespace szabály pontosítva | 1.0 | \n\n kötelező blockquote előtt/után (07 Rule D = 0) |
+| 2026-05-22 | 1.0 | Létrehozva; \n\n kötelező blockquote előtt/után (07 Rule D = 0) |
+| 2026-05-25 | 1.1 | NOTE-ok: lista whitespace, heading hierarchia, formázási alternatíva, ingyenes alternatívák |

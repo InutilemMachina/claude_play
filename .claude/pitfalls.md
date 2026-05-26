@@ -105,6 +105,30 @@ alkalmaz. Hosszú NLM lekérdezések (részletes, több alfejezetes kérdések) 
 - Ha hosszabb kell: `mcp__Windows-MCP__PowerShell` `timeout` paramétert növeld (`45`+).
 - Vagy bontsd szét több rövidebb query-re.
 
+## 2.7. NLM UI: forráscímek átnevezése -- azonosítás nehézkes
+
+**Tünet:** Az NLM UI forráslistájában a feltöltött fájlok neve megváltozik (a dokumentum tartalmából generált cím jelenik meg a fájlnév helyett). Nem látható, melyik fájl melyik forrás, és melyik feltöltés sikertelen.
+
+**Gyökérok:** Az NLM automatikusan generál forrásneveket a dokumentum metaadataiból vagy tartalmából; a `--title` flag felülírhatja, de nem mindig érvényesül.
+
+**Megoldás:** A 02. lépés végén kötelező: `nlm source list <NB_ID>` futtatása, és a kimenet (Source ID + title + fájlnév) loggolása a `citations_seed.json` mellé. Ez teszi lehetővé az UUID ↔ fájlnév megfeleltetést.
+
+## 2.5. NLM CLI: PPTX feltöltés nem támogatott
+
+**Tünet:** `nlm source add $NB --file "fajl.pptx" --wait` → `Error: Could not add file source.`
+
+**Gyökérok:** Az NLM CLI csak PDF és URL forrástípust fogad el; PPTX/DOCX/HTML fájlok nem tölthetők fel `--file`-lal.
+
+**Megoldás:** PPTX → PDF konverzió (pl. PowerShell `Export-Pdf` vagy manuális MS Office mentés), majd a PDF-et töltsd fel. Alternatíva: közzétett URL esetén `--url` flag.
+
+## 2.6. NLM CLI: HTML fájl feltöltés nem támogatott (csak URL)
+
+**Tünet:** `nlm source add $NB --file "fajl.html" --wait` → `Error: Could not add file source.`
+
+**Gyökérok:** Az NLM CLI `--file` paramétere csak PDF-et fogad el. HTML fájl helyben mentve → feltöltés sikertelen.
+
+**Megoldás:** Weblap esetén kizárólag `--url "<url>"` flag -- a helyi HTML mentése felesleges és token-pazarlás. Ha az oldal elérhető URL-en, direkten URL-ként add meg az NLM-nek.
+
 ## 2.4. PowerShell multiline prompt: @'...'@ kötelező
 
 **Tünet:** `nlm chat configure ... --prompt $szoveg` -- `Got unexpected extra arguments` hiba.
@@ -196,9 +220,9 @@ weboldal-rendererekként. HTML esetén nincs elérhető PDF-minőségű ábrakiv
 vagy SingleHTML bővítmény), majd a PDF kerül a `forrasok/` mappába.
 
 
-## 4.3. MinerU kettos almappa-nesting (`clean_inputs/<stem>/<stem>/auto/`)
+## 4.3. MinerU kettos almappa-nesting (`2_clean_inputs/<stem>/<stem>/auto/`)
 
-**Tunet:** MinerU output `clean_inputs/<stem>/<stem>/auto/` ala kerul -- kettos szint.
+**Tunet:** MinerU output `2_clean_inputs/<stem>/<stem>/auto/` ala kerul -- kettos szint.
 
 **Gyokerok:** A script `run_mineru(pdf, clean_dir / pdf.stem, pages)` meghivasa.
 MinerU maga hozza letre a `<pdf_stem>/` alkonyv tarat az `-o` parameteren belul,
@@ -320,3 +344,23 @@ python scripts/mineru_pdf.py 1_het/forrasok/ --output 1_het/forrasok/kepek/
 - Lokális HTML célja: archiválás + képkinyerés (MinerU, 05b pipeline)
 
 **Státusz:** Elfogadott korlát. 00_references_collector skill-ben jelölendő (👤).
+
+## 2.8. NLM RESOURCE_EXHAUSTED -- napi quota limit (2026-05-26)
+
+**Tünet:** `04_nlm_dfs_queries.py` futtatásakor az első N query sikeres, utána minden válasz:
+```json
+{"status": "error", "error": "Google rejected the query (error code 8: RESOURCE_EXHAUSTED) ..."}
+```
+A hibás fájl 330 B méretű, rc=0 (a régi script nem detektálta hibának).
+
+**Gyökérok:** Google NotebookLM ingyenes tier napi query-kvótája kimerítve.
+A DFT teszten 6 sikeres query után lépett be a limit (kontextus: Q01-Q06 sikerült, Q07-Q29 mind hibás).
+
+**Megoldás:**
+1. **Következő futás:** `python 04_nlm_dfs_queries.py --resume --sleep 5 --week-dir ...`
+   - `--resume`: kihagyja a már meglévő, >500 B fájlokat
+   - `--sleep 5`: 5 mp szünet query-k között (lassabb, de kvóta-tudatos)
+2. **Quota reset:** napi kvóta másnap (éjfél PT idő) reset-el; alternatíva: másik Google account
+3. **Script védelem (v1.1 óta):** `is_resource_exhausted()` detektálja és NEM írja felül a meglévő fájlt
+
+**Érintett pipeline:** 04 lépés; downstream 05_assemble csak a kész fájlokkal fut tovább.

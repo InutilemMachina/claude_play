@@ -88,14 +88,14 @@ claude_play/
 ├── test_sources/[tema]/         nyers forrás PDF-ek topik szerint
 └── test_outputs/<TantargyNeve>/ teszt kimenetek
     └── N_het/
-        ├── raw_inputs/          nyers forrás fájlok (01 gyűjti)
+        ├── 1_raw_inputs/          nyers forrás fájlok (01 gyűjti)
         │   └── citations_seed.json
-        ├── clean_inputs/        MinerU kimenet per-forrás (03 állítja elő)
+        ├── 2_clean_inputs/        MinerU kimenet per-forrás (03 állítja elő)
         │   └── <forrasnev>/
-        ├── raw_outputs/         NLM CLI kimenetek (04 állítja elő)
-        ├── wip_outputs/         md + konverziók (06-13)
-        └── clean_outputs/       végtermékek -- camera-ready (12, 14)
-            └── bsc/
+        ├── 3_raw_outputs/         NLM CLI kimenetek (04 állítja elő)
+        ├── 4_wip_outputs/         md + konverziók (06-13)
+        └── 5_clean_outputs/       végtermékek -- camera-ready (12, 14)
+            └── (_bsc suffix outputok)
 ```
 
 # 4. Dokumentálási protokoll
@@ -128,7 +128,7 @@ claude_play/
 |:--|:-------|:----------------|
 | 1 | Tantárgy .claude/: másolás vs hivatkozás éles tantárgynál? | Architektúra döntés |
 | 2 | context_sablon.md lépésszámok (C00-C08 → 01-14) frissítése | [templates/context_sablon.md](templates/context_sablon.md) |
-| 3 | bsc/ struktúra lapítása | [skills/14_bsc_filter.md](.claude/skills/14_bsc_filter.md) |
+| 3 | ~~bsc/ struktúra lapítása~~ | ✅ Lezárva: `_bsc` suffix döntve, `5_clean_outputs/` lapos |
 | 4 | NLM notebook-lista frissítése (Termografia_teszt_v2 + v3) | [skills/02_nlm_notebook_setup.md](.claude/skills/02_nlm_notebook_setup.md) |
 
 # Változásjegyzék
@@ -137,4 +137,5 @@ claude_play/
 |-------|--------|--------|
 | 2026-05-21 | 1.0 | Létrehozva |
 | 2026-05-23 | 3.0 | Master index refaktor; merge .claude/CLAUDE.md |
-| 2026-05-24 | 4.0 | §0 Session indítás szekció; 01-14 skill számozás; raw/clean/wip/clean_outputs mappastruktúra; kepek_workflow + nlm_integration archivált |
+| 2026-05-26 | 5.0 | M3: mappanév konvenció bevezetve (1_raw_inputs..5_clean_outputs); §6 Q3 lezárva; script-ek 06b/03b/03c átnevezve |
+| 2026-05-24 | 4.0 | §0 Session indítás szekció; 01-14 skill számozás; 1_raw_inputs/2_clean_inputs/3_raw_outputs/4_wip_outputs/5_clean_outputs mappastruktúra; kepek_workflow + nlm_integration archivált |

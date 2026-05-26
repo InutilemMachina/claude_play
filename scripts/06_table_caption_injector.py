@@ -1,9 +1,9 @@
 """
-06b_table_caption_injector.py -- Inject captions ABOVE Markdown tables.
+06_table_caption_injector.py -- Inject captions ABOVE Markdown tables.
 
 Academic convention: caption goes ABOVE the table.
 Format inserted:
-    *N. táblázat -- [source caption or auto-generated text]*
+    *N. táblázat: [source caption or auto-generated text]*
 
 The script:
   1. Scans N_Jegyzet.md for GFM tables (lines starting with |).
@@ -16,7 +16,7 @@ Existing captions (from figure_catalog or manual) are preserved unchanged.
 Only tables WITHOUT a caption get one injected.
 
 Usage:
-    python scripts/06b_table_caption_injector.py <N_Jegyzet.md> [options]
+    python scripts/06_table_caption_injector.py <N_Jegyzet.md> [options]
 
     --prefix     Caption prefix word (default: "táblázat")
     --dry-run    Print result to stdout, do not modify file.
@@ -86,7 +86,7 @@ def inject_captions(text, prefix='táblázat'):
             # Only inject if previous non-blank is NOT already a caption
             if prev_non_blank is None or not is_caption_line(prev_non_blank, prefix):
                 table_num += 1
-                caption = f"*{table_num}. {prefix} -- (automatikus felirat)*\n"
+                caption = f"*{table_num}. {prefix}: (automatikus felirat)*\n"
                 # Insert blank line before caption if needed
                 if result and not is_blank(result[-1]):
                     result.append('\n')

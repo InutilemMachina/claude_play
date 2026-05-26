@@ -3,7 +3,7 @@
 Build figure_catalog.json from MinerU *_content_list.json files.
 
 Usage:
-    python 03_build_figure_catalog.py <clean_inputs_dir> [options]
+    python 03_03_util_figure_catalog.py <2_clean_inputs_dir> [options]
 
 Options:
     --output / -o   Output path for figure_catalog.json
@@ -12,13 +12,13 @@ Options:
 
 Examples:
     # Build catalog only (no VLM)
-    python 03_build_figure_catalog.py test_outputs/Termografia/1_het/clean_inputs/
+    python 03_03_util_figure_catalog.py test_outputs/Termografia/1_het/2_clean_inputs/
 
     # Build + VLM captioning in one step
-    python 03_build_figure_catalog.py test_outputs/Termografia/1_het/clean_inputs/ --vlm
+    python 03_03_util_figure_catalog.py test_outputs/Termografia/1_het/2_clean_inputs/ --vlm
 
     # VLM on existing catalog (re-run to fill empty keywords)
-    python 03_build_figure_catalog.py test_outputs/Termografia/1_het/clean_inputs/ --vlm --output existing.json
+    python 03_03_util_figure_catalog.py test_outputs/Termografia/1_het/2_clean_inputs/ --vlm --output existing.json
 
 Output schema per entry:
     key  : "{source_stem}-{type}-{n}-p{page}"
@@ -27,7 +27,7 @@ Output schema per entry:
         "page":     3,                          # 1-based
         "type":     "image",                    # image | table | chart
         "caption":  "...",                      # VLM caption if --vlm, else MinerU caption
-        "path":     "clean_inputs/yeh2016_paper/auto/images/abc123.jpg",
+        "path":     "2_clean_inputs/yeh2016_paper/auto/images/abc123.jpg",
         "keywords": ["infrared", "thermal"],    # VLM keywords if --vlm, else []
         "vlm_done": true                        # set to true after VLM run
     }
@@ -116,7 +116,7 @@ def vlm_caption_and_keywords(
 
 def run_vlm_on_catalog(
     catalog: dict,
-    clean_inputs_dir: Path,
+    2_clean_inputs_dir: Path,
     client,
 ) -> int:
     """
@@ -125,7 +125,7 @@ def run_vlm_on_catalog(
     Returns count of entries processed.
     """
     processed = 0
-    week_dir = clean_inputs_dir.parent  # e.g. 1_het/
+    week_dir = 2_clean_inputs_dir.parent  # e.g. 1_het/
 
     for key, entry in catalog.items():
         if entry.get("vlm_done"):
@@ -189,8 +189,8 @@ def build_catalog(kepek_dir: Path) -> dict:
             orig_name = Path(img_rel).name   # e.g. "abc123.jpg"
 
             # Relative path from the subject week folder root
-            # MinerU writes to clean_inputs/SOURCE/auto/images/
-            rel_path = f"clean_inputs/{source_stem}/auto/images/{orig_name}"
+            # MinerU writes to 2_clean_inputs/SOURCE/auto/images/
+            rel_path = f"2_clean_inputs/{source_stem}/auto/images/{orig_name}"
 
             # Caption: prefer dedicated caption fields, fall back to inline text
             caption_list = (
@@ -226,7 +226,7 @@ def main() -> None:
     )
     parser.add_argument(
         "kepek_dir",
-        help="clean_inputs/ directory (contains per-source subfolders with auto/)"
+        help="2_clean_inputs/ directory (contains per-source subfolders with auto/)"
     )
     parser.add_argument(
         "--output", "-o",
@@ -244,8 +244,8 @@ def main() -> None:
     if not kepek_dir.is_dir():
         sys.exit(f"[Error] Directory not found: {kepek_dir}")
 
-    # Default output: <week_dir>/raw_outputs/figure_catalog.json
-    out_path = Path(args.output) if args.output else kepek_dir.parent / "raw_outputs" / "figure_catalog.json"
+    # Default output: <week_dir>/3_raw_outputs/figure_catalog.json
+    out_path = Path(args.output) if args.output else kepek_dir.parent / "3_raw_outputs" / "figure_catalog.json"
 
     # --- Step 1: Build catalog from MinerU content_list files ---
     if out_path.exists():

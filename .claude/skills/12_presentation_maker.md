@@ -1,6 +1,6 @@
 ---
-name: 08_presentation_maker
-title: 08_PRESENTATION_MAKER — Presentation maker
+name: 12_presentation_maker
+title: 12_PRESENTATION_MAKER — Presentation maker
 type: skill
 tags: [meta, skill]
 status: active
@@ -8,7 +8,7 @@ version: 1.0
 updated: 2026-05-21
 description: N_Jegyzet.md → N_Prezentacio.md (Marp) + N_Prezentacio.pptx (python-pptx). du_template.pptx sablont használ.
 ---
-# 08_PRESENTATION_MAKER.MD — PRESENTATION MAKER
+# 12_PRESENTATION_MAKER.MD — PRESENTATION MAKER
 _08. lépés_
 
 # 1. Cél
@@ -38,7 +38,7 @@ paginate: true
 
 # 4. PPTX generálás
 ```bash
-python scripts/pptx_gyarto.py N_Prezentacio.md --template templates/du_template.pptx
+python scripts/12_pptx_gyarto.py N_Prezentacio.md --template templates/du_template.pptx
 ```
 ⚠️ `templates/du_template.pptx` — te töltöd fel egyszer. **🛑 Nélküle nem generál PPTX-t.**
 

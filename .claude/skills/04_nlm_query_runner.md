@@ -111,7 +111,7 @@ A Qfig egy **egyszer futtatott** speciális query, amely az NLM saját Vision AP
 használja a feltöltött PDF-ek ábráinak és táblázatainak katalogizálására.
 Futtatandó: **Q1-Q4 előtt, egyszer per notebook**.
 
-Output: `raw_outputs/nlm_qfig_raw.txt` → feldolgozza: `scripts/03b_qfig_parser.py`
+Output: `3_raw_outputs/nlm_qfig_raw.txt` → feldolgozza: `scripts/03-1_qfig_parser.py`
 → feltölti a `figure_catalog.json` `caption` + `keywords` mezőit.
 
 ## 4.1. Qfig query sablon
@@ -130,7 +130,7 @@ Minden elemhez add meg pontosan:
 
 ```powershell
 $qfig = "Sorold fel az osszes abrat, diagramot es tablazatot a feltoltott forrasokbol. Minden elemhez add meg pontosan: FORRAS: fajlnev kiterjesztessel. SZAM: az abra/tablazat sorszama a forrasban. ALAIRAS: az eredeti caption szo szerint (ha van). LEIRAS: 1-2 mondatos sajat leiras. TEMAKÖR: 2-3 kulcsszo angolul."
-nlm query notebook "<NOTEBOOK_ID>" $qfig --json | Out-File raw_outputs/nlm_qfig_raw.txt -Encoding utf8
+nlm query notebook "<NOTEBOOK_ID>" $qfig --json | Out-File 3_raw_outputs/nlm_qfig_raw.txt -Encoding utf8
 ```
 
 ⚠️ **Ékezetes parancs:** ASCII fallback kötelező a CLI-n (l. §2 workaround). A query szövege
@@ -138,12 +138,12 @@ hosszabb, mint Q1-Q4 -- ha timeout-ol, bontsd két részre (ábrák / táblázat
 
 ## 4.3. Kapcsolat a figure_catalog.json-hoz
 
-A `03b_qfig_parser.py` a Qfig outputból tölti fel:
+A `03-1_qfig_parser.py` a Qfig outputból tölti fel:
 - `entry["caption"]` -- eredeti forrás-caption (ALÁÍRÁS mező)
 - `entry["keywords"]` -- kulcsszavak listája (TÉMAKÖR mező, vesszőre bontva)
 - `entry["vlm_done"]` -- `true` (jelzi: caption már kitöltve, nem kell `--vlm` flag)
 
-Ha a `figure_catalog.json`-ban egy entry `vlm_done: true`, a `03_build_figure_catalog.py
+Ha a `figure_catalog.json`-ban egy entry `vlm_done: true`, a `03_util_figure_catalog.py
 --vlm` flag kihagyja (nem futtat Claude Vision API-t rá -- takarékos).
 
 # 5. Szekció-markerek injektálása
@@ -281,10 +281,10 @@ Claude végzi az első alkalommal; a `04_citations_maker` karbantartja
 
 | Fájl | Tartalom |
 |:-----|:---------|
-| `raw_outputs/nlm_qfig_raw.txt` | Qfig: ábra/táblázat katalógus (NLM Vision kimenet) |
-| `raw_outputs/nlm_qN_raw.txt` | Q1-Q4: tematikus NLM CLI JSON kimenet (Prompt B) |
-| `raw_outputs/citations.json` | UUID-alapú forrásregiszter (04 inicializálja, 07 karbantartja) |
-| `wip_outputs/N_Jegyzet.md` (váz) | Összeállított szekciók `<!-- Q:N -->` markerekkel |
+| `3_raw_outputs/nlm_qfig_raw.txt` | Qfig: ábra/táblázat katalógus (NLM Vision kimenet) |
+| `3_raw_outputs/nlm_qN_raw.txt` | Q1-Q4: tematikus NLM CLI JSON kimenet (Prompt B) |
+| `3_raw_outputs/citations.json` | UUID-alapú forrásregiszter (04 inicializálja, 07 karbantartja) |
+| `4_wip_outputs/N_Jegyzet.md` (váz) | Összeállított szekciók `<!-- Q:N -->` markerekkel |
 
 # 8. Régi 01_html_to_md (archív)
 
@@ -303,11 +303,11 @@ Ez az út **nem ajánlott** -- Prompt B és CLI nélkül UUID-ek nem állnak ren
 → [pitfalls.md §2.3](../pitfalls.md) -- PowerShell query timeout
 → [pitfalls.md §2.4](../pitfalls.md) -- Multiline prompt: @'...'@ kötelező
 
+# NOTE-ok (tesztelés visszajelzések)
+
+- NOTE 💬 **Studio panel mentés (auditálhatóság):** Az NLM query válaszait a Studio jobboldali panelbe is le kell menteni. Indok: az NLM válaszok nem reprodukálhatók (azonos promptra más választ adhat), ezért az audit trail megköveteli a Studio-ban rögzített verziót. Megoldandó: minden `nlm query` után `nlm studio artifact save` (ha elérhető CLI-n); egyébként 😎 manuális: Studio panel > Mentés. Rögzítendő a lépés checklistjébe.
+- NOTE 💬 **Válasz hossza:** `nlm chat configure --response-length long` legyen a pipeline alapbeállítása. Ellenőrizendő a CLI flagek pontos szintaxisa (`nlm configure --help`).
+
 # Változásjegyzék
 
-| Dátum | Verzió | Leírás |
-|-------|--------|--------|
-| 2026-05-25 | 1.3 | §4 Qfig szekció (figura/táblázat lekérdezés); szekcióátszámozás (§4→§5...§7→§8); YAML name/title 01→04 javítva; output fájlok path-ok frissítve (raw_outputs/, wip_outputs/) |
-| 2026-05-25 | 1.2 | Q1 redesign: bevezető/összefoglaló szerepkör (nem átfogó lefedés); redundancia-szabály hozzáadva; §5.2 citations fallback stratégia frissítve; Q4 minta hozzáadva |
-| 2026-05-24 | 1.1 | §3.1 Mindmap query sablonok hozzáadva (NLM belső logika, szülő-gyerek template) |
-| 2026-05-22 | 1.0 | Fájl létrehozva; 01_html_to_md felváltja; CLI workflow, Q:N markerek, citations init dokumentálva |
+| Dátum | Verzió 

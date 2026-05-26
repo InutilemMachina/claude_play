@@ -104,10 +104,10 @@ def process_folder(folder: str, output_dir: str = DEFAULT_OUTPUT, yes: bool = Fa
 
 
 # Run from the command line:
-#   single file:    python mineru_pdf.py path/to/file.pdf
-#   whole folder:   python mineru_pdf.py path/to/folder/
-#   custom output:  python mineru_pdf.py path/to/folder/ --output path/to/kepek/
-#   skip prompts:   python mineru_pdf.py path/to/folder/ --yes
+#   single file:    python 03_util_mineru_pdf.py path/to/file.pdf
+#   whole folder:   python 03_util_mineru_pdf.py path/to/folder/
+#   custom output:  python 03_util_mineru_pdf.py path/to/folder/ --output path/to/kepek/
+#   skip prompts:   python 03_util_mineru_pdf.py path/to/folder/ --yes
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Run MinerU on a PDF file or a folder of PDFs."

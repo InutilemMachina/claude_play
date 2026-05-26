@@ -1,6 +1,6 @@
 ---
-name: 00_references_collector
-title: 00_REFERENCES_COLLECTOR — References Collector
+name: 01_references_collector
+title: 01_REFERENCES_COLLECTOR — References Collector
 type: skill
 tags: [meta, skill]
 status: active
@@ -9,7 +9,7 @@ updated: 2026-05-22
 description: Forrásgyűjtés Deep Research-sel. Naming convention alkalmazása, open-access PDF letöltés kísérlet, citations.json alapozása, NLM feltöltési útmutató. Pipeline 00. lépése.
 ---
 
-# 00_REFERENCES_COLLECTOR.MD — References Collector
+# 01_REFERENCES_COLLECTOR.MD — References Collector
 _00. lépés -- Pipeline belépési pontja_
 
 # 1. Célja és helye a pipeline-ban
@@ -193,8 +193,6 @@ A cél az, hogy az NLM-nek legyen legalább 2-3 jó minőségű, didaktikailag �
 
 Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
 
-# Változásjegyzék
+# NOTE-ok (tesztelés visszajelzések)
 
-| Dátum | Verzió | Leírás |
-|-------|--------|--------|
-| 2026-05-22 | 1.0 | Skill létrehozva; naming convention + Deep Research workflow + PoC korlát rögzítve |
+- NOTE 💬 **01-02 lépés szoros függősége -- seed skip:** Ha a user saját forrásokat hoz (01. lépés kihagyódik), a `citations_seed.json` nem jö

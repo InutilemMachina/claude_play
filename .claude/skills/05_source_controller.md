@@ -1,15 +1,15 @@
 ---
-name: 02_source_controller
-title: 02_SOURCE_CONTROLLER — Source controller
+name: 05_source_controller
+title: 05_SOURCE_CONTROLLER — Source controller
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-21
+version: 1.1
+updated: 2026-05-26
 description: Forrásrészek azonosítása és összeállítása az adott hét forrasok/ mappájából. Checkpoint: 👤 jóváhagyás szükséges.
 ---
 
-# 02_SOURCE_CONTROLLER.MD — SOURCE CONTROLLER
+# 05_SOURCE_CONTROLLER.MD — SOURCE CONTROLLER
 _02. lépés_
 
 # 1. Cél
