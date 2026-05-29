@@ -34,25 +34,64 @@ from pathlib import Path
 # Parse Qfig output text
 # ---------------------------------------------------------------------------
 
-# Each entry block is expected to have lines like:
-#   FORRÁS: filename.pdf
-#   SZÁM: Figure 3
-#   ALÁÍRÁS: caption text
-#   LEÍRÁS: description sentence.
-#   TÉMAKÖR: keyword1, keyword2
+# Each entry block is expected to have lines like (plain or markdown-bold format):
+#   FORRÁS: filename.pdf           OR   *   **Forrás:** filename.pdf
+#   SZÁM: Figure 3                 OR   *   **Ábra száma:** Figure 3
+#   ALÁÍRÁS: caption text          OR   *   **Felirat:** caption text
+#   LEÍRÁS: description sentence.  OR   *   **Leírás:** description sentence.
+#   TÉMAKÖR: keyword1, keyword2    (optional -- keywords auto-extracted from LEÍRÁS if absent)
 
 FIELD_RE = re.compile(
-    r'^(FORR[AÁ]S|SZ[AÁ]M|AL[AÁ][IÍ]R[AÁ]S|LE[IÍ]R[AÁ]S|T[EÉ]MAK[OÖ]R)\s*:\s*(.*)$',
+    r'^\*?\s*\*{0,2}'          # optional bullet * then optional opening **
+    r'(FORR[AÁ]S'
+    r'|[AÁ]BRA\s*SZ[AÁ]M[AÁ]?'
+    r'|SZ[AÁ]M'
+    r'|FELIRAT'
+    r'|AL[AÁ][IÍ]R[AÁ]S'
+    r'|LE[IÍ]R[AÁ]S'
+    r'|T[EÉ]MAK[OÖ]R)'
+    r'\s*:\*{0,2}\s*(.*)$',    # colon, optional closing **, then value
     re.IGNORECASE
 )
 
 FIELD_MAP = {
-    'forras': 'source', 'forrás': 'source',
-    'szam':   'num',    'szám':   'num',
-    'alairas':  'caption', 'aláírás':  'caption',
-    'leiras':   'desc',    'leírás':   'desc',
-    'temakör':  'keywords', 'témakör': 'keywords',
+    'forras':     'source',   'forrás':     'source',
+    'szam':       'num',      'szám':       'num',
+    'abra szama': 'num',      'ábra száma': 'num',
+    'abra szam':  'num',      'ábra szám':  'num',
+    'felirat':    'caption',
+    'alairas':    'caption',  'aláírás':    'caption',
+    'leiras':     'desc',     'leírás':     'desc',
+    'temakör':    'keywords', 'témakör':    'keywords',
 }
+
+HU_STOPWORDS = {
+    'a', 'az', 'és', 'vagy', 'hogy', 'ez', 'egy', 'is', 'nem', 'van',
+    'volt', 'lesz', 'de', 'ha', 'the', 'of', 'in', 'on', 'at', 'to',
+    'for', 'with', 'by', 'an', 'be', 'are', 'was', 'were', 'this',
+    'ami', 'amely', 'ahol', 'amikor', 'mint', 'csak', 'meg', 'el',
+    'be', 'ki', 'fel', 'le', 'itt', 'ott', 'már', 'még', 'sem', 'se',
+    'nincs', 'nincsen', 'nincs', 'ahol', 'amely', 'aki', 'amelyek',
+}
+
+
+def _keywords_from_text(*texts, max_kw=8):
+    """Extract significant words from texts as fallback keywords."""
+    words = []
+    for t in texts:
+        if not t:
+            continue
+        words.extend(re.findall(r'[a-záéíóöőúüűA-ZÁÉÍÓÖŐÚÜŰ]{4,}', t))
+    seen = set()
+    result = []
+    for w in words:
+        lw = w.lower()
+        if lw not in HU_STOPWORDS and lw not in seen:
+            seen.add(lw)
+            result.append(lw)
+        if len(result) >= max_kw:
+            break
+    return result
 
 
 def _canonical(key):
@@ -63,8 +102,73 @@ def _canonical(key):
     return k
 
 
+def _is_markdown_table(text):
+    """Return True if the text appears to be a Markdown table (has | header separator)."""
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    # A Markdown table has a separator row like |---|---|---|
+    return any(re.match(r'^\|[-\s|:]+\|', line) for line in lines)
+
+
+def _parse_header_row(row):
+    """Parse a Markdown table header row into a list of normalized column names."""
+    cols = [c.strip() for c in row.strip('|').split('|')]
+    return [_canonical(c) for c in cols]
+
+
+def parse_qfig_table(text):
+    """
+    Parse NLM Markdown table output into a list of entry dicts.
+    Expected columns: FORRAS, SZAM, ALAIRAS, LEIRAS, TEMAKÖR (or variants).
+    """
+    lines = [l for l in text.splitlines() if l.strip()]
+    if not lines:
+        return []
+
+    # Find header row (first row with | separators)
+    header_idx = None
+    for i, line in enumerate(lines):
+        if '|' in line and not re.match(r'^\|[-\s|:]+\|', line):
+            header_idx = i
+            break
+
+    if header_idx is None:
+        return []
+
+    cols = _parse_header_row(lines[header_idx])
+
+    entries = []
+    for line in lines[header_idx + 2:]:  # skip header and separator row
+        if not line.strip() or not '|' in line:
+            continue
+        if re.match(r'^\|[-\s|:]+\|', line.strip()):
+            continue  # separator row
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if len(cells) < len(cols):
+            cells += [''] * (len(cols) - len(cells))
+        entry = {col: cells[i] for i, col in enumerate(cols) if i < len(cells)}
+        if entry.get('source') or entry.get('forras'):
+            # Normalize key names
+            if 'forras' in entry and 'source' not in entry:
+                entry['source'] = entry.pop('forras')
+            entries.append(entry)
+
+    # Auto-extract keywords
+    for e in entries:
+        if not e.get('keywords'):
+            e['keywords'] = _keywords_from_text(e.get('caption', ''), e.get('desc', ''))
+    return entries
+
+
 def parse_qfig_text(text):
-    """Parse free-text Qfig output into a list of entry dicts."""
+    """
+    Parse Qfig NLM output into a list of entry dicts.
+    Handles both free-text (FIELD: value) and Markdown table formats.
+    """
+    # Detect format
+    if _is_markdown_table(text):
+        return parse_qfig_table(text)
+
+    # Original free-text parser
     entries = []
     current = {}
 
@@ -73,7 +177,7 @@ def parse_qfig_text(text):
         m = FIELD_RE.match(line)
         if m:
             canon = _canonical(m.group(1))
-            value = m.group(2).strip()
+            value = m.group(2).strip().strip('"').strip()
             if canon == 'source' and current:
                 entries.append(current)
                 current = {}
@@ -85,7 +189,12 @@ def parse_qfig_text(text):
     if current:
         entries.append(current)
 
-    return [e for e in entries if e.get('source')]
+    result = [e for e in entries if e.get('source')]
+    # Auto-extract keywords from desc+caption when TÉMAKÖR absent
+    for e in result:
+        if not e.get('keywords'):
+            e['keywords'] = _keywords_from_text(e.get('caption', ''), e.get('desc', ''))
+    return result
 
 
 def load_qfig(path):
@@ -155,7 +264,10 @@ def match_and_update(catalog_entries, catalog_keys, qfig_entries, dry_run):
             caption  = qfig_entry.get("caption", "").strip()
             desc     = qfig_entry.get("desc", "").strip()
             kw_raw   = qfig_entry.get("keywords", "")
-            keywords = [k.strip() for k in re.split(r"[,;]", kw_raw) if k.strip()]
+            if isinstance(kw_raw, list):
+                keywords = kw_raw
+            else:
+                keywords = [k.strip() for k in re.split(r"[,;]", kw_raw) if k.strip()]
 
             final_caption = caption if caption else desc
 

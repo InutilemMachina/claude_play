@@ -31,6 +31,11 @@ import re
 import sys
 from datetime import date
 from pathlib import Path
+try:
+    from _encoding_fix import fix_stdout as _fix_stdout
+    _fix_stdout()
+except ImportError:
+    pass
 
 
 # ---------------------------------------------------------------------------
@@ -96,12 +101,42 @@ def build_reference_section(seed: dict) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Section title generator
+# Section title extractor (D6: assembler does NOT number -- heading_numberer
+# is the sole source of section numbering)
 # ---------------------------------------------------------------------------
 
-def default_section_title(idx: int, q_idx: int) -> str:
-    """Fallback section title when none provided."""
-    return f"## {idx}. {idx}. szekció (Q{q_idx})"
+def extract_section_title(answer_text: str) -> tuple:
+    """
+    Extract the first ## or ### heading from the NLM answer as the section title.
+
+    Priority: ## heading preferred; ### accepted if no ## found.
+    If the heading is the very first non-empty line, strip it from the body
+    to avoid duplication (the heading becomes the ## wrapper, not also content).
+    Returns (title_or_None, body_text).
+
+    Note: NLM CLI typically generates ### as its first heading (not ##).
+    Both are promoted to ## level in the output.
+    """
+    lines = answer_text.splitlines()
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        m = re.match(r'^#{2,3}\s+(.+)$', stripped)
+        if m:
+            # Strip any leading dotted number the NLM may have added (e.g. "1. Topic")
+            raw_title = re.sub(r'^[\d.]+\s+', '', m.group(1).strip())
+            if i <= 1:
+                # First non-empty line IS a heading -- use as wrapper, strip from body
+                remaining = '\n'.join(lines[i + 1:]).lstrip('\n')
+                return raw_title, remaining
+            else:
+                # Heading appears mid-text -- use as title but keep in body (no duplication)
+                return raw_title, answer_text
+        else:
+            # First non-empty line is prose, not a heading
+            break
+    return None, answer_text
 
 
 # ---------------------------------------------------------------------------
@@ -123,10 +158,30 @@ def assemble(week_dir: Path, args) -> str:
     week    = args.week    if args.week    else meta.get("week", 1)
     subject = args.subject if args.subject else meta.get("subject", "Tantargy")
     level   = args.level
-    title   = args.title   if args.title   else meta.get("title", f"{week}. Hét")
+    title   = args.title   if args.title   else meta.get("title", f"{week}. Het")
     today   = date.today().isoformat()
 
+    # Fallback: try to read title from nlm_mindmap_export.md H1 if not resolved
+    if title == f"{week}. Het":
+        mindmap_path = week_dir / "3_raw_outputs" / "nlm_mindmap_export.md"
+        if mindmap_path.exists():
+            for line in mindmap_path.read_text(encoding="utf-8").splitlines():
+                m = re.match(r'^#\s+(.+)$', line.strip())
+                if m:
+                    title = m.group(1).strip()
+                    break
+
     uuid_to_global = build_uuid_to_global(seed)
+
+    # Load dfs_node_list.json for L1-based sectioning (written by 04_nlm_dfs_queries.py)
+    # Maps query index (str) -> {name, level, parent}
+    node_list: dict = {}
+    node_list_path = raw_dir / "dfs_node_list.json"
+    if node_list_path.exists():
+        node_list = json.loads(node_list_path.read_bytes().decode("utf-8-sig"))
+        print(f"  dfs_node_list.json betöltve: {len(node_list)} bejegyzés", file=sys.stderr)
+    else:
+        print(f"  WARN  dfs_node_list.json nem található -- L1-szekcionálás kihagyva.", file=sys.stderr)
 
     # Load requested queries
     query_indices = args.queries  # list of int
@@ -134,7 +189,7 @@ def assemble(week_dir: Path, args) -> str:
     for qi in query_indices:
         fname = raw_dir / f"nlm_q{qi}_raw.txt"
         if not fname.exists():
-            print(f"  ⚠️  {fname.name} nem található -- kihagyva.", file=sys.stderr)
+            print(f"  WARN  {fname.name} nem talalhato -- kihagyva.", file=sys.stderr)
             continue
         answer, cits = load_nlm(fname)
         # Build local -> global map for this query
@@ -143,24 +198,15 @@ def assemble(week_dir: Path, args) -> str:
             g = uuid_to_global.get(src_uuid)
             if g:
                 local_map[int(local_str)] = g
-        answers[qi] = (replace_local_citations(answer, local_map), local_map)
+        # Deduplicate consecutive identical citations: [2], [2] -> [2]
+        mapped_answer = replace_local_citations(answer, local_map)
+        mapped_answer = re.sub(r'\[(\d+)\](?:,\s*\[\1\])+', r'[\1]', mapped_answer)
+        answers[qi] = (mapped_answer, local_map)
         n_cit = len(cits)
         print(f"  Q{qi}: {len(answer)} char, {n_cit} citations")
 
     # Determine output order
     q_order = args.q_order  # list of int; may differ from query_indices for reordering
-
-    # Build section titles: consecutive 1-based for the assembled output
-    # (section numbers based on position in q_order, not Q-index)
-    section_counter = 1
-    section_titles = {}
-    for qi in q_order:
-        if qi == 1:
-            # Q1 = intro, no numbered section -- keep as unnumbered preamble
-            section_titles[qi] = None  # handled specially
-        else:
-            section_titles[qi] = f"## {section_counter}. {section_counter}. szekció (Q{qi})"
-            section_counter += 1
 
     # YAML frontmatter
     frontmatter = (
@@ -175,29 +221,46 @@ def assemble(week_dir: Path, args) -> str:
 
     body = [frontmatter, "", f"# {title}", ""]
 
-    # Intro (Q1) -- ## parent added so ### headings inside don't skip a level
+    # Intro (Q1) -- unnumbered Bevezetes section (heading_numberer leaves it unnumbered)
     if 1 in answers and 1 in q_order:
         text, _ = answers[1]
         body.append("<!-- Q:1 -->")
-        body.append("## 0. Bevezetés")
+        body.append("## Bevezetes")
         body.append("")
         body.append(text)
         body.append("")
 
-    # Content sections (Q2+)
-    sec_num = 1
+    # Content sections (Q2+):
+    # L1-szintű DFS node-oknál MINDIG szekciócímet szúrunk a mindmap node nevéből (RC-2 fix).
+    # L2+ node-oknál: az NLM válasz első ## vagy ### headingéből kíséreljük meg kinyerni a címet.
+    # heading_numberer.py is the sole source of section numbering (D6).
     for qi in q_order:
         if qi == 1:
             continue  # already handled
         if qi not in answers:
             continue
         text, _ = answers[qi]
+
+        # Check if this query is an L1 node
+        node_info = node_list.get(str(qi), {})
+        node_level = node_info.get("level", -1)
+        node_name  = node_info.get("name", "")
+
         body.append(f"<!-- Q:{qi} -->")
-        body.append(f"## {sec_num}. {sec_num}. szekció (Q{qi})")
+        if node_level == 1 and node_name:
+            # L1 nodes always get a ## section with the mindmap node name
+            body.append(f"## {node_name}")
+            body.append("")
+            body.append(text)
+        else:
+            # L2+ nodes: try to extract title from NLM answer heading
+            section_title, text_body = extract_section_title(text)
+            if section_title:
+                body.append(f"## {section_title}")
+            # If no ## extracted: answer's own headings become the section structure
+            body.append("")
+            body.append(text_body)
         body.append("")
-        body.append(text)
-        body.append("")
-        sec_num += 1
 
     # Reference list
     body.extend(build_reference_section(seed))
@@ -253,3 +316,8 @@ def main():
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(text, encoding="utf-8")
+    print(f"Írva: {out_path}  ({len(text)} karakter)", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

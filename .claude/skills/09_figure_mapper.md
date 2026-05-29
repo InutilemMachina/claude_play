@@ -4,98 +4,62 @@ title: 09_FIGURE_MAPPER -- Figure Mapper
 type: skill
 tags: [meta, skill, figures]
 status: active
-version: 2.0
-updated: 2026-05-25
-description: figure_catalog.json keywords × N_Jegyzet.md bekezdések → inserted_after_paragraph mező kitöltése. Előfeltétel: 03 VLM futás (keywords nem üres).
+version: 3.0
+updated: 2026-05-26
+description: figure_catalog.json keywords × N_Jegyzet.md bekezdések → inserted_after_paragraph mező kitöltése. Script: 09_figure_mapper.py. Pipeline 09. lépése.
 ---
 
-# 09_FIGURE_MAPPER.MD -- Figure Mapper
+# 09_FIGURE_MAPPER
 
-**Script:** `scripts/09_figure_mapper.py`
+## 1. Cél
 
-**Pipeline helye:**
+A `figure_catalog.json` kulcsszavait a `N_Jegyzet.md` bekezdéseivel veti össze, és minden képhez meghatározza a legjobb beillesztési pozíciót (`inserted_after_paragraph`). A tényleges beillesztés a 10_notes_collector feladata.
+
+## 2. Bemenetek
+
+- `3_raw_outputs/figure_catalog.json` -- 03_mineru_extractor + 03-1_qfig_parser kimenet
+- `4_wip_outputs/N_Jegyzet.md` -- 06-08 kimenet (összefüggő próza + szekciók)
+
+**Előfeltétel:** `figure_catalog.json` `keywords` mezői NEM üresek (03-1_qfig_parser lefutott). Ha `keywords == []` minden entrynél, a mapper figyelmeztet és kilép.
+
+## 3. Eljárás
+
+### 3.1. Futtatás
+
+```powershell
+python scripts\09_figure_mapper.py `
+    test_outputs\<Tantargy>\N_het\3_raw_outputs\figure_catalog.json `
+    test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
+
+# Opciók:
+--min-matches 2    # minimum egyező token (alap: 1)
+--dry-run          # csak kiírja a matcheket, nem ment
 ```
-03 (VLM keywords) → 09_figure_mapper → 10_notes_collector
-```
 
-⚠️ **Előfeltétel:** A `figure_catalog.json` `keywords` mezői NEM üresek (03 VLM futott).
-Ha `keywords == []` minden entrynél, a mapper figyelmeztet és kilép.
+### 3.2. Kulcsszó-egyeztetés algoritmusa
 
-# 1. Bemenetek
-
-| Fájl | Honnan | Tartalom |
-|:-----|:-------|:---------|
-| `3_raw_outputs/figure_catalog.json` | 03_mineru_extractor + VLM | 100 entry, `keywords` feltöltve |
-| `4_wip_outputs/N_Jegyzet.md` | 06-08 kimenet | Összefüggő próza + szekciók |
-
-# 2. Mit csinál pontosan
-
-Minden `figure_catalog.json` entrynél (ahol `keywords` nem üres):
-
-1. A Markdown bekezdéseit tokenizálja (stopword-szűréssel).
-2. A kép `keywords` listáját a bekezdés-tokenekkel veti össze.
-3. Legtöbb egyezést adó bekezdés indexét írja az entry `inserted_after_paragraph` mezőjébe.
-4. A `match_score` mezőbe kerül az egyezések száma.
-5. Ha `match_score < MIN_MATCHES` (default: 1): `inserted_after_paragraph = null` (nem illeszthető).
-
-**Output:** `3_raw_outputs/figure_catalog.json` in-place frissítve.
-
-# 3. Kulcsszó-egyeztetés algoritmusa
-
-## 3.1. Bekezdés tokenizálás
-
+**Bekezdés tokenizálás (stopword-szűréssel):**
 ```python
-STOPWORDS = {
-    "a", "az", "és", "vagy", "hogy", "ez", "egy", "is", "nem",
-    "van", "volt", "lesz", "de", "ha", "the", "of", "in", "on",
-    "at", "for", "with", "by", "from", "as", "an", "to", "are",
-    "this", "that", "which", "can", "be", "it", "its"
-}
+STOPWORDS = {"a", "az", "és", "vagy", "hogy", "ez", "egy", "is", "nem",
+             "van", "volt", "lesz", "de", "ha", "the", "of", "in", "on", ...}
 
 def tokenize(text: str) -> set[str]:
     words = re.findall(r"[a-záéíóöőúüű\w]+", text.lower())
     return {w for w in words if len(w) > 2 and w not in STOPWORDS}
 ```
 
-## 3.2. Bekezdés-szűrés (megőrzött blokkok kizárva)
+**Kizárt blokkok** (nem kerülnek a bekezdés-listába):
+- `#` (fejléc), `![` (képhivatkozás), `<!--` (HTML komment), `>` (blockquote), `---`
 
-A következő sorokkal kezdődő blokkok NEM kerülnek be a bekezdés-listába:
-- `#` (Markdown fejléc)
-- `![` (képhivatkozás)
-- `<!--` (HTML komment)
-- `>` (blockquote)
-- `---` (HR / YAML)
+**Egyeztetési logika:**
+- Minden képnél: a legtöbb token-egyezést adó bekezdés indexe → `inserted_after_paragraph`
+- Ha `match_score < MIN_MATCHES`: `inserted_after_paragraph = null`
 
-## 3.3. Egyeztetési logika
-
-```python
-for key, entry in catalog.items():
-    kw_tokens = set()
-    for kw in entry["keywords"]:          # pl. ["thermal camera", "emissivity"]
-        kw_tokens.update(kw.lower().split())
-
-    best_idx, best_score = -1, 0
-    for idx, p_tokens in enumerate(para_tokens):
-        score = len(kw_tokens & p_tokens)
-        if score > best_score:
-            best_score, best_idx = score, idx
-
-    entry["inserted_after_paragraph"] = best_idx if best_score >= MIN_MATCHES else None
-    entry["match_score"] = best_score
-```
-
-# 4. Output mezők (figure_catalog.json bővítése)
+### 3.3. Output mező séma
 
 ```json
 {
-  "11-Termografia-2-image-1-p2": {
-    "source": "11-Termografia-2.pdf",
-    "page": 2,
-    "type": "image",
-    "caption": "Infravörös hőkamera rendszerfelépítése...",
-    "path": "2_clean_inputs/11-Termografia-2/auto/images/abc123.jpg",
-    "keywords": ["thermal camera", "focal plane array", "detector"],
-    "vlm_done": true,
+  "yeh2016-img-1-p3": {
     "inserted_after_paragraph": 4,
     "match_score": 3
   }
@@ -104,61 +68,47 @@ for key, entry in catalog.items():
 
 | Mező | Típus | Leírás |
 |:-----|:------|:-------|
-| `inserted_after_paragraph` | `int \| null` | 0-bázisú bekezdés-index a Markdown-ban; `null` = nem illeszthető |
-| `match_score` | `int` | Egyező token-ek száma (0 = nincs egyezés) |
+| `inserted_after_paragraph` | `int \| null` | 0-bázisú bekezdés-index; `null` = nem illeszthető |
+| `match_score` | `int` | Egyező tokenek száma |
 
-# 5. Beillesztés a Markdown-ba (10_notes_collector feladata)
+## 4. Kimenetek
 
-A `09_figure_mapper` **csak a catalog-ot frissíti** -- nem módosítja a Markdown-ot.
-A tényleges `![...]` beillesztés a 10_notes_collector lépés feladata:
+- `3_raw_outputs/figure_catalog.json` -- in-place frissítve (`inserted_after_paragraph`, `match_score` mezők)
 
-```python
-# 10_notes_collector: catalog -> Markdown insertion
-for key, entry in sorted(catalog.items(),
-                          key=lambda x: x[1].get("inserted_after_paragraph") or 9999):
-    idx = entry.get("inserted_after_paragraph")
-    if idx is None:
-        continue
-    fig_block = (
-        f"\n![{entry['caption']}]({entry['path']})\n"
-        f"*{entry['caption']}*\n"
-    )
-    paragraphs[idx] = paragraphs[idx] + fig_block
-```
+## 5. Ellenőrzés
 
-⚠️ **Fontos:** Ha több kép ugyanarra a bekezdésre illeszkedik (`inserted_after_paragraph` azonos),
-a beillesztési sorrend `match_score` szerint csökkenő.
+- [ ] Script lefutott figyelmeztetés nélkül
+- [ ] `figure_catalog.json`-ban `inserted_after_paragraph` mezők kitöltve (nem mind null)
+- [ ] `--dry-run` output logikus bekezdés-indexeket mutat
 
-# 6. Futtatás
+## 6. Hibakezelés
 
-```powershell
-python scripts\09_figure_mapper.py `
-    test_outputs\<Tantargy>\N_het\3_raw_outputs\figure_catalog.json `
-    test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
-```
+- Tünet: minden `inserted_after_paragraph: null`
+- Gyökérok: `keywords` üres (03-1_qfig_parser 0 egyezés -- BOM + szabad NLM formátum)
+- Megoldás: 03-1_qfig_parser v2 futtatása (lásd §6 következő sor)
+- Tünet: `03-1_qfig_parser` 0 egyezést ad (BOM + Markdown-bold formátum)
+- Gyökérok: FIELD_RE nem kezeli `*   **Forrás:**` formátumot; `utf-8-sig` decode hiányzik
+- Megoldás: FIELD_RE `r'^\*?\s*\*{0,2}(MEZŐ)\s*:\*{0,2}\s*(.*)'`; `read_bytes().decode("utf-8-sig")` ✅ javítva v2
 
-Opcionális flag:
-```powershell
---min-matches 2    # minimum egyező token (default: 1)
---dry-run          # csak kiírja a matcheket, nem ment
-```
+## 7. Hivatkozások
 
-# 7. Régi Q5-alapú megközelítés (archív)
+- [pipeline.md](../pipeline.md)
+- [03_mineru_extractor.md](03_mineru_extractor.md) -- figure_catalog forrása
+- [10_notes_collector.md](10_notes_collector.md) -- tényleges beillesztés
 
-Az előző verzió NLM Q5 queryt (ábra-azonosítás) és caption-hasonlóságot használt.
-Ez heurisztikus volt (figure-számok, "Figure N" regex) és csak akkor működött,
-ha az NLM hivatkozott az ábrákra. Felváltotta a VLM keywords × paragraph egyezés.
+## 8. Visszajelzések
 
-Archív kód: [archive/05b_figure_mapper_v1.md](.claude/archive/) (ha archiválva)
+- 💬 NOTE: Ha több kép ugyanarra a bekezdésre illeszkedik (`inserted_after_paragraph` azonos), a beillesztési sorrend `match_score` szerint csökkenő -- a 10_notes_collector kezeli.
+- ✅ A 03-1_qfig_parser BOM + Markdown-bold formátum hiba javítva (2026-05-26, B1 fix). A képpipeline (09, 10) újra teljes -- Termografia_teszt_v3-on verifikálandó.
+- 🔲 TODO: **Előfeltétel pontatlan a skill §2-ban (tesztelve 2026-05-28).** A §2 szerint a blokkoló feltétel `keywords == []`, de a script (line 133-136) `vlm_done=True` hiányát ellenőrzi és kilép. Ha `vlm_done=False` (pl. VLM nem futott), a script "No entries with vlm_done=True. Run 03_util_figure_catalog.py --vlm first." üzenettel exitál -- a `keywords`-t meg sem nézi. A §2 szövegét frissíteni kell: "Előfeltétel: `vlm_done=True` legalább egy entrynél (03_util_figure_catalog.py --vlm lefutott)."
+- 🔲 TODO: **Nincsenek képek a wip Jegyzetben (user feedback, 2026-05-28, 1_het).** A `4_wip_outputs/1_Jegyzet.md` nem tartalmaz egyetlen képet sem. Gyökérok: (1) `09_figure_mapper` blokkolt (`vlm_done=False`), így `inserted_after_paragraph` mezők üresek; (2) `10_notes_collector --no-figures` opcióval futott (képbeillesztés szándékosan kihagyva). A teljes kép-pipeline (03-1 Qfig → 09 mapper → 10 inserter) blokkolt a `vlm_done` és a Qfig formátum-eltérés miatt. Következmény: a Jegyzet szöveg-only -- a forrás PDF-ek vizuális tartalma (ábrák, táblázatok) elvész.
+- ✅ **VLM lépés pipeline-ban dokumentálva (javítva 2026-05-28).** `pipeline.md §1` IO táblájába felvéve: `03_util_figure_catalog.py --vlm` a 03-1_qfig_parser után, 03-2_dedup előtt.
+- ✅ **03_util_figure_catalog.py syntax hiba javítva (2026-05-28).** `2_clean_inputs_dir` → `clean_inputs_dir` (line 119 + 128). A `--vlm` flag most futtatható.
 
-# Ismert hibák
-
-→ [pitfalls.md §4.1](../pitfalls.md) -- MinerU extra auto/ könyvtárszint
-→ [pitfalls.md](../pitfalls.md) -- keywords üres ha VLM nem futott (P4 előfeltétel)
-
-# Változásjegyzék
+## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-25 | 2.0 | Teljes újraírás: VLM keywords → inserted_after_paragraph; 09 számozás; régi Q5-logika archivált; script 09_figure_mapper.py dokumentálva |
-| 2026-05-22 | 1.0 | Létrehozva (figure pipeline design, Q5 + caption-similarity) |
+| 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; archív Q5-szekció eltávolítva |
+| 2026-05-25 | 2.0 | Teljes újraírás: VLM keywords → inserted_after_paragraph; script 09_figure_mapper.py |
+| 2026-05-22 | 1.0 | Létrehozva (figure pipeline design) |

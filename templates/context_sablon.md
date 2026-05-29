@@ -1,13 +1,12 @@
 ---
-title: CONTEXT_SABLON.MD — Tantárgy context sablon
+title: CONTEXT_SABLON.MD -- Tantárgy context sablon
 type: meta
 tags: [meta, sablon]
-updated: 2026-05-21
+updated: 2026-05-26
 description: Új tantárgynál másolandó sablon. Kitöltendő: alapadatok, tematika/pipeline státusz, célok, stílusirányelvek, NLM konfiguráció.
 ---
-# CONTEXT.MD — TANTÁRGY SABLON
-_Másold ide: [TantargyNeve]/_claude/context.md_
-# QUESTION: ki csinálja?
+# CONTEXT.MD -- TANTÁRGY SABLON
+_Másold ide: [TantargyNeve]/.claude/context.md_
 
 # 1. Alapadatok
 - **Tantárgy neve:**
@@ -16,13 +15,22 @@ _Másold ide: [TantargyNeve]/_claude/context.md_
 - **Célcsoport:** (szak, év)
 
 # 2. Tematika és pipeline státusz
-| Hét | Téma | NLM notebook | 00b✓ | 01✓ | 02✓ | 03-05 | 06-07 | 08 | 09 | 10 |
-|-----|------|--------------|------|-----|-----|-------|-------|-----|-----|-----|
-| 1 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 2 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 3 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+| Hét | Téma | NLM notebook | 01-02 | 03-04 | 05-07 | 08-10 | 11-12 | 13-14 |
+|-----|------|--------------|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| 1 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 2 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 3 | | | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
+
+**Lépéscsoportok:**
+- `01-02`: Forrásgyűjtés + NLM notebook setup (Prompt B)
+- `03-04`: MinerU + NLM DFS queries
+- `05-07`: Assemble + Citations + Szószedet
+- `08-10`: Mindmap + Képek + ToC
+- `11-12`: Typesetter + Prezentáció
+- `13-14`: Kérdésbank + BSc filter → 5_clean_outputs
 
 # 3. Célok
 - BSc szint:
@@ -36,11 +44,11 @@ _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
 # 5. NLM notebook konfiguráció
 - Notebook neve:
 - Notebook URL:
-- B1 Custom Instructions: beállítva ❌/✅
+- Prompt B (Custom Instructions): beállítva ❌/✅
 
 ---
 
-# KITÖLTÖTT PÉLDA — Műszaki Diagnosztika
+# KITÖLTÖTT PÉLDA -- Műszaki Diagnosztika
 
 > _Ez egy kitöltött minta. A saját context.md-t a fenti sablon alapján, ennek analógiájára készítsd el._
 
@@ -51,11 +59,12 @@ _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
 - **Célcsoport:** Gépészmérnök BSc/MSc, 3-4. év
 
 ## 2. Tematika és pipeline státusz
-| Hét | Téma | NLM notebook | 00b✓ | 01✓ | 02✓ | 03-05 | 06-07 | 08 | 09 | 10 |
-|-----|------|--------------|------|-----|-----|-------|-------|-----|-----|-----|
-| 1 | Hőkamerás diagnosztika | Termografia_NLM | ✅ | ✅ | ✅ | ✅ | ⚙️ | ❌ | ❌ | ❌ |
-| 2 | Termográfia mérési módszerek | Termografia_NLM | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 3 | Rezgésdiagnosztika | Rezges_NLM | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+| Hét | Téma | NLM notebook | 01-02 | 03-04 | 05-07 | 08-10 | 11-12 | 13-14 |
+|-----|------|--------------|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+| 1 | Hőkamerás diagnosztika | Termografia_NLM | ✅ | ✅ | ⚙️ | ❌ | ❌ | ❌ |
+| 2 | Termográfia mérési módszerek | Termografia_NLM | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 3 | Rezgésdiagnosztika | Rezges_NLM | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## 3. Célok
 - BSc szint: Diagnosztikai módszerek felismerése, alapvető mérési elvek ismerete, tipikus hibamódok azonosítása.
@@ -68,8 +77,8 @@ _Státuszok: ❌ TODO · ⚙️ folyamatban · ✅ kész_
 
 ## 5. NLM notebook konfiguráció
 - Notebook neve: Termografia_NLM
-- Notebook URL: https://notebooklm.google.com/notebook/...
-- B1 Custom Instructions: beállítva ✅
+- Prompt B (Custom Instructions): beállítva ✅
 
 # Változásjegyzék
-- 2026-05-21 — YAML header és változásjegyzék hozzáadva
+- 2026-05-21 -- Létrehozva (YAML header, minta)
+- 2026-05-26 -- M1: lépésszámok frissítve (C00-C08 → 01-14 csoportok); --- konvenció javítva

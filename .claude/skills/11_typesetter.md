@@ -4,227 +4,106 @@ title: 11_TYPESETTER -- Typesetter
 type: skill
 tags: [meta, skill]
 status: active
-version: 3.0
-updated: 2026-05-25
-description: Markdown linter NLM pipeline outputhoz. Fázis 1 (bullet-to-prose) eltávolítva. Fázis 2: whitespace/tipográfiai linting (A, C, D, E, F, H szabályok).
+version: 4.0
+updated: 2026-05-26
+description: Markdown linter NLM pipeline outputhoz. Fázis 1 (bullet-to-prose, Claude API). Fázis 2: whitespace/tipográfiai linting (A-H szabályok). Pipeline 11. lépése.
 ---
 
-# 11_TYPESETTER.MD -- Typesetter
+# 11_TYPESETTER
 
-**Script:** `scripts/11_typesetter.py`
+## 1. Cél
 
-**Input:** `4_wip_outputs/N_Jegyzet.md` (bullet-listák + vegyes próza, NLM kimenet)
-**Output:** `4_wip_outputs/N_Jegyzet.md` (in-place felülírás -- összefüggő próza + linting)
+A `4_wip_outputs/N_Jegyzet.md` in-place lint-elése: whitespace, sortörés, tipográfia, fejléc-hierarchia normalizálása.
 
-# 0. Kétfázisú működés
+## 2. Bemenetek
 
-| Fázis | Mit csinál | Eszköz |
-|:------|:-----------|:-------|
-| **1. Próza konverzió** | Bullet-point blokkok → összefüggő folyamatos próza | Claude API (`claude-sonnet-4-6`) |
-| **2. Linting** | Whitespace, bekezdéstörés, LaTeX, kép/blockquote spacing | Regex szabályok (A-G) |
+- `4_wip_outputs/N_Jegyzet.md` -- 06-10 kimenet
+
+## 3. Eljárás
+
+### 3.1. Kétfázisú működés
+
+| Fázis | Mit csinál | Eszköz | Státusz |
+|:------|:-----------|:-------|:--------|
+| **1. Próza konverzió** | Bullet-point blokkok → összefüggő folyamatos próza | Claude API | ❌ eltávolítva -- NLM `--response-length longer` már prózát ad |
+| **2. Linting** | Whitespace, bekezdéstörés, LaTeX, kép/blockquote spacing | Regex szabályok (A-H) | ✅ aktív |
 
 **Megőrzött elemek (mindkét fázisban érintetlenek):**
-- Markdown fejlécek (`##`, `###`)
-- Képhivatkozások (`![...]`)
-- HTML kommentek (`<!-- Q:N -->` szekció-markerek)
-- Blockquote-ok (`> `)
-- YAML front matter (`--- ... ---`)
-- `<sup>` citáció-jelölők, LaTeX képletek (`$...$`)
+- Markdown fejlécek, képhivatkozások, HTML kommentek (`<!-- Q:N -->`), blockquote-ok, YAML, `<sup>` citációk, LaTeX
 
-## 0.1. Futtatás
+### 3.2. Futtatás
 
 ```powershell
 # ANTHROPIC_API_KEY legyen beállítva
 python scripts\11_typesetter.py test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
-```
 
-Rule G (fejléc-számozás) külön:
-```powershell
+# Fejléc-számozás külön:
 python scripts\11_util_heading_numberer.py test_outputs\<Tantargy>\N_het\4_wip_outputs\N_Jegyzet.md
 ```
 
-## 0.2. Próza konverzió logikája (Fázis 1)
+### 3.3. Szabálykészlet
 
-Az NLM bullet-point válaszokat ad -- a typesetter ezeket alakítja folyamatos prózává.
+| Szabály | Mit javít |
+|:--------|:----------|
+| **A** | `</sup>.` utáni nagybetű → üres sor szúrás (bekezdéstörés) |
+| **B** | Soron belüli `N. Cím` → saját bekezdés félkövér címmel |
+| **C** | `![` előtt/után üres sor |
+| **D** | `>` blockquote előtt üres sor |
+| **E** | Dupla `---` deduplikáció és spacing |
+| **F** | LaTeX `$`/`$$` delimiter párosítás (csak figyelmeztet) |
+| **G** | Fejléc-hierarchia számozás (`scripts/11_util_heading_numberer.py`) |
+| **H** | Dash kiirtás: `--`, `–`, `—` → eltávolítás (NLM mellékhatás) |
 
-1. A Markdown szekciónként blokkokra bomlik: `preserve` | `bullets` | `prose`.
-2. Minden `bullets` blokk (min. 2 sor) a Claude API-ra kerül.
-3. Prompt: tartalom változatlan, csak formátum; magyar tudományos regiszter.
-4. Rövid (1 soros) bullet blokkok változatlanok maradnak.
+**Rule H részletek:** Minden `4_wip_outputs/` és `5_clean_outputs/` fájlban tilos `--`, `–`, `—`. Magyarban ezek szinte mindig hibák.
 
-⚠️ **API-kulcs:** `ANTHROPIC_API_KEY` env változó kötelező. Ha hiányzik, a script leáll.
-⚠️ **Idempotencia:** Ha a fájlban már nincs bullet blokk, a script nem küld API-hívást.
+**Idempotens:** Többszöri futtatás nem szúr be felesleges üres sorokat.
+**UTF-8 BOM nélkül** írja vissza a fájlt.
 
----
+## 4. Kimenetek
 
-Éberi szemmel (szedői perspektívából) olvassa át a Markdown fájlt, és javítja
-azokat a whitespace- / sortörés-hibákat, amelyek a renderelt nézetben
-összefolyó szöveget, hiányzó bekezdés-elválasztást vagy összenyomott blokkokat
-okoznak.
+- `4_wip_outputs/N_Jegyzet.md` -- in-place felülírva (lint + próza)
 
-> **Alapelv (Fázis 2):** Kizárólag whitespace-t és sortöréseket módosítunk -- a szöveges
-> tartalom, fejléc-szövegek, hivatkozások, képútvonalak és LaTeX-formulák
-> érintetlenül maradnak.
+## 5. Ellenőrzés
 
-# 1. Szabálykészlet
-
-## 1.1. Szabály A — Bekezdés-törés hivatkozás után
-
-**Minta:** `</sup>.` (vagy `</sup>,`) közvetlenül nagybetűvel folytatódik
-ugyanazon a soron belül, üres sor nélkül.
-
-**Javítás:** A hivatkozás záró pontja (`</sup>.`) után üres sort szúrunk be,
-ha utána új mondat/bekezdés indul (nagybetű, nem kötőszó).
-
-**Regex:**
-```
-(?<=</sup>\.\s*)(?=[A-ZÁÉÍÓÖŐÚÜŰ])
-```
-→ beszúrjuk: `\n\n`
-
-**Példa (előtte):**
-```markdown
-…alapul<sup>[[1]](#ref-1)</sup>.A feketetest egy ideális…
-```
-**Példa (utána):**
-```markdown
-…alapul<sup>[[1]](#ref-1)</sup>.
-
-A feketetest egy ideális…
-```
-
-## 1.2. Szabály B — Számozott alpont-cím kiemelése futó szövegből
-
-**Minta:** Egy sor belsejében `N. Címszöveg` alakú alpont jelenik meg
-(ahol N = 1–9), az előző bekezdéshez/mondathoz tapadva, üres sor nélkül.
-
-**Javítás:** A számozott cím elé üres sort szúrunk, a számozott címet **félkövérré** tesszük: `**N. Címszöveg**`, majd a cím után üres sort szúrunk, mielőtt a törzs-szöveg folytatódik.
-
-**Regex (felismerés):**
-```
-([.!?:;)\]])\s*(\d+\.\s+[A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű]+(?:\s+\S+)*?)([A-ZÁÉÍÓÖŐÚÜŰ][a-záéíóöőúüű])
-```
-
-**Példa (előtte):**
-```markdown
-…szükséges elméleti alapok a következők:1. Termodinamikai alapfogalmakA források…
-```
-**Példa (utána):**
-```markdown
-…szükséges elméleti alapok a következők:
-
-**1. Termodinamikai alapfogalmak**
-
-A források…
-```
-
-> ⚠️ **Figyelem:** Csak soron belüli, bekezdésbe ágyazott számozott címekre
-> vonatkozik. Ha a szám már önálló sor elején áll (pl. markdown felsorolás),
-> ne módosítsuk.
-
-## 1.3. Szabály C — Kép-blokk körüli üres sorok
-
-`![` előtt **üres sor** kell (kivéve, ha a fájl eleje vagy másik üres sor előzi meg). `![…]` sor után, ha italic caption következik (`*…*`), a caption után **üres sor** kell. Ha nincs caption, a `![…]` sor után közvetlenül **üres sor** kell.
-
-**Regex (hiányzó üres sor `![` előtt):**
-```
-([^\n])\n(!\[)
-```
-→ `\1\n\n\2`
-
-## 1.4. Szabály D — Blockquote előtti üres sor
-
-Minden `>` blokk előtt üres sor szükséges (kivéve, ha az előző sor is `>` vagy üres).
-
-**Regex:**
-```
-([^\n>])\n(> )
-```
-→ `\1\n\n\2`
-
-## 1.5. Szabály E — Horizontális vonal (`---`) deduplikáció és spacing
-
-Egymást követő `---` sorok (akár üres sorral elválasztva) → egyetlen `---`. `---` előtt és után pontosan **egy üres sor** legyen.
-
-**Regex (dupla `---`):**
-```
----\n+---
-```
-→ `---`
-
-## 1.6. Szabály F — LaTeX delimiter-ellenőrzés
-
-Minden `$` nyitónak legyen záró `$` párja (inline math). Minden `$$` nyitónak legyen záró `$$` párja (display math). Display math (`$$…$$`) saját sorban legyen, üres sorokkal körülvéve. Nyitó zárójel utáni math: `($` → ellenőrizni, hogy `$…$)` formátumú-e.
-
-> ⚠️ Csak figyelmeztet / jelöl — nem próbálja automatikusan kijavítani a
-> képletet, mert a tartalom-értelmezés szükséges.
-
-## 1.7. Szabály G -- Fejléc-hierarchia számozása
-
-Minden `#`/`##`/`###` fejléc (kivéve: dokumentumcím és speciális szekciók)
-pontozott számozást kap: `# 1.`, `## 1.1.`, `### 1.1.1.` stb.
-
-**Végrehajtás:** `scripts/11_util_heading_numberer.py <fajl>` -- nem kézzel.
-
-Speciális (számozatlan) szekciók: `Tárgymutató`, `Forrásjegyzék`,
-`Változásjegyzék`, `Változásnapló`.
-
-**Ellenőrzés:**
-```
-grep '^##' fajl.md | grep -v '## [0-9]'
-```
-→ Ha üres kimenet: Rule G teljesült.
-
-# 2. Workflow
-
-1. **Beolvasás:** Teljes `.md` fájl beolvasása.
-2. **Szabály G alkalmazása:** `11_util_heading_numberer.py` futtatása (script).
-3. **Szabály A alkalmazása:** Regex-szel megkeressük az összes `</sup>.` + nagybetű mintát, és üres sort szúrunk be.
-4. **Szabály B alkalmazása:** Megkeressük a soron belüli számozott alpont-címeket (`N. Cím`), kiemeljük saját bekezdésbe félkövér címmel.
-5. **Szabály C alkalmazása:** Ellenőrizzük a `![…]` sorok előtti/utáni üres sorokat, szükség esetén beszúrjuk.
-6. **Szabály D alkalmazása:** Ellenőrizzük a `> ` sorok előtti üres sorokat; ha hiányzik, beszúrjuk.
-7. **Szabály E alkalmazása:** Deduplikáljuk a `---` sorokat, és biztosítjuk az egy-egy üres sort körülöttük.
-8. **Szabály F ellenőrzése:** LaTeX delimiterek párosítása -- figyelmeztetést listázunk a páratlan `$`/`$$` előfordulásokról.
-9. **Visszaírás:** A javított tartalom in-place visszaírása a fájlba.
-10. **Összegzés:** A felhasználónak visszajelzés a javítások számáról szabálykategóriánként (G: n, A: n, B: n, C: n, D: n, E: n, F: n figyelmeztetés).
-
-# 3. Fontos szabályok
-
-- **Ne módosítsd a tartalmat:** Fejléc-szövegek, hivatkozások (`<sup>…</sup>`), képútvonalak (`![…](…)`), LaTeX-formulák, blockquote-szövegek és tárgymutató/forrásjegyzék-blokkok érintetlenek maradnak.
-- **Ne törölj meglévő üres sorokat:** Csak hiányzókat szúrj be — a meglévő szeparáció maradjon meg.
-- **Heading-hierarchia érintetlen:** A `#`, `##`, `###` szintek és szövegeik nem változnak.
-- **Anchor-linkek megőrzése:** Az `<a id="…">` horgonyok és a hozzájuk tartozó `[…](#…)` hivatkozások érintetlenek maradnak.
-- **Idempotens működés:** A skill többszöri futtatása nem szúr be felesleges üres sorokat — ha egy elválasztás már megvan, ne duplikáld.
-- **UTF-8 kódolás megőrzése:** A fájl UTF-8 kódolással írandó vissza (BOM nélkül).
-
-# 4. Ellenőrző lista (linting után)
-
-- [ ] `</sup>.\s*[A-Z]` minta eltűnt (Szabály A teljesült)
-- [ ] Soron belüli `N. Címszöveg` eltűnt (Szabály B teljesült)
-- [ ] Minden `![` előtt üres sor van (Szabály C)
-- [ ] Minden `> ` előtt üres sor van (vagy előző `>` sor) (Szabály D)
+- [ ] `</sup>.\s*[A-Z]` minta eltűnt (Szabály A)
+- [ ] Soron belüli `N. Cím` eltűnt (Szabály B)
+- [ ] Minden `![` előtt üres sor (Szabály C)
+- [ ] Minden `>` előtt üres sor (Szabály D)
 - [ ] Nincs dupla `---` (Szabály E)
-- [ ] LaTeX delimiterek párosak (Szabály F)
-- [ ] `</sup>.\s*[A-Z]` minta eltűnt (Szabály A teljesült)
-- [ ] Soron belüli `N. Címszöveg` eltűnt (Szabály B teljesült)
-- [ ] Minden `![` előtt üres sor van (Szabály C)
-- [ ] Minden `> ` előtt üres sor van (vagy előző `>` sor) (Szabály D)
-- [ ] Nincs dupla `---` (Szabály E)
-- [ ] LaTeX delimiterek párosak (Szabály F)
-- [ ] Minden `##`+ fejléc számozott, speciálisak kivételével (Szabály G)
+- [ ] LaTeX delimiterek párosak (Szabály F -- csak figyelmeztetés)
+- [ ] Minden `##`+ fejléc számozott (Szabály G)
+- [ ] Nincs `--`, `–`, `—` (Szabály H)
 - [ ] Hivatkozás-szám változatlan (`<sup>` darabszám)
 - [ ] Képek száma változatlan (`![` darabszám)
 
+## 6. Hibakezelés
 
-# Ismert hibák
+- Tünet: `ANTHROPIC_API_KEY` hiánya → Fázis 1 leáll
+- Megoldás: `$env:ANTHROPIC_API_KEY = "..."` beállítása
+- Tünet: idempotencia-hiba (dupla üres sorok)
+- Megoldás: `--dry-run` flag (ha implementálva)
 
-Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
+## 7. Hivatkozások
 
-# Változásjegyzék
+- [pipeline.md](../pipeline.md)
+- [scripts/11_typesetter.py](../../scripts/)
+- [scripts/11_util_heading_numberer.py](../../scripts/)
+
+## 8. Visszajelzések
+
+- 💬 NOTE: A Fázis 1 (bullet→próza, Claude API) újra aktív -- az NLM `--response-length longer` (helyes flag) beállítás nem mindig ad folyó prózát. Ha a Prompt B-vel kapott válaszok már prózában vannak, a Fázis 1 idempotens (nem küld API-hívást).
+- ✅ Rule B lista whitespace (`*   **...**` → `* **...**`): megvalósítva, `rule_b_bullet_whitespace()` regex `^(\s*[*-])\s{2,}` az összes bullet típusra. Tesztelve.
+- ✅ **Skill §3.1 Fázis 1 inkonzisztencia javítva (2026-05-28).** A §3.1 táblázat most helyesen mutatja: Fázis 1 eltávolítva.
+- 🔲 TODO: **Hibás Markdown táblázat-szeparátor az NLM kimenetben (külső szemlélő, 2026-05-28).** Több táblázatban `| :, - | :, - | :, - |` szeparátorsor jelenik meg, ami nem érvényes GFM szintaxis (helyes: `|:---|:---|:---|`). Következmény: a táblázatok Markdown-renderelőkben nem táblázatként, hanem szövegként jelennek meg. Az NLM Prompt B-t módosítani kell (explicit utasítás a helyes szeparátor-formátumra), vagy a `11_typesetter.py`-ba Rule I-ként bevezetni: `| :, - |` → `|:---|`.
+- 🔲 TODO: **Automatikus táblafeliratok placeholderként láthatók (külső szemlélő, 2026-05-28).** `*1. táblázat: (automatikus felirat)*` sorok megmaradtak a kész dokumentumban. Az "(automatikus felirat)" szöveg egy pipeline-placeholder, amelyet a `06_table_caption_injector.py` szúrt be, de a VLM/NLM nem töltötte ki valódi felirattal. Következmény: minden táblázat előtt egy értelmetlen sor áll. Megoldás: ha VLM nem fut, a placeholder távolítandó el, vagy valódi tartalommal kell kitölteni (pl. NLM query per-tábla).
+- 💬 NOTE: **Futtatás eredménye 1_het teszten (2026-05-28).** Rule B: 366 fix (nagy szám -- az NLM sok `*   **...**` formátumot generál). Rule H: 218 fix (sok dash az NLM kimenetben). Rule G: 233 fejléc-számozás változás. Ez az eredmény normálisnak tekinthető 40 DFS query esetén (~190KB fájl).
+
+## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-26 | 3.1 | Rule B hozzáadva: bullet whitespace (`*   **` → `* **`); phase2_linting sorrend: A,B,C,D,E,F,H |
-| 2026-05-25 | 3.0 | Fázis 1 (bullet→próza, Claude API) eltávolítva (NOTE G); Rule H (dash cleanup) hozzáadva; `--lint-only` flag eltávolítva (egyetlen mód); 305→186 sor |
-| 2026-05-25 | 2.0 | Fázis 1 (bullet→próza, Claude API) hozzáadva; §0 szekció; YAML header javítva (07→11); scripts/11_typesetter.py elkészült |
-| 2026-05-22 | 1.0 | Szabály G hozzáadva (fejléc-hierarchia számozás, 
+| 2026-05-26 | 4.0 | Overhaul: template-alapú átírás; duplikált checklist eltávolítva; §8 Visszajelzések |
+| 2026-05-26 | 3.1 | Rule B hozzáadva (bullet whitespace); Rule H aktiválva |
+| 2026-05-25 | 3.0 | Fázis 1 (bullet→próza) eltávolítva (NOTE G); Rule H (dash cleanup) hozzáadva |
+| 2026-05-25 | 2.0 | Fázis 1 hozzáadva; `11_typesetter.py` elkészült |
+| 2026-05-22 | 1.0 | Létrehozva; Rule G (fejléc-hierarchia számozás) |

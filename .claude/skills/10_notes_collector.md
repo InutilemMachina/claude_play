@@ -1,25 +1,30 @@
 ---
 name: 10_notes_collector
-title: 10_NOTES_COLLECTOR — Notes collector
+title: 10_NOTES_COLLECTOR -- Notes Collector
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-21
-description: Strukturált Tárgymutató (index) és Notes szekció generálása Markdown fájlba. Fejléc-alapú anchor linkek, kulcsszó-keresés.
+version: 2.0
+updated: 2026-05-26
+description: Tartalomjegyzék (ToC) generálása és képek beillesztése a Jegyzetbe. Script: generate_index.py ✅ + 09_figure_mapper catalog alapján. Pipeline 10. lépése.
 ---
 
-# 10_NOTES_COLLECTOR.MD — NOTES COLLECTOR
+# 10_NOTES_COLLECTOR
 
-Beolvas egy Markdown fájlt, kiszámítja az összes fejléc anchor-linkjét, opcionálisan
-kulcsszavas mélylinkeket is beinjektál, majd egy **`## Tárgymutató`** blokkot szúr be
-közvetlenül a főcím (`#`) után — vagy frissíti a meglévőt.
+## 1. Cél
 
-# 1. Amit csinál pontosan
+A `N_Jegyzet.md` elejére `## Tárgymutató` ToC-ot szúr be, és a `figure_catalog.json` `inserted_after_paragraph` mezői alapján beilleszti a képeket.
 
-## 1.1. Fejléc-alapú tartalomjegyzék
+## 2. Bemenetek
 
-Minden `##`, `###`, `####` szintű fejléc szerepel az indexben, behúzással jelölve a szintet:
+- `4_wip_outputs/N_Jegyzet.md` -- 06-09 kimenet
+- `3_raw_outputs/figure_catalog.json` -- 09_figure_mapper által frissítve
+
+## 3. Eljárás
+
+### 3.1. Tartalomjegyzék generálása
+
+Minden `##`, `###`, `####` szintű fejléc anchor-linkkel szerepel, behúzással:
 
 ```markdown
 ## Tárgymutató
@@ -29,114 +34,81 @@ Minden `##`, `###`, `####` szintű fejléc szerepel az indexben, behúzással je
     - [Részfejezet neve](#reszfejezet-neve)
 ```
 
-## 1.2. Kulcsszavas mélylink (opcionális)
+**Anchor-link szabályok (GFM):**
+- Kisbetűsítés, `#` eltávolítása
+- Speciális karakterek (`(`, `)`, `.`, `,`, `!`, `?`, `:`, `*`) eltávolítása
+- Szóközök → `-`
+- Magyar ékezetes betűk **megmaradnak** (`é`, `á`, `ő`, `ű`)
+- Duplikált fejlécek: `-1`, `-2` suffix
 
-Ha a felhasználó kulcsszó-listát ad meg, a skill megkeresi az első bekezdést, amely
-tartalmazza a kulcsszót, és beilleszt egy `<a id="idx-kulcsszó"></a>` horgonyt a bekezdés elé,
-majd hozzáad egy sort az indexhez: `  - [kulcsszó](#idx-kulcsszó)`
+Kizárt szekciók: `# Főcím`, `## Tárgymutató`, `## Forrásjegyzék`.
 
-## 1.3. In-place visszaírás
+### 3.2. Képbeillesztés
 
-A módosított fájlt ugyanabba a fájlba írja vissza. Nem hoz létre új fájlt.
+A `figure_catalog.json` alapján:
 
-# 2. Anchor-link generálás szabályai (GitHub Flavored Markdown)
-
-A GitHub és a legtöbb Markdown renderelő ezeket a szabályokat alkalmazza: a fejléc szövegét kisbetűsítjük, eltávolítjuk a `#`-jeleket és a vezető/záró szóközöket, a `(`, `)`, `.`, `,`, `!`, `?`, `:`, `*`, `` ` `` karaktereket eltávolítjuk, a szóközöket `-`-re cseréljük, a magyar ékezetes betűk **megmaradnak** (`é`, `á`, `ő`, `ű` stb.), duplikált fejlécek esetén `-1`, `-2` stb. suffixet kapnak.
-
-Példák:
-- `## Elméleti alapok` → `#elméleti-alapok`
-- `#### 1.2.3 Stefan-Boltzmann-törvény (összsugárzás)` → `#123-stefan-boltzmann-törvény-összsugárzás`
-- `### 1.3 Anyagi kölcsönhatások` → `#13-anyagi-kölcsönhatások`
-
-# 3. Kulcsszó-stratégia célközönség szerint
-
-Mielőtt futtatnád a scriptet, gondold végig: **kinek szól a dokumentum?** A kulcsszavakat a célközönség tudásszintjéhez igazítsd.
-
-## 3.1. BSc kezdő hallgató (termográfia, műszaki diagnosztika)
-
-Olyan fogalmak, amelyeket először hall és nehéz megtalálni a szövegben: fizikai alapfogalmak (`feketetest`, `emissziós tényező`, `hősugárzás`, `termogram`), sugárzási törvények (`Planck-törvény`, `Stefan-Boltzmann-törvény`, `Wien-törvény`, `Kirchhoff-törvény`), spektrum (`LWIR`, `MWIR`, `SWIR`, `NIR`, `atmoszférikus ablak`), anyagi kölcsönhatások (`abszorpció`, `reflexió`, `transzmisszió`), mérési fogalmak (`NETD`, `IFOV`, `NUC`).
-
-## 3.2. Haladó / mérnök
-
-Inkább a ritkán előforduló, specifikus szakkifejezések (pl. `Micro-scan`, `sNETD`, `Lambert-sugárzó`).
-
-## 3.3. Általános dokumentum
-
-Csak a fejléc-alapú tartalomjegyzék elegendő -- kulcsszavak nélkül.
-
-## 3.4. NLM mindmap-alapú lekérdezési stratégia
-
-Az NLM mindmap-node-okra kattintva a rendszer hierarchikus kérdéssablonokat küld a notebooknak. Az alábbi sablon szerint kell a lekérdezéseket felépíteni:
-
-**Fő node (gyökér, 1. szint):**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt <fő node=X> témakörről.
+```python
+for key, entry in sorted(catalog.items(),
+                          key=lambda x: x[1].get("inserted_after_paragraph") or 9999):
+    idx = entry.get("inserted_after_paragraph")
+    if idx is None:
+        continue
+    fig_block = (
+        f"\n![{entry['caption']}]({entry['path']})\n"
+        f"*{entry['caption']}*\n"
+    )
+    paragraphs[idx] = paragraphs[idx] + fig_block
 ```
 
-**Gyerek node (2. szint):**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt, a(z) <szülő node=X> tágabb kontextusába tartozó <gyerek node=Y> témakörről.
-```
+Ha több kép ugyanarra a bekezdés-indexre illeszkedik: `match_score` szerint csökkenő sorrend.
 
-**Unoka node (3. szint és mélyebb):**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt, a(z) <szülő node=Y> tágabb kontextusába tartozó <gyerek node=Z> témakörről.
-```
+### 3.3. Kulcsszavas mélylink (opcionális)
 
-Ahol: `<szülő node>` mindig az adott node közvetlen szülője (egy szinttel feljebb), nem a gyökér.
+Ha a felhasználó kulcsszó-listát ad meg, a skill `<a id="idx-kulcsszó"></a>` horgonyokat szúr be, és hozzáadja a ToC-hoz.
 
-**Példa (Mátrix Profil mindmap):**
+**Kulcsszó-stratégia célközönség szerint:**
+- BSc kezdő: fizikai alapfogalmak, törvények neve, mérési fogalmak
+- Haladó/mérnök: ritkán előforduló specifikus szakkifejezések
+- Általános dokumentum: csak fejléc-alapú ToC, kulcsszavak nélkül
 
-| Szint | Sablon kitöltve |
-|-------|-----------------|
-| 1 (fő) | `...tárgyalt <fő node=Mátrix Profil> témakörről.` |
-| 2 (gyerek) | `...a(z) <szülő node=Mátrix Profil> tágabb kontextusába tartozó <gyerek node=Áttekintés> témakörről.` |
-| 3 (unoka) | `...a(z) <szülő node=Áttekintés> tágabb kontextusába tartozó <gyerek node=Alapvető Eszköz Idősor Elemzéshez> témakörről.` |
+## 4. Kimenetek
 
-**Workflow:** A mindmap összes releváns node-jára sorban le kell futtatni a megfelelő sablonnal. Az így kapott NLM-válaszok alkotják a `clean_sources/` bemeneti anyagát a 06-os lépéshez.
+- `4_wip_outputs/N_Jegyzet.md` -- ToC hozzáadva + képek beillesztve (in-place)
 
-# 4. Workflow
+## 5. Ellenőrzés
 
-1. **Célzás:** A felhasználó megad egy `.md` fájl elérési útját (és opcionálisan kulcsszó-listát). Ha nem ad meg kulcsszavakat, de a célközönség ismert, a fenti listából válassz relevánsakat a dokumentum témájához.
+- [ ] `## Tárgymutató` blokk a főcím (`#`) után megjelent
+- [ ] Fejléc-linkek anchor-jai helyesek (manuális ellenőrzés 2-3 linken)
+- [ ] Képek beillesztve a megjelölt bekezdések után
+- [ ] Nincs duplikált `## Tárgymutató` blokk
 
-2. **Beolvasás:** Olvasd be a teljes fájlt a Read eszközzel.
+## 6. Hibakezelés
 
-3. **Python feldolgozás:** Futtasd le a `scripts/generate_index.py  # TODO: nem létezik, megírandó` scriptet:
-   ```bash
-   python3 <skill_dir>/scripts/generate_index.py  # TODO: nem létezik, megírandó \
-     --file <útvonal> \
-     [--keywords "kulcsszó1,kulcsszó2,kulcsszó3"]
-   ```
-   A script in-place módosítja a fájlt.
+- Tünet: ToC linkek leading spaces-szel kezdődnek
+- Gyökérok: `###` fejlécek `##` szülő nélkül (heading hierarchia hiba, 06_excerpt_block_maker §8)
+- Megoldás: `05_assemble.py` Q1-hez `## Bevezetés` szülőt generáljon
 
-4. **Visszajelzés:** Közöld a felhasználóval, hogy hány fejléc és hány kulcsszó-link került az indexbe.
+## 7. Hivatkozások
 
-# 5. Formátum és stílus
+- [pipeline.md](../pipeline.md)
+- [09_figure_mapper.md](09_figure_mapper.md) -- képek pozícionálása
+- [11_typesetter.md](11_typesetter.md) -- Rule G (fejléc-számozás)
 
-- A tárgymutató blokkja `## Tárgymutató` fejléccel kezdődik
-- Ha már létezik ilyen blokk, a script **felülírja** (nem duplikálja)
-- A fejléc-linkek előtt szint-arányos behúzás: `##` → nincs, `###` → 2 szóköz, `####` → 4 szóköz
-- A kulcsszavas mélylink-sorok a hierarchia végén, egy `**Kulcsszavak:**` alcím alatt jelennek meg
-- Magyar szakmai hangnem a felhasználó felé
+## 8. Visszajelzések
 
-# 6. Fontos szabályok
+- ✅ **`--dry-run` UnicodeEncodeError javítva (2026-05-28).** `scripts/_encoding_fix.py` modul bevezetve; `10_notes_collector.py` importálja és alkalmazza induláskor.
+- ✅ **Bevezetés és Tartalomjegyzék unnumbered (2026-05-28).** `11_util_heading_numberer.py` UNNUMBERED listába felvéve: `bevezetes`, `tartalomjegyzek`, `hivatkozasjegyzek`.
+- ✅ **ToC dupla sorszámozás + (QN) suffix javítva (2026-05-28).** `05_assemble.py` átírva: nem generál `## N. szekció (QN)` fejlécet, hanem az NLM válasz első `##`-jét használja cím gyanánt. Heading_numberer az egyetlen sorszámozó.
+- ✅ **`generate_index.py` archiválva (2026-05-28).** `scripts/archive/generate_index.py`. Kanonikus ToC script: `10_notes_collector.py`.
+- ✅ **`util_regen_outputs.py` archiválva (2026-05-28).** `scripts/archive/util_regen_outputs.py`.
+- 💬 NOTE: ToC hierarchikus számozás: a ToC linkek nem tartalmazzák a sorszámokat (pl. `1. Matematikai...` helyett `Matematikai...`), mert a `##` fejlécek sem voltak egységesen számozva. Megoldandó: `11_util_heading_numberer.py` futtatása a `05_assemble.py` után, a ToC generálása előtt.
+- 💬 NOTE: A `§3.3` NLM mindmap-alapú lekérdezési stratégia (korábban itteni tartalomként) a 04_nlm_query_runner skillbe lett áthelyezve -- ott a kanonikus hely.
+- ❔ QUESTION: A pedagógiai output kötelező elemei: tanulási célok, főszöveg, kulcsfogalmak, összefoglaló, kérdések -- mennyi és milyen formátumban? (Összefoglaló blokk: `> [!NOTE]` GFM callout megoldás?)
 
-- **Ne duplikálj:** Ha `## Tárgymutató` már létezik, cseréld le — ne szúrj be másodikat.
-- **Ne módosítsd a tartalmat:** Csak a Tárgymutató blokkot és az `<a id>` horgonyokat kezeld.
-- **Fejlécek kizárása az indexből:** A `# Főcím`, a `## Tárgymutató` és a `## Forrásjegyzék` blokkok ne szerepeljenek az indexben.
-
-
-# Ismert hibák
-
-Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
-
-# Nyitott kérdések
-
-- Pedagógiai output szekciók: mi a kötelező tartalom? Tanulási célok, főszöveg, kulcsfogalmak, összefoglaló, kérdések -- mennyi, milyen formátumban?
-- Összefoglaló blokk: szürke háttér MD-ben lehetséges-e? (GFM `> [!NOTE]` callout megoldás?)
-
-# Változásjegyzék
+## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-24 | 1.1 | §3.4 hozzáadva: NLM mindmap-alapú lekérdezési stratégia (hierarchikus sablon) |
+| 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; NLM mindmap szekció áthelyezve 04-be; §8 Visszajelzések |
+| 2026-05-24 | 1.1 | §3.4 NLM mindmap-alapú lekérdezési stratégia hozzáadva |
+| 2026-05-21 | 1.0 | Létrehozva |

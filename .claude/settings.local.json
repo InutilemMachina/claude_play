@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(claude mcp *)",
-      "Bash(dir \"C:\\\\Users\\\\lasz\\\\claude_play\")"
+      "Bash(dir \"C:\\\\Users\\\\lasz\\\\claude_play\")",
+      "Bash(Remove-Item \"C:\\\\Users\\\\lasz\\\\claude_play\\\\.git\\\\HEAD.lock\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(git checkout *)",
+      "Bash(xargs -I{} basename {} .md)",
+      "mcp__Desktop_Commander__read_file",
+      "Bash(python -c ' *)"
     ]
   }
 }

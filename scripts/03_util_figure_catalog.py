@@ -116,7 +116,7 @@ def vlm_caption_and_keywords(
 
 def run_vlm_on_catalog(
     catalog: dict,
-    2_clean_inputs_dir: Path,
+    clean_inputs_dir: Path,
     client,
 ) -> int:
     """
@@ -125,7 +125,7 @@ def run_vlm_on_catalog(
     Returns count of entries processed.
     """
     processed = 0
-    week_dir = 2_clean_inputs_dir.parent  # e.g. 1_het/
+    week_dir = clean_inputs_dir.parent  # e.g. 1_het/
 
     for key, entry in catalog.items():
         if entry.get("vlm_done"):

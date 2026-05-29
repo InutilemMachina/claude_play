@@ -1,124 +1,50 @@
 ---
 name: 03_mineru_extractor
-title: 03_MINERU_EXTRACTOR -- MinerU Figure Extractor
+title: 03_MINERU_EXTRACTOR -- MinerU Extractor
 type: skill
 tags: [meta, skill, figures]
 status: active
-version: 2.0
-updated: 2026-05-24
-description: MinerU futtatása forrasok/*.pdf-re. figure_catalog.json építése content_list.json alapján. Helye a pipeline-ban: 00_references_collector utan, 00b_nlm_notebook_setup elott (vagy párhuzamosan).
+version: 3.0
+updated: 2026-05-26
+description: MinerU futtatása 1_raw_inputs/*.pdf-re. figure_catalog.json építése content_list.json alapján. Pipeline 03. lépése.
 ---
 
-# 03_MINERU_EXTRACTOR.MD -- MinerU Figure Extractor
-_00c. lepes_
+# 03_MINERU_EXTRACTOR
 
-# 1. Cel es helye a pipeline-ban
+## 1. Cél
 
-```
-00_references_collector → 00c_mineru_extractor 🐍 → 00b_nlm_notebook_setup 🔌 → ...
-```
+A forrás-PDF-ekből képek, táblázatok és egyenletek kinyerése MinerU-val, és `figure_catalog.json` építése a 09_figure_mapper számára.
 
-Minden forrás-PDF-ből kinyeri a képeket, táblázatokat és egyenleteket,
-majd egy `figure_catalog.json`-t épít, amelyet a `05b_figure_mapper` használ.
+## 2. Bemenetek
 
-# 2. Futtatas
+- `1_raw_inputs/*.pdf` -- forrás PDF-ek
+- `scripts/03_run_mineru_pipeline.py` -- ajánlott futtatási szkript
 
-**Ajánlott:** `scripts/run_mineru_pipeline.py` -- vizuális progress, notebook/fájl számláló,
-nagy fájl kérdés, összefoglaló tábla. A claude_play gyökeréből futtatandó.
+**Előfeltétel:** `mineru` conda környezet aktív.
+
+## 3. Eljárás
+
+### 3.1. Futtatás (ajánlott: pipeline script)
 
 ```powershell
 # Teljes tantárgy (minden N_*/1_raw_inputs/*.pdf)
-conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_teszt
+conda run -n mineru python scripts/03_run_mineru_pipeline.py --root <tantargy_mappa>
 
-# Nagy fájl figyelmeztetési határ módosítása (alapértelmezett: 20 MB)
-conda run -n mineru python scripts/run_mineru_pipeline.py --root haromhetes_teszt --warn-mb 50
+# Nagy fájl figyelmeztetési határ módosítása (alap: 20 MB)
+conda run -n mineru python scripts/03_run_mineru_pipeline.py --root <tantargy_mappa> --warn-mb 50
 ```
 
-**Manuális (egy hét, egy PDF):**
-
+**Manuális (egy PDF):**
 ```powershell
-# 1. MinerU: PDF-ek feldolgozasa -> kepek/ mappa
-conda run -n mineru python scripts/03_util_mineru_pdf.py N_[tema]/1_raw_inputs/ --output N_[tema]/2_clean_inputs/kepek/
-
-# 2. Katalogus epitese
-conda run -n mineru python scripts/03_util_figure_catalog.py N_[tema]/2_clean_inputs/kepek/
-# output: N_[tema]/2_clean_inputs/figure_catalog.json
+conda run -n mineru python scripts/03_util_mineru_pdf.py 1_raw_inputs/ --output 2_clean_inputs/kepek/
+conda run -n mineru python scripts/03_util_figure_catalog.py 2_clean_inputs/kepek/
 ```
-# 3. figure_catalog.json epites
 
-A katalógust `scripts/03_util_figure_catalog.py` építi (önálló script, futtatható).
-A `*_content_list.json` fájlok minden PDF-re tartalmazzák:
-- `type`: image, table, chart, equation, seal
-- `page_idx`: 0-alapú oldalszám
-- `img_path`: relatív útvonal az images/ mappán belül
-- caption mezők: `image_caption`, `table_caption`, `chart_caption` (lista)
-- fallback: `text` mező (inline szöveg)
+MinerU futása lassú: **1-5 perc/PDF**. A feldolgozás 😎 manuális lépésként kezelendő (külön terminálból), mivel az MCP timeout ~30s.
 
-Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
+### 3.2. figure_catalog.json séma
 
-# 4. Kimenet
-
-| Fájl | Tartalom |
-|:-----|:--------
-| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva |-|
-| `2_clean_inputs/kepek/SOURCE/images/*.jpg` | Átnevezett képek |
-| `2_clean_inputs/kepek/SOURCE/SOURCE.md` | Teljes paper MinerU-Markdown-ban |
-| `2_clean_inputs/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
-
-# 5. Ismert korlatok
-
-NOTE: Megvizsgálandó, hogy a `03_run_mineru_pipeline.py` GPU-t használ-e alapértelmezetten -- ha nem, explicit GPU-flag szükséges a pipeline számítógép-független futásához. Jelenlegi backend: `-b pipeline` -- CPU vagy GPU, ellenőrizendő.
-
-NOTE: A `03_run_mineru_pipeline.py` nagy fájloknál (alapértelmezett küszöb: 20 MB) ugyan figyelmeztet és megkérdezi a felhasználót, de az oldalszám alapú figyelmeztetés hiányzik. A typinski2014_slides.pdf 70 oldalas volt -- a script kérdés nélkül elindította. Az előugró terminal üressége miatt a felhasználónak nem volt lehetősége tájékozódni és dönteni. Szükséges: oldalszám-alapú küszöb (pl. >50 oldal → megerősítés kérése), és a figyelmeztetés megjelenítése a terminálban akkor is, ha a folyamat háttérben fut.
-
-NOTE: A MinerU futtatásakor vegyük figyelembe a többmagos CPU/GPU feldolgozás lehetőségét. Szabály: az elérhető magok legfeljebb fele használható MinerU-ra (pl. 8 magos gépen max. 4). Implementálandó: `os.cpu_count() // 2` alapján dinamikusan beállított worker-szám, átadva a MinerU CLI megfelelő flag-jének (meghatározandó, hogy `-w` vagy más).
-
-NOTE (архitektúrai gap): A nem-PDF forrástípusok (HTML, PPTX, DOCX) feldolgozása **nincs meghatározva** a pipeline-ban. Jelenleg csak annyi ismert, hogy "a MinerU nem kezeli ezeket" -- de az hiányzik, hogy **mi bontja ezeket elemekre determinisztikus módon** (szöveg + képek + táblázatok → `2_clean_inputs/<forrás>/`). Ez tervezési hiányosság: minden forrástípushoz definiálni kell egy determinisztikus extraktort:
-
-| Forrástípus | Jelenlegi kezelés | Szükséges megoldás |
-|:------------|:-----------------|:-------------------|
-| PDF | MinerU ✅ | -- |
-| HTML (helyi) | Semmi ❌ | Meghatározandó (pl. trafilatura, BeautifulSoup, Pandoc) |
-| HTML (URL) | NLM-be URL-ként ✅ (de `2_clean_inputs` nem keletkezik) | Szöveg + képek kinyerése is kell |
-| PPTX | NLM CLI visszautasítja ❌ | PDF konverzió (Office COM / LibreOffice), majd MinerU |
-| DOCX | Ismeretlen | Pandoc → MD, vagy python-docx |
-
-- Kéthasábos akadémiai PDF-nél a caption és a kép párosítása nem mindig pontos.
-- Egyenlet-képek (`equation_N_pP.jpg`) általában nem kerülnek a Jegyzetbe
-  (a Jegyzetben LaTeX-képletként szerepelnek).
-- MinerU futása lassú: 1-5 perc/PDF; párhuzamosítható a 00b lépéssel.
-- `SKIP_FILES` a `mineru_pdf.py`-ban: ismételt futtatás esetén kihagyja a kész PDF-eket.
-- A `scripts/` mappa a playground gyökerén van; más tantárgymappából is innen kell hívni.
-
-# Valtozasnaplo
-
-- 2026-05-22 -- Létrehozva (PoC tapasztalat: ábrák hiányoznak a Jegyzetből)
-- 2026-05-23 -- Parancsszintaxis javítva (--output arg); build_figure_catalog.py kiszervezve
-
-# Ismert hibák
-
-→ [pitfalls.md §4.1](../pitfalls.md) -- MinerU extra auto/ könyvtárszint
-→ [pitfalls.md §4.2](../pitfalls.md) -- MinerU HTML forrást nem tud feldolgozni
-→ [pitfalls.md §4.3](../pitfalls.md) -- conda run + Start-Job: nem vár
-→ [pitfalls.md §4.4](../pitfalls.md) -- Hosszú PDF-ek futási idő
-
-# Változásjegyzék
-
-| Dátum | Verzió | Leírás |
-|-------|--------
-| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva ||--------
-| 2026-05-23 | 1.2 | §2 Futtatás: run_mineru_pipeline.py ajánlottá téve; manuális parancsok megtartva |
-| 2026-05-23 | 1.1 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/; 1_raw_inputs/ junction dokumentálva ||
-
-# Képpipeline részletek (átvéve kepek_workflow.md-ből)
-
-_Forrás: .claude/kepek_workflow.md -- 2026-05-24 beolvasztva_
-
-## 4. figure_catalog.json
-
-A scripts/03_util_figure_catalog.py a *_content_list.json fájlokból épít katalógust.
+A `03_util_figure_catalog.py` a `*_content_list.json` fájlokból építi a katalógust:
 
 ```json
 {
@@ -126,88 +52,79 @@ A scripts/03_util_figure_catalog.py a *_content_list.json fájlokból épít kat
     "source": "yeh2016_paper.pdf",
     "page": 3,
     "type": "image",
-    "caption": "Figure 1: An example matrix profile P and matrix profile index I...",
-    "path": "forrasok/kepek/yeh2016_paper/auto/images/fig_001_p003_matrix_profile.jpg",
-    "keywords": []
+    "caption": "Figure 1: An example matrix profile...",
+    "path": "2_clean_inputs/yeh2016_paper/images/fig_001_p003.jpg",
+    "keywords": [],
+    "vlm_done": false
   }
 }
 ```
 
-Helye: N_het/forrasok/figure_catalog.json
+Generált kulcs formátuma: `{source_stem}-{type}-{n}-p{page}`
 
+Mezők:
+- `type`: `image`, `table`, `chart`, `equation`, `seal`
+- `caption`: `image_caption`, `table_caption`, `chart_caption` (lista)
+- `keywords`: a 03-1_qfig_parser tölti ki
+- `vlm_done`: `true` ha caption + keywords már feltöltve
 
-## 5. NLM Q5 ábra-lekérdezés
+### 3.3. Ismételt futtatás
 
-Az 01_nlm_query_runner Q5 queryjét ábra-azonosításra is használjuk.
+A `03_util_mineru_pdf.py` `SKIP_FILES` listával kihagyja a már kész PDF-eket.
 
-Q5 prompt minta:
-```
-Melyik ábra/diagram/táblázat illusztrálja legjobban a következő témákat:
-(1) MP vektor és index felépítése, (2) STAMP/STOMP összehasonlítás?
-Nevezd meg a szerzőt és az ábra feliratát pontosan.
-```
+## 4. Kimenetek
 
-NLM visszaad pl.: "Yeh et al. (2016), Figure 1: 'An example matrix profile...'"
-Ez egyeztethető a figure_catalog.json caption mezőivel.
+| Fájl | Tartalom |
+|:-----|:---------|
+| `2_clean_inputs/<forrasnev>/images/*.jpg` | Átnevezett képek |
+| `2_clean_inputs/<forrasnev>/<forrasnev>.md` | Teljes szöveg MinerU-Markdown-ban |
+| `3_raw_outputs/figure_catalog.json` | Egységes katalógus (minden PDF-ből) |
 
-Output: forrasok/nlm_q5_raw.txt
+## 5. Ellenőrzés
 
-Egyeztetési stratégiák prioritása:
-1. NLM Q5 caption match (legmegbízhatóbb)
-2. Caption kulcsszó-egyezés (automatikus fallback)
-3. Oldalszám-alapú egyezés
-4. Kézi mapping
+- [ ] Minden PDF-hez létrejött `2_clean_inputs/<forrasnev>/` mappa
+- [ ] `figure_catalog.json` létezik, bejegyzések `keywords: []` mezőkkel
+- [ ] Képek számozása `fig_NNN_pPPP_*.jpg` formátumban
+- [ ] Részleges futás: `source_count` mező jelzi a feldolgozott fájlok számát
 
+## 6. Hibakezelés
 
-## 6. 05b_figure_mapper lépés
+| Tünet | Ok | Megoldás |
+|:------|:---|:---------|
+| `2_clean_inputs/` létrejött, de 0 kép | MinerU részlegesen futott | `conda run -n mineru python scripts/03_run_mineru_pipeline.py` újrafuttatás |
+| Output `<stem>/<stem>/auto/` dupla szint | MinerU maga hozza létre `<stem>/`-t az `-o` alatt | `-o clean_dir` (nem `clean_dir/<stem>`); MinerU generálja a `<stem>/` szintet |
+| HTML fájl nem dolgozható fel | MinerU csak PDF/DOCX | Weblapot Edge → Nyomtatás → PDF mentése, `--file` a PDF-re |
+| `conda run + Start-Job` visszatér, MinerU még fut | `conda run` nem vár gyermekprocesszre | MinerU futtatása Git Bash-ből szinkron módon; ne `Start-Job` |
+| conda interaktív bug-report prompt blokkolja a futást | conda hibát észlel és megkérdezi, küldje-e a jelentést | `echo N \| conda run ...` -- a prompt automatikusan elutasítva |
+| 50+ oldalas PDF-nél óráig fut | MinerU oldalanként, lineárisan | `--warn-pages 50` figyelmeztet; `--yes` kihagyja; `--backend vlm-sglang` GPU-n gyorsabb |
 
-figure_catalog.json + nlm_q5_raw.txt alapján REVIEW flaggel jelölt placeholdereket szúr be:
+## 7. Hivatkozások
 
-```markdown
-<!-- FIG:yeh2016-img-1-p3:REVIEW -->
-![Matrix Profile P és I vektor](forrasok/kepek/yeh2016_paper/auto/images/fig_001_p003.jpg)
-*ábra: Matrix Profile P és I vektor felépítése* [ref]
-<!-- /FIG -->
-```
+- [pipeline.md](../pipeline.md)
+- [scripts/03_run_mineru_pipeline.py](../../scripts/03_run_mineru_pipeline.py)
+- [09_figure_mapper.md](09_figure_mapper.md) -- a catalog felhasználója
 
-FIG:auto = kulcsszó-egyezés alapján; FIG:nlm = NLM Q5 javasolta.
-Felhasználó elfogadja vagy elveti a REVIEW flaggel jelölt blokkokat.
+## 8. Visszajelzések
 
+- ✅ MinerU futás sikeres (tesztelve 2026-05-27, meta_file_updates_test): 1_het 4/4 mappa, 2_het 4/4 mappa. Minden forráshoz: `.md` szöveg + `content_list.json` + képek keletkeztek. Részletek: 1_het: ahrens(20 kép), bekele(35), mit(1), oppenheim(38). 2_het: chattopadhyay(3), grundfos(5), nagyi(24), tavakoli(6). Kimenet struktúra: `2_clean_inputs/<forrasnev>/auto/` (MinerU `auto/` aldirektóriát hoz létre).
+- 🔲 TODO: MinerU automatikusan induljon, miután a user a forrásokat jóváhagyta és auditálta
+- 💬 NOTE: A `03_run_mineru_pipeline.py --root` argumentuma a **tantárgy gyökerét** várja (pl. `test_outputs/meta_file_updates_test`), nem a heti mappát. A `discover_notebooks()` `root/N_*/1_raw_inputs/*.pdf` mintát keres -- ha heti mappa kerül `--root`-ba, a script "nincs PDF" hibával leáll.
+- 🔲 TODO: A user nem kap vizuális visszajelzést a futásról: hány hét / hány forrás / MinerU feldolgozási %-os állapot. Megoldás: a script indítson egy látható terminálablakot (`Start-Process cmd` vagy Windows Terminal), amelyben a rich progress bar megjelenik. Jelenlegi állapot: a PowerShell háttérprocessz stdout-ja nem látszik.
+- 🔲 TODO: Nem egyértelmű, hogy a MinerU CPU-t vagy GPU-t használ-e, és hány magot. A pipeline elve: nagyobb teljesítménytől induljon (GPU ha elérhető, CPU fallback). A terminálkimenetnek tájékoztatni kell: backend típusa (pipeline/vlm-sglang), GPU/CPU detektálás eredménye, magszám. Jelenleg ez hiányzik a script outputból. (input_audit_trail.md kész + citations_seed.json UUID-ek kitöltve). Jelenleg manuális lépés -- a 02 checkpoint után automatikusan triggerelendő.
+- 🔲 TODO: Nem-PDF forrástípusok (HTML, PPTX, DOCX) feldolgozása nincs meghatározva. Minden forrástípushoz definiálni kell egy determinisztikus extraktort -- részletek a pipeline.md §6-ban.
+- 🔲 TODO: GPU-használat ellenőrizendő: a `03_run_mineru_pipeline.py` `-b pipeline` backend CPU-t vagy GPU-t használ-e alapértelmezetten? Ha CPU, explicit GPU-flag szükséges a gyorsabb futáshoz.
+- ✅ Oldalszám-alapú figyelmeztetés kész: `--warn-pages 50` (default), `--yes` flag az automatizált futtatáshoz, `--backend` GPU-választáshoz (`vlm-sglang`). `03_run_mineru_pipeline.py` v2 (2026-05-26).
+- 💬 NOTE: MinerU a kimenetet `2_clean_inputs/<forrasnev>/auto/` alá írja, nem közvetlenül `<forrasnev>/` alá. Esztétikailag nem ideális, de a pipeline downstream lépései (03_util_figure_catalog.py, 05_assemble.py stb.) valószínűleg kezelik -- ellenőrzendő.
+- 💬 NOTE: Kéthasábos akadémiai PDF-nél a caption és a kép párosítása nem mindig pontos.
+- 💬 NOTE: Egyenlet-képek (`equation_N_pP.jpg`) általában nem kerülnek a Jegyzetbe (LaTeX-képletként szerepelnek).
+- 💬 NOTE: MinerU MCP-n át nem futtatható (hard timeout ~30s). Természetes pipeline-szünet: 😎 manuálisan vagy külön terminálból indítandó.
+- 🔲 TODO: `scripts/03_util_figure_catalog.py` szintaktikai hiba: `run_vlm_on_catalog()` függvény paramétere `2_clean_inputs_dir: Path,` (sor 119) és `week_dir = 2_clean_inputs_dir.parent` (sor 128) -- érvénytelen Python azonosító (számmal kezdődik). A fájl egyáltalán nem importálható/futtatható -- Python parse error. A `build_catalog()` és `main()` logika helyes, csak a `run_vlm_on_catalog()` rontja el az egész fájlt. Javítandó: `clean_inputs_dir` névre átnevezni mindkét előfordulást.
 
-## 7. Kép-hivatkozás formátumok
+## 9. Változásjegyzék
 
-## 7.1. Inline kép
-
-```markdown
-![Figure 3: Matrix profile (P)](forrasok/kepek/fig_003_p003_matrix_profile_overview.jpg)
-*Figure 3. Forrás: Matrix Profile I.pdf, 18. o.*
-```
-
-## 7.2. Placeholder (MinerU még nem futott)
-
-```markdown
-![PLACEHOLDER: Figure 3](forrasok/kepek/PLACEHOLDER_fig_003.png)
-*[Kép betöltendő: Matrix Profile I.pdf, Figure 3, 18. o.]*
-```
-
-## 7.3. MSc-jelölt kép blokk
-
-```markdown
-<!-- MSc -->
-![Figure 7: GPU-STOMP](forrasok/kepek/fig_007_p007_gpu_stomp.jpg)
-*Figure 7. Forrás: Matrix Profile II.pdf*
-<!-- /MSc -->
-```
-
-
-## 8. Placeholder csere valódi képre
-
-👤 Manuális lépés, egyszer PDF-enként:
-TODO: A mineru-t te is tudod automatizáltan futtatni. 
-TODO: CRITICAL ezt a képorientált workflow-t kialakítani.
-1. mineru_pdf.py futtatása
-2. mineru_rename.py futtatása
-3. Képek másolása forrasok/kepek/-be
-4. PLACEHOLDER hivatkozások cseréje valódi fájlnevekre
-
-
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; kepek_workflow.md tartalom konszolidálva; pipeline diagram eltávolítva |
+| 2026-05-24 | 2.0 | Kepek_workflow.md beolvasztva; 03_run_mineru_pipeline.py ajánlottá téve |
+| 2026-05-23 | 1.2 | Útvonalak frissítve: forrasok/ → 2_clean_inputs/ |
+| 2026-05-22 | 1.0 | Létrehozva |

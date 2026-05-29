@@ -1,14 +1,18 @@
 ﻿---
-title: NLM_PROMPTS.MD — NLM és Claude meta-promptok
+title: NLM_PROMPTS.MD — NLM és Claude meta-promptok (INDEX)
 type: meta
 tags: [meta, reference]
-updated: 2026-05-21 (rev2)
-description: Bemásolandó prompt szövegek. A = Claude Project Instructions. B = NLM Custom Instructions (hat a CLI-re is). C = Data Tables Studio + Export-Tool workflow. Forrás: nlm_claude_integration.md + 2026 tesztek.
+updated: 2026-05-29
+description: Prompt index. A részletes promptok .claude/prompts/ mappában vannak. B = NLM Custom Instructions (hat a CLI-re is). D = Szószedet. E = Kérdésbank.
 ---
-# NLM Prompts — NLM és Claude Meta-promptok
+# NLM Prompts — Index
 
-Forrás: [nlm_claude_integration.md](nlm_claude_integration.md), 6. fejezet.
-TODO: A helyes lokáció: .claude\archive\nlm-claude_integration_research.md
+> **Kanonikus prompt fájlok:** `.claude/prompts/`
+> - [prompt_b.md](prompts/prompt_b.md) — NotebookLM Custom Instructions (02. lépés)
+> - [prompt_d_szozedet.md](prompts/prompt_d_szozedet.md) — Szószedet query (07. lépés)
+> - [prompt_e_kerdesbank.md](prompts/prompt_e_kerdesbank.md) — Kérdésbank query (13. lépés)
+
+Ez a fájl megőrzi a teljes szöveget visszafelé kompatibilitás miatt, de az aktív, szerkesztett verzió `.claude/prompts/`-ban van.
 
 ## 1. Prompt A — Claude Project Custom Instructions
 
@@ -17,9 +21,8 @@ TODO: A helyes lokáció: .claude\archive\nlm-claude_integration_research.md
 **Mikor:** Egyszeri setup — a `.claude/CLAUDE.md` tartalmával együtt másolandó be.
 
 **Megjegyzés:** A szerepkör-leírás és pipeline-szabályok a CLAUDE.md-ben részletezve vannak; Prompt A csak az NLM-specifikus forráskezelési szabályokat tartalmazza.
-TODO: szerepkör-leírás linkelése
-TODO: pipeline linkelése
-TODO: nem egyérteémű, hogy ez hova kapcsolódik, hova linkelhető: "Prompt A csak az NLM-specifikus forráskezelési szabályokat tartalmazza." hiszen ez maga a "Prompt A" és mégis "csak" a megjegyzésekbe került
+
+TODO: Ez egyáltalán még használatban van? Nem egyértelmű, hogy ez hova kapcsolódik,és a "Prompt A" csak az NLM-specifikus forráskezelési szabályokat tartalmazza.
 
 ```
 # SOURCE RECONCILIATION & FILE EXTENSION POLICY
@@ -68,8 +71,9 @@ Te egy rendkivul preciz, akademiai szintu kutatasi es adatintegracios assziszten
 
 # KIMENETI FORMATUM
 
+* Az ELSO sor mindig egy ## szintu fejlec (heading) legyen, amely a kerdesben szereplő tema cime (pl. ## Feketetest modell). Semmilyen bevezeto mondat, bekezdés vagy szoveg NEM előzheti meg a ## fejlecet -- sem az elso sorban, sem azt megelozoen.
 * Valaszaidat strukturalt Markdown formatumban add meg.
-* A tablazatokat szabvanyos GFM (GitHub Flavored Markdown) formaban generald. Minden sor vegen es minden cellaban szerepeljen a pontos forrasattribucio.
+* A tablazatokat szabvanyos GFM (GitHub Flavored Markdown) formaban generald. Helyes elvalaszto sor: `| :--- | :--- |` (nem `:, -`). Minden sor vegen es minden cellaban szerepeljen a pontos forrasattribucio.
 ```
 
 **Megjegyzés az ékezetek hiányáról:** A Prompt B fenti verziója ékezetek nélküli (ASCII), mert Claude PowerShell-en keresztül is el tudja küldeni inline kérdésként. A Configure Chat-ben a webes UI-on manuálisan illeszd be az eredeti, ékezetes változatot (lásd image.png).
@@ -85,7 +89,7 @@ TODO: nem egyértelmű, hogy ez az NLM MCP-n keresztül is működik-e. a 3.1, 3
 
 **Export workflow (Studio outputok → projektmappa):**
 
-Az NLM Studio által generált tartalmak (Data Tables, Gondolattérkép, Tanulókártyák) a cced3000/NotebookLM-Export-Tool bővítménnyel exportálhatók közvetlenül:
+Az NLM Studio által generált tartalmak (Data Tables, Gondolattérkép, Tanulókártyák) a NotebookLM-Export-Tool bővítménnyel exportálhatók közvetlenül:
 
 | Output típus | Exportálható formátum | Eszköz |
 |---|---|---|
@@ -143,7 +147,8 @@ Csak olyan fogalmakat vegyél fel, amelyek legalább egy feltöltött forrásban
 ```
 
 **Megjegyzés:** A Gondolattérkép funkció nem promptolható, de az Export-Tool segítségével Markdown-ként exportálható — ez a 05_mindmap_manager lépés bemeneteként felhasználható.
-TODO: ellenőrizd le, hogy promptolható-e
+~~TODO: ellenőrizd le, hogy promptolható-e.~~ 
+ANSWER: a prompt automatizálható mcp-n, de az ismeretlen okokból angol kimenetet ad. Ezért Hard-coded szabályként bevezetjük, hogy a mindmap generálása és exportálás emberi feladat.
 
 ### 3.3. Kérdésbank-alap táblázat (09_question_bank_collector előkészítője)
 
@@ -167,8 +172,101 @@ Oszlopok:
 Minden sorhoz legyen megadva a forrás. Ha egy állítás több forrásból is alátámasztható, az összeset tüntesd fel.
 ```
 
+## 4. Prompt D -- NLM CLI Szószedet query
+
+**Hova:** `nlm query notebook $NB $promptD --json`
+
+**Mikor:** 07_citations_maker lépésben, miután a `N_Jegyzet.md` össze van állítva (05 után). A szószedet a Jegyzet témaköreit tükrözi.
+
+**Elvárt kimenet:** A lekérdezés JSON `answer` mezőjéből a 07 skill generálja az `N_Szozedet.md`-t.
+
+**Szószedet bejegyzés formátum (`N_Szozedet.md`-ben):**
+
+```markdown
+## Magyar Terminus
+
+**Angol:** English Term
+**Definíció:** Egy mondatos definíció forrás alapján.<sup>[N]</sup>
+**Szint:** BSc / MSc
+```
+
+**ASCII prompt (PowerShell-kompatibilis, $'...' vagy @'...'@ heredoc):**
+
+```
+Generalj szoszedetet (min. 15, max. 30 szakkifejezesbol) a forrasok alapjan. Minden bejegyzeshez ird meg:
+1. Magyar terminus (H1 ##)
+2. Angol terminus (Angol: ...)
+3. Definicio (max. 1 mondat, forrasbol -- Definicio: ...)
+4. Szint (BSc vagy MSc -- Szint: ...)
+5. Forras-hivatkozas (forrasnev.pdf: oldal) szovegkozi hivatkozaskent
+
+BSc szint: alapfogalmak, amelyek BSc tanulmanyok soran szuksegek.
+MSc szint: melyebb elmelet, kutatasi szintu fogalmak.
+Sorrend: ABC szerint magyarul.
+```
+
+**PowerShell futtatás:**
+
+```powershell
+$promptD = @'
+Generalj szoszedetet (min. 15, max. 30 szakkifejezesbol) a forrasok alapjan. Minden bejegyzeshez ird meg:
+1. Magyar terminus (H1 ##)
+2. Angol terminus (Angol: ...)
+3. Definicio (max. 1 mondat, forrasbol -- Definicio: ...)
+4. Szint (BSc vagy MSc -- Szint: ...)
+5. Forras-hivatkozas (forrasnev.pdf: oldal) szovegkozi hivatkozaskent
+
+BSc szint: alapfogalmak, amelyek BSc tanulmanyok soran szuksegek.
+MSc szint: melyebb elmelet, kutatasi szintu fogalmak.
+Sorrend: ABC szerint magyarul.
+'@
+$NB = "<notebook_id>"
+nlm query notebook $NB $promptD --json | Out-File 3_raw_outputs/nlm_szozedet_raw.txt -Encoding utf8
+```
+
+**Megjegyzés:** Prompt D az NLM CLI-hez tervezett; ha Prompt B (Configure Chat) aktív, a `references` mező is feltöltve jön vissza -- felhasználható forrás-ellenőrzésre. A Studio §3.2 "Fogalomtérkép táblázat" alternatívaként exportálható, de a CLI-alapú verzió pipeline-integrálható és automatizálható.
+
+## 5. Prompt E -- NLM CLI Kérdésbank query
+
+**Hova:** `nlm query notebook $NB $promptE --json`
+
+**Mikor:** 13_question_bank_collector lépésben, a Mindmap (08) és Szószedet (07) után.
+
+**Elvárt kimenet:** JSON `answer` mező tartalmazza a kérdéseket; `N_Kerdesek.md`-be kerül.
+
+**ASCII prompt (PowerShell-kompatibilis):**
+
+```
+Generalj 10 feleletvalasztos kerdest a forrasok alapjan, novekvo nehezsegi sorrendben.
+Minden kerdeshez:
+- Kerdes szovege (**K[N]** SZINT:[2-5] formaban, ahol SZINT 2=alap, 3=alkalmazas, 4=melyebb elemzes, 5=kutatas)
+- A) B) C) D) valaszlehetosegek
+- Helyes valasz betuje (**Helyes:** X)
+- Forras-hivatkozas (*Forras: fajlnev.pdf: oldal*)
+- MSc szintu (SZINT 4-5) kerdeseket <!-- MSc --> ... <!-- /MSc --> blokkba foglald.
+```
+
+**PowerShell futtatás:**
+
+```powershell
+$promptE = @'
+Generalj 10 feleletvalasztos kerdest a forrasok alapjan, novekvo nehezsegi sorrendben.
+Minden kerdeshez:
+- Kerdes szovege (**K[N]** SZINT:[2-5] formaban, ahol SZINT 2=alap, 3=alkalmazas, 4=melyebb elemzes, 5=kutatas)
+- A) B) C) D) valaszlehetosegek
+- Helyes valasz betuje (**Helyes:** X)
+- Forras-hivatkozas (*Forras: fajlnev.pdf: oldal*)
+- MSc szintu (SZINT 4-5) kerdeseket <!-- MSc --> ... <!-- /MSc --> blokkba foglald.
+'@
+$NB = "<notebook_id>"
+nlm query notebook $NB $promptE --json | Out-File 3_raw_outputs/nlm_qquiz_raw.txt -Encoding utf8
+```
+
+**Megjegyzés:** Az output `nlm_qquiz_raw.txt` feldolgozása manuálisan vagy `07_szozedet_parser.py` mintájára írható `13_kerdesek_parser.py`-vel. A `<!-- MSc -->` jelölés ellenőrzése emberi review után véglegesítendő (szint-döntés nem automatizálható).
+
 # Változásjegyzék
 - 2026-05-21 — Létrehozva (Prompt A+B); nlm_claude_integration.md 6. fej. alapján
 - 2026-05-21 — Prompt C hozzáadva (Data Tables studio, 3 sablon)
 - 2026-05-21 — Duplikált "Prompt B" (Data Tables) → "Prompt C" javítva; YAML description sorrendje korrigálva; duplikált fejlécek eltávolítva
 - 2026-05-21 (rev2) — Prompt A: notebook_query hibás tool-név javítva → nlm query notebook CLI; szerepkör-leírás eltávolítva (CLAUDE.md fedi); citations.json linkelve. Prompt B: CLI-hatás dokumentálva (tesztelve MP notebookon); ékezet-mentes verzió beillesztve inline CLI-hez. Prompt C: Export-Tool workflow (cced3000) hozzáadva; Sheets→Export-Tool váltás; [!QUESTION] tagek megválaszolva; kvíz export státusz rögzítve.
+- 2026-05-26 — Prompt D hozzáadva: NLM CLI szószedet query (07_citations_maker A3 fix)

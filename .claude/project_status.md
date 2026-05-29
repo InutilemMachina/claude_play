@@ -2,14 +2,69 @@
 title: Project Status -- Playground PDCA log
 type: log
 status: active
-version: 2.7
-updated: 2026-05-26
+version: 3.0
+updated: 2026-05-29
 description: Playground (claude_play) PDCA log. Session elején Claude olvassa be. NEM tantárgy-specifikus.
 ---
 
+<!-- TODOs (strukturális rendrakás következő session-ben):
+TODO: templates/project_status_sablon.md + templates/context_sablon.md → course_development_template.md (egyesítés)
+TODO: Ez a fájl szerkezetileg szétesett -- rendbe kell tenni (gép+ember olvasható legyen)
+-->
+
 # Project Status -- Playground PDCA Log
 
-_Frissítve: 2026-05-23 (2. update)_
+_Frissítve: 2026-05-29 (3. update -- mini teszt post-mortem)_
+
+## ⚡ AKTUÁLIS BRANCH: meta_file_updates
+
+**Utolsó commit:** `fix(pipeline): RC-1/RC-2/RC-3 — heading structure, L1 sectioning, citations`
+
+**Nyitott P-prioritások:**
+| # | Feladat | Státusz |
+|---|---------|---------|
+| **P0-A** | Prompt B `##` heading kötelező (RC-1) | ✅ 2026-05-29 |
+| **P0-B** | Assembler L1-szekcionálás + `dfs_node_list.json` (RC-2) | ✅ 2026-05-29 |
+| **P0-C** | `07_citations_renumber.py` `--week-dir` + `<sup>` konverzió (RC-3) | ✅ 2026-05-29 |
+| **P1-A** | `11b_quality_reviewer` skill (RC-6) | ✅ 2026-05-29 |
+| **P1-B** | NLM Qfig alapú VLM pótlás (RC-4) | 🔲 következő session |
+| **P1-C** | `project_status.md` strukturális rendrakás | 🔲 következő session |
+| **P1-D** | `nlm_prompts.md` felbontás `./claude/prompts/` mappába | 🔲 következő session |
+| **F6** | Szószedet NLM-alapra | 🔲 |
+| **F7** | Kérdésbank NLM-alapra | 🔲 |
+| **F8** | PPTX architektúra döntés | 🔲 |
+| Branch cleanup | main merge + régi ágak törlése | 🔲 |
+
+## ✅ 2026-05-29 -- Mini teszt post-mortem + P0 fixek
+
+**Mini teszt:** 2 forrás (FLIR PDF + InfraTec HTML), 37 DFS query, `mini/1_het/`
+
+**Talált hibák és javítások:**
+
+| RC | Tünet | Fix | Eredmény |
+|----|-------|-----|----------|
+| RC-1 | 0/37 query generált `##` headinget | Prompt B `## kötelező első sor` szabály | Következő futásnál érvényes |
+| RC-2 | 4. fejezet: 72 alszekció | `dfs_node_list.json` + L1-szekcionálás | 72 → 4 alszekció |
+| RC-3 | `07_citations_renumber.py` elavult | Teljes újraírás `--week-dir`-rel | `<sup>` citáció + forrásblokk eltávolítás |
+| Bug | `05_assemble.py` hiányzó `main()` | Javítva (előző commit) | Script fut |
+| Bug | `extract_section_title()` csak `##`-t fogadott | `#{2,3}` regex | `###` is elfogadott |
+
+**Vision bypass:** Ultra Explorer törött → Claude vision → PNG-ből `nlm_mindmap_export.md` rekonstrukció (`08_mindmap_manager §8`).
+
+**Kvalitatív review (university editor):**
+- Publikálhatóság: 1/5 (P0 fixek előtt) → becsült 3/5 (P0 fixek után)
+- Kritikus: 72-pontos fejezet, `[2],[2]` dupla citációk, inline forrásblokkok
+
+**Pipeline lefutott (01–11):**
+- ✅ MinerU: 11 kép, `flir_IR_thermography.md`
+- ✅ Vision bypass: mindmap PNG → `nlm_mindmap_export.md`
+- ✅ 37/37 DFS query
+- ✅ Assembler (bug fix-szel)
+- ✅ 07 citations (újraírva): 699 `<sup>`, 113 forrásblokk-sor eltávolítva
+- ✅ 10 notes collector: 144 ToC bejegyzés
+- ✅ 11 typesetter: Rule A 164, Rule B 202, Rule H 155
+- ❌ Képek: VLM blokkolt (ANTHROPIC_API_KEY hiánya)
+- ❌ 06 excerpt blocks: API kulcs hiánya
 
 # 1. Plan (következő lépések)
 
@@ -19,7 +74,7 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 |:--|:--------|:--------|:-----------|
 | **R1** | **Termografia_teszt_v3 pipeline futtatás** -- új mappastruktúrával (1_raw_inputs/2_clean_inputs/3_raw_outputs/4_wip_outputs/5_clean_outputs) | 🤖+😎 | 🔲 következő prioritás |
 | **R2** | **MinerU** -- `03_run_mineru_pipeline.py` tesztje Termografia_teszt_v3-on | 🐍 | 🔲 |
-| **R3** | **context_sablon.md** lépésszámok frissítése (C00-C08 → 01-14) | 🤖 | 🔲 |
+| ~~**R3**~~ | ~~**context_sablon.md** lépésszámok frissítése~~ | 🤖 | ✅ KÉSZ 2026-05-26 |
 | **R4** | **nlm_integration.md notebook-lista** frissítése (Termografia v2+v3 hozzáadva) | 🤖 | 🔲 -- beolvadt 02_nlm_notebook_setup-ba |
 | **R5** | **NLM Prompt B pedagógiai felülvizsgálata** | 🤖+😎 | nlm_prompts.md átírás |
 | **R6** | **du_template.pptx** megszerkesztése | 😎 | hiányzik, bypass él |
@@ -47,11 +102,11 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 - NOTE 💬 A notebook középső ablakában automatikusan generált absztrakt szöveg jelenik meg -- felhasználható a tananyag bevezető szövegéként (pipeline integrálni kell, pl. 05_source_controller vagy 06_excerpt_block_maker inputjaként).
 - NOTE 💬 Mindmap sikeresen létrejött a Studio fülön.
 - NOTE 💬 Prompt B (Metaparancs) sikeresen beillesztve -- "Egyéni" mód aktív.
-- NOTE 💬 Válasz hossza: `Alapértelmezett` helyett `Hosszabb` legyen a pipeline alapbeállítása -- a `nlm chat configure` hívásban hozzáadandó: `--response-length long` (ellenőrizni kell a CLI-ben, hogy ez a helyes flag).
+- ✅ Válasz hossza: `nlm chat configure $NB --response-length longer` (tesztelve 2026-05-26 -- helyes flag: `longer`, nem `long`).
 
 **14. lépés -- eredmény:**
 
-- ⚠️ `14_bsc_filter.py` script nem létezik -- a skill is jelzi (§2: "Script még nem létezik"). A szűrést manuálisan végzem el.
+- ⚠️ `14_bsc_filter.py` script nem létezik -- a skill is jelzi (§2: "Script még nem létezik"). A szűrést manuálisan végzem el. *(✅ 2026-05-26: script elkészült -- `scripts/14_bsc_filter.py`)*
 - ✅ `5_clean_outputs/bsc/` létrehozva, BSc-szűrt fájlok bemásolva (MSc blokkok kivágva).
 
 **14. lépés -- NOTE-ok (pre-futás):**
@@ -77,7 +132,7 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 
 **11. lépés -- NOTE-ok:**
 
-- NOTE 💬 **Phase 1 (bullet→próza Claude API) ejtve:** A `11_typesetter.py` Phase 1 funkcióját el kell hagyni. Indok: az NLM `--response-length long` beállítással eleve folyó prózát ad vissza -- ha ez működik, a Claude API-s konverzió felesleges overhead. Phase 1 eltávolítandó a scriptből; a `11_typesetter.py` csak Phase 2 (linting) maradjon. A script `--lint-only` flagje ezzel válik az egyetlen futtatási móddá.
+- NOTE 💬 **Phase 1 (bullet→próza Claude API) ejtve:** A `11_typesetter.py` Phase 1 funkcióját el kell hagyni. Indok: az NLM `--response-length longer` beállítással eleve folyó prózát ad vissza -- ha ez működik, a Claude API-s konverzió felesleges overhead. Phase 1 eltávolítandó a scriptből; a `11_typesetter.py` csak Phase 2 (linting) maradjon. A script `--lint-only` flagje ezzel válik az egyetlen futtatási móddá.
 
 **10. lépés -- NOTE-ok:**
 
@@ -134,10 +189,30 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 - NOTE 💬 HTML forrás letöltése helyi fájlba (`azad2012_webpage.html`) felesleges volt -- az NLM CLI csak URL-t fogad el webes tartalomnál, a helyi HTML fájlt visszautasítja. Token-pazarlás volt a helyi mentés. Ezentúl: weblap → URL direkten az NLM-be.
 - NOTE 💬 `citations_seed.json` a 01. lépés outputja, de az ebben a futásban skip-elődött (user hozta a forrásokat) -- a seed nélkül a 02. lépés nem indítható el. A két lépés szorosan függ egymástól.
 
+## 2026-05-26 -- Technical debt sprint (meta_file_updates branch)
+
+**Elvégzett:**
+
+- ✅ **B1 fix** `scripts/03-1_qfig_parser.py` v2: FIELD_RE Markdown-bold formátum (`*   **Forrás:**`) kezelése + FELIRAT/ÁBRA SZÁMA aliasok + `_keywords_from_text()` fallback (ha TÉMAKÖR hiányzik). Teszt: 15 entry parsed, 9 matched (Fourier_teszt).
+- ✅ **S1** `scripts/generate_index.py`: ToC generálás (GFM anchor, accent-aware exclude) + figure insertion figure_catalog.json alapján.
+- ✅ **S2** `scripts/14_bsc_filter.py`: `<!-- MSc -->` blokk, Mermaid `[MSc]` node és `SZINT:4-5` kérdés eltávolítás; `5_clean_outputs/` kiírás `_bsc` suffixszel.
+- ✅ **A1 confirm**: `05_assemble.py` line 182 -- `## 0. Bevezetés` wrapper már megvan.
+- ✅ **A2 confirm**: `04_nlm_dfs_queries.py` teljes DFS traversal már megvan (--resume, --sleep, RESOURCE_EXHAUSTED detekció).
+- ✅ **A3** `nlm_prompts.md §4` Prompt D: NLM CLI szószedet ASCII query.
+- ✅ **A4** `nlm_prompts.md §5` Prompt E: NLM CLI kérdésbank ASCII query.
+- ✅ **M1** `templates/context_sablon.md`: 01-14 lépéscsoportok (01-02 / 03-04 / 05-07 / 08-10 / 11-12 / 13-14).
+- ✅ **Q7 confirm**: `rule_b_bullet_whitespace()` v3.1 már kezeli a `*   **...` → `* **...` esetet.
+- ✅ `pitfalls.md §3.4`: B1 fix dokumentálva.
+
+**Nyitott:**
+- 🔲 B2: NLM RESOURCE_EXHAUSTED --resume teszt (Termografia_teszt_v3)
+- 🔲 R1, R2, R7: Termografia_teszt_v3 end-to-end futtatás (MinerU + NLM)
+- 🔲 D1-D5: Architektúrális döntések (😎 jóváhagyás szükséges)
+
 ## 2026-05-25 -- Content quality session (feature/content-quality)
 
-- ✅ `scripts/03b_qfig_parser.py` -- Qfig NLM output → figure_catalog caption+keywords
-- ✅ `scripts/03c_dedup_figures.py` -- hash-alapú figura deduplication (duplicate flag)
+- ✅ `scripts/03b_qfig_parser.py` -- Qfig NLM output → figure_catalog caption+keywords *(átnevezve: `03-1_qfig_parser.py`; BOM+Markdown-bold fix 2026-05-26)*
+- ✅ `scripts/03c_dedup_figures.py` -- hash-alapú figura deduplication (duplicate flag) *(átnevezve: `03-2_dedup_figures.py`)*
 - ✅ `scripts/05_assemble.py` -- Q1-Q4 összefűzés, CLI-alapú, portábilis (hardcoded _assemble.py felváltja)
 - ✅ `scripts/06b_table_caption_injector.py` -- GFM táblázat captionök FELÜLRE injektálása
 - ✅ `scripts/09_figure_mapper.py` -- keyword × paragraph matching (dict-formátum javítva)
@@ -224,13 +299,13 @@ _Frissítve: 2026-05-24 -- refactor/v2 branch_
 | 06b table_caption_injector | ✅ | `--` a caption-ban és `(automatikus felirat)` placeholder -- mindkettő javítandó |
 | 07 citations_maker (szószedet) | ⚠️ | Claude-alapú, nem NLM-alapú -- nem auditálható, nem reprodukálható |
 | 08 mindmap_manager | ✅ | Fourier_teszt: Studio export kész, `, N gyermek` suffix tisztítva, `4_wip_outputs/1_Mindmap.md` létezik |
-| 09 figure_mapper | ❌ | 0 kép -- 03b_qfig_parser 0 egyezés (BOM + szabad NLM formátum) blokkolja |
+| 09 figure_mapper | ❌→✅ | 0 kép Fourier_teszt-en (03-1_qfig_parser BOM+Markdown-bold hiba) -- javítva 2026-05-26 (B1 fix); Termografia_teszt_v3-on verifikálandó |
 | 10 notes_collector (ToC) | ⚠️ | ToC hierarchikus számozás hiányzik; leading spaces Q1-nél (heading hierarchia bug) |
 | 11 typesetter (lint-only) | ✅ | v3.0: Phase 1 kódból eltávolítva; Rule H (dash cleanup) implementálva; 305→186 sor |
 | 12 presentation_maker (PPTX) | ⚠️ | Sablon nem alkalmazódott; raw Markdown szintaxis látható; TOC-dia hiányzik |
 | 13 question_bank_collector | ⚠️ | Claude-alapú, nem NLM-query -- placeholder, újragenerálandó |
-| 14 bsc_filter | ⚠️ | Script nem létezik -- manuális; `_bsc` suffix konvenció rögzítve |
-| **Kritikus:** 03b_qfig_parser | ❌ | 0 kép az egész pipeline-ban -- legmagasabb prioritású bug |
+| 14 bsc_filter | ✅ | `scripts/14_bsc_filter.py` kész 2026-05-26; `_bsc` suffix konvenció rögzítve |
+| ~~**Kritikus:** 03-1_qfig_parser~~ | ✅ | BOM + Markdown-bold fix 2026-05-26 (B1); Termografia_teszt_v3 verifikálandó |
 
 ## 2026-05-25 -- feature/content-quality: architektúrai döntések
 
@@ -313,8 +388,7 @@ Ez a kimenet:
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
-| 2026-05-26 | 2.7 | Do §5: koherencia-check K1-K3/M1-M3; F17/F18 lezárva; pipeline.md v5.1 |
-| 2026-05-26 | 2.6 | Do §4: DFT DFS session + RESOURCE_EXHAUSTED; §6 Branch cleanup terv; P-elvek áthozva |
+| 2026-05-26 | 2.6 | Do §4: DFT DFS session + RESOURCE_EXHAUSTED; §5 Branch cleanup terv; P-elvek áthozva |
 | 2026-05-25 | 2.5 | Check: Fourier_teszt 01-14 step-by-step tanulságok; Plan F1-F10 prioritások |
 | 2026-05-25 | 2.3 | Check: NLM vs Vision API döntés + _assemble.py probléma dokumentálva |
 | 2026-05-25 | 2.2 | feature/content-quality Do szekció; Plan P-státuszok frissítve |
@@ -396,7 +470,7 @@ _Frissítve: 2026-05-25 (feature_test_step_by_step session után)_
 
 | # | Feladat | Megjegyzés | Státusz |
 |:--|:--------|:-----------|:--------|
-| **F1** | **03b_qfig_parser javítás** -- BOM + szabad NLM formátum kezelése | KRITIKUS: képek nélkül a pipeline csonka | 🔲 |
+| **F1** | **03-1_qfig_parser javítás** -- BOM + Markdown-bold formátum kezelése | KRITIKUS: képek nélkül a pipeline csonka | ✅ 2026-05-26 |
 | **F2** | **NLM Studio Mindmap export** -- Ultra Explorer automatizálás (Claude in Chrome MCP?) | Architektúrai sarokkő | ✅ 2026-05-26 (manuális; `, N gyermek` cleanup dokumentálva) |
 | **F3** | **Heading hierarchia fix** -- `05_assemble.py` Q1-hez `## Bevezetés` szülő VAGY Prompt B módosítás | ToC + excerpt_block_maker Q1 | ✅ 2026-05-26 |
 | **F4** | **Dash cleanup Rule H** -- `11_typesetter.py` Rule H: `--` / `–` / `—` eltávolítás | Pipeline-széles probléma | ✅ 2026-05-25 |
@@ -405,18 +479,15 @@ _Frissítve: 2026-05-25 (feature_test_step_by_step session után)_
 | **F7** | **Kérdésbank NLM-alapra** -- `13_question_bank_collector` NLM-query verzió | Jelenlegi placeholder | ⚙️ következő iteráció |
 | **F8** | **PPTX architektúra döntés** -- XML placeholder mapping vs Pandoc vs Marp+Headless Chrome | `12_pptx_gyarto.py` jelenleg nem használja a sablont | ⚙️ következő iteráció |
 | **F9** | **Camera-ready scope** -- minden végtermék `5_clean_outputs/` alá `_bsc` suffixszel | `14_bsc_filter.md`-ban rögzítve | ✅ 2026-05-26 (döntés dokumentálva) |
-| **F10** | **`14_bsc_filter.py` script megírása** -- `_bsc` suffix konvencióval | Jelenleg manuális | ⚙️ következő iteráció |
+| **F10** | **`14_bsc_filter.py` script megírása** -- `_bsc` suffix konvencióval | Jelenleg manuális | ✅ 2026-05-26 |
 | **F11** | **MinerU UX log** -- `mineru_run.log` automatikus írása | Start-Process empty CMD fix | ✅ 2026-05-26 |
 | **F12** | **01-02 seed függőség** -- seed skip workaround dokumentálva | `01_references_collector.md` NOTE | ✅ 2026-05-26 |
 | **F13** | **Studio audit trail** -- `04_nlm_query_runner.md` NOTE; válasz hossza config | dokumentáció | ✅ 2026-05-26 |
 | **F14** | **Bullet whitespace Rule B** -- `11_typesetter.py` `*   **` → `* **` | lint rule | ✅ 2026-05-26 |
 | **F15** | **Table caption n-dash** -- `06b_table_caption_injector.py` `--` → `:` | lint rule | ⚙️ következő iteráció |
 | **F16** | **DFS NLM query resume** -- `--resume --sleep 5` flag a kvóta-limit miatt | pitfalls §2.8 | 🔲 holnap futtatandó |
-| **F17** | **Git branch cleanup** -- main-re squash + régi ágak törlése | lásd §4 Branch-állapot | ✅ |
-| **F18** | **Automata elvárás dokumentálása** -- heurisztikák TILOSAK, minden lépés automatizálható kell legyen | feature/content-quality-ból áthozva | ✅ pipeline.md §3 |
-| **M2** | **pipeline.md frissítés** -- `04_nlm_dfs_queries.py` beillesztve IO táblába + §3 | pipeline.md v5.1 | ✅ |
-| **M3** | **`04_nlm_query.py` státusz** -- egylekérdezéses wrapper, `04_nlm_dfs_queries.py` felülírja | archivba kerülhet; nem blokkoló | ⚙️ alacsony prioritás |
-| **A1** | **`util_regen_outputs.py` átnevezés** -- NN_ prefix hiányzik | scripts/ | 🔲 alacsony prioritás |
+| **F17** | **Git branch cleanup** -- main-re squash + régi ágak törlése | lásd §4 Branch-állapot | 🔲 |
+| **F18** | **Automata elvárás dokumentálása** -- heurisztikák TILOSAK, minden lépés automatizálható kell legyen | feature/content-quality-ból áthozva | 🔲 pipeline.md-be |
 
 # 4. Do -- 2026-05-26 (DFT_teszt DFS NLM session)
 
@@ -458,10 +529,18 @@ Branch célja: élethű `wip_outputs` -- utána pipeline teljes automatizálása
 | P5 | HTML források NLM-be URL-ként | igen (nlm CLI) | 🔲 következő session |
 | P6 | 09_figure_mapper: VLM keywords x NLM szöveg -> beillesztési pont | igen | ✅ script kész; P4 után futtatható |
 
-# 5. Do -- 2026-05-26 (koherencia-ellenőrzés + main lezárás)
+# 5. Branch cleanup terv (következő session)
 
-## Teljes belső koherencia-ellenőrzés
+**Cél:** Egyetlen tiszta `main` ág; régi ágak törlése.
 
-Python analízis script (22 talált probléma, 3 kategória):
+```
+Lépés 1: git checkout feature_test_step_by_step
+Lépés 2: git add -A && git commit -m "docs: 2026-05-26 DFT DFS session + branch cleanup terv"
+Lépés 3: git checkout main
+Lépés 4: git merge --squash feature_test_step_by_step
+Lépés 5: git commit -m "feat: squash merge feature_test_step_by_step (DFT teszt + DFS + refactor)"
+Lépés 6: git branch -d feature_test_step_by_step feature/content-quality refactor/v2
+Lépés 7: git push origin main --force-with-lease (ha remote is frissítendő)
+```
 
-| Javítás | Mi
+**Mikor:** Következő session elején, mielőtt bármi más work indul.

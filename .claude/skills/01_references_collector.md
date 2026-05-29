@@ -1,35 +1,30 @@
 ---
 name: 01_references_collector
-title: 01_REFERENCES_COLLECTOR — References Collector
+title: 01_REFERENCES_COLLECTOR -- References Collector
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-22
-description: Forrásgyűjtés Deep Research-sel. Naming convention alkalmazása, open-access PDF letöltés kísérlet, citations.json alapozása, NLM feltöltési útmutató. Pipeline 00. lépése.
+version: 2.0
+updated: 2026-05-26
+description: Forrásgyűjtés és naming convention alkalmazása. Open-access PDF letöltés, citations_seed.json generálása, NLM feltöltési útmutató. Pipeline 01. lépése.
 ---
 
-# 01_REFERENCES_COLLECTOR.MD — References Collector
-_00. lépés -- Pipeline belépési pontja_
+# 01_REFERENCES_COLLECTOR
 
-# 1. Célja és helye a pipeline-ban
+## 1. Cél
 
-Az NLM forráskezelése instabil, ha a forrásokat manuálisan töltik fel: az UUID-ek
-ismeretlenek maradnak, a naming nem egységes, és a citáció-renumber nem tud
-visszakeresni. Ez a lépés orvosolja a problémát azzal, hogy **Claude gyűjti össze
-a forrásokat** a tantárgy témakörének megfelelően.
+A user által az `1_raw_inputs/` mappába helyezett (és opcionálisan Deep Research-sel kiegészített) forrásokból `citations_seed.json`-t generál, és NLM feltöltési útmutatót ad.
 
-```
-00_references_collector  →  [forrasok/ feltöltve, citations_seed.json kész]
-  → 01_nlm_query_runner  →  ...
-```
+## 2. Bemenetek
+
+- `1_raw_inputs/*.pdf`, `*.html`, `*.docx` -- user által feltöltött források
+- (opcionális) téma és hét meghatározása Deep Research-hez
 
 **Előfeltétel:** Nincs. Ez az első lépés.
-**Output:** `N_het/forrasok/` feltöltött PDF-ek + `citations_seed.json`.
 
-# 2. Naming convention
+## 3. Eljárás
 
-## 2.1. Alap séma
+### 3.1. Naming convention
 
 ```
 <szerzo><ev>_<tipus>.<ext>
@@ -38,11 +33,9 @@ a forrásokat** a tantárgy témakörének megfelelően.
 | Mező | Szabály | Példa |
 |:-----|:--------|:------|
 | `<szerzo>` | Első szerző vezetékneve, kisbetű, ékezet nélkül | `yeh`, `oppenheim` |
-| `<ev>` | Megjelenési év (4 jegy) | `2016`, `1999` |
-| `_<tipus>` | Lásd típustáblázat alább | `_paper`, `_book` |
-| `.<ext>` | `pdf`, `html`, `epub` -- lehetőleg `pdf` | `.pdf` |
-
-## 2.2. Típuskódok
+| `<ev>` | Megjelenési év (4 jegy) | `2016` |
+| `_<tipus>` | Lásd típustáblázat | `_paper`, `_book` |
+| `.<ext>` | Lehetőleg `pdf` | `.pdf` |
 
 | Kód | Mit jelent |
 |:----|:-----------|
@@ -50,86 +43,24 @@ a forrásokat** a tantárgy témakörének megfelelően.
 | `book` | Teljes könyv |
 | `chapter` | Könyvfejezet |
 | `slides` | Előadásdiasor (PDF) |
-| `webpage` | Weboldal (HTML mentés vagy URL) |
-| `report` | Technikai jelentés, white paper |
-| `thesis` | Disszertáció, szakdolgozat |
-| `NA` | Hiányzó adat (pl. szerző ismeretlen) |
+| `webpage` | Weboldal |
+| `report` | Technikai jelentés |
+| `thesis` | Disszertáció |
+| `NA` | Hiányzó adat |
 
-## 2.3. Egyedi esetek
+Azonos szerző + év: `a`/`b`/`c` suffix (pl. `yeh2016a_paper.pdf`).
 
-| Eset | Megoldás | Példa |
-|:-----|:---------|:------|
-| Azonos szerző + év, két forrás | `a`/`b`/`c` suffix az év után | `yeh2016a_paper.pdf` |
-| Ismeretlen szerző | `NA` a szerző helyén | `NA2020_webpage.pdf` |
-| Ismeretlen év | `NA` az év helyén | `smith_NA_book.pdf` |
-| Több szerző | Csak az első szerző | `mueen2015_paper.pdf` |
-| Intézményi szerző | Rövidítés | `ucr2024_webpage.html` |
+### 3.2. Forrásgyűjtés (opcionális Deep Research)
 
-## 2.4. Példák
+Ha a user kéri, Claude WebSearch-szel felkutat releváns forrásokat:
+1. Kulcscikkek: leggyakrabban hivatkozott alapcikkek
+2. Oktatási anyagok: lecture notes, tutorial, review -- didaktikailag hasznosabb
+3. Hazai/intézményi forrás: ha van, preferált
 
-```
-yeh2016_paper.pdf          Matrix Profile I (Yeh et al., 2016)
-zhu2016a_paper.pdf         Matrix Profile II (Zhu et al., 2016a)
-zhu2016b_slides.pdf        MP II előadásdiák
-mathworks2024_webpage.html MATLAB matrixProfile dokumentáció
-mueen2015_paper.pdf        MASS algoritmus (Mueen, 2015)
-ucr2024_webpage.html       UCR Matrix Profile Page
-```
+Ha `access == "open"`: WebFetch-szel letölti és elmenti `1_raw_inputs/`-ba.
+Ha `access == "closed"`: DOI + letöltési URL listázása → 😎 manuálisan tölti le.
 
-# 3. Workflow
-
-## 3.1. Téma és hét meghatározása
-
-Claude megkapja:
-- `tantargy`: pl. `matrixprofil_teszt`
-- `het`: pl. `1`
-- `tema`: pl. `Mátrix Profil -- Elmélet és Alkalmazások`
-- (opcionális) `meglevo_forrasok`: már feltöltött fájlok listája
-
-QUESTION: nem tudom, hogy ez itt miért releváns. Az adott hét raw_sources mappáját töltjük fel közösen fájlokkal. 
-
-## 3.2. Deep Research keresés
-
-Claude WebSearch-szel felkutatja a releváns forrásokat. Keresési stratégia:
-
-1. **Kulcscikkek:** a téma leggyakrabban hivatkozott alapcikkei (Google Scholar, Semantic Scholar, arXiv).
-2. **Oktatási anyagok:** lecture notes, tutorial, review cikk -- didaktikailag hasznosabb.
-3. **Hazai/intézményi forrás:** ha van, preferált.
-
-Minden talált forráshoz rögzíti:
-```json
-{
-  "file": "yeh2016_paper.pdf",
-  "title": "Matrix Profile I...",
-  "authors": ["Yeh, C-C. M.", "Zhu, Y.", "..."],
-  "year": "2016",
-  "venue": "IEEE ICDM 2016",
-  "doi": "10.1109/ICDM.2016.0069",
-  "url_open": "https://arxiv.org/abs/...",
-  "url_closed": "https://ieeexplore.ieee.org/...",
-  "access": "open",
-  "type": "paper",
-  "relevance": "Alap -- az MP eredeti definíciója és STAMP algoritmus",
-  "didactic_value": "magas -- sok ábra, példa"
-}
-```
-
-## 3.3. Open-access letöltés
-
-Ha `access == "open"`:
-- `WebFetch` az arXiv / PMC / nyílt repó URL-re
-- Mentés: `N_het/forrasok/<naming>.pdf`
-- Ha a letöltés sikertelen (closed access, JS-rendered): jelzés a listában
-
-Ha `access == "closed"`:
-- Nem tölt le (jogi/etikai korlát)
-- Listázza a DOI-t és a letöltési URL-t --> 👤 manuálisan tölti le
-
-## 3.4. citations_seed.json generálása
-
-A letöltött (és manuálisan feltöltendő) forrásokból generálja a
-`forrasok/citations_seed.json`-t -- ezt a `04_citations_maker` mint alapot
-használja, az NLM UUID-ek nélkül (azok csak az NLM lekérdezés után tölthetők):
+### 3.3. citations_seed.json generálása
 
 ```json
 {
@@ -143,56 +74,63 @@ használja, az NLM UUID-ek nélkül (azok csak az NLM lekérdezés után tölthe
     "url": "https://arxiv.org/abs/...",
     "nlm_uuid": null,
     "type": "paper",
-    "note": "Alap -- STAMP algoritmus, MASS szubrutin"
+    "note": "Alap -- STAMP algoritmus"
   }
 }
 ```
 
-`nlm_uuid` null marad -- a `01_nlm_query_runner` / `04_citations_maker` tölti ki.
+`nlm_uuid` null marad -- a `02_nlm_notebook_setup` tölti ki.
 
-## 3.5. NLM feltöltési útmutató
+### 3.4. NLM feltöltési útmutató (kimenet)
 
-Claude listát készít a letöltött / feltöltendő fájlokról:
+Claude listát ad a feltöltendő fájlokról:
 
 ```
 ✅ Letöltve (open access):
-  - yeh2016_paper.pdf   (arXiv:1602.01187)
-  - zhu2016a_slides.pdf (cs.ucr.edu közvetlen link)
+  - yeh2016_paper.pdf
 
-👤 Manuálisan töltsd le és töltsd fel az NLM-be:
+😎 Manuálisan töltsd le:
   - zhu2016b_paper.pdf  DOI: 10.1109/ICDM.2016.0096
-                        URL: https://ieeexplore.ieee.org/...
-
-NLM notebook feltöltési sorrend (preferált):
-  1. yeh2016_paper.pdf
-  2. zhu2016a_slides.pdf
-  3. [manuálisak]
 ```
 
-Aztán 👤 feltölti az NLM notebookba, majd a `nlm_uuid`-eket a `04_citations_maker`
-visszatölti a JSON-ba a Prompt B kimenetéből.
+## 4. Kimenetek
 
-TODO A user nem tud nlm_uuid-kat és JSON-t szerkeszteni. Amikor minden forrás rendelkezésre áll, akkor azokat egyben feltöltjük
+- `1_raw_inputs/` -- PDF-ek és egyéb források
+- `1_raw_inputs/citations_seed.json` -- metaadatok, `nlm_uuid: null` mezőkkel
 
-# 4. Takarékossági szabály
+## 5. Ellenőrzés
 
-**PoC teszteknél:** Max. 3-5 forrás kereső és letöltése. Nem kell teljes irodalomjegyzék.
-A cél az, hogy az NLM-nek legyen legalább 2-3 jó minőségű, didaktikailag értékes forrása.
+- [ ] Minden forrás fájlneve a naming convention szerint van
+- [ ] `citations_seed.json` létezik, minden forráshoz bejegyzés van
+- [ ] `nlm_uuid` mezők null-ok (feltöltés előtt helyes)
+- [ ] Closed access forrásokhoz DOI / URL listázva van
 
-# 5. Kapcsolódó fájlok és lépések
+## 6. Hibakezelés
 
-| Fájl | Keletkezik | Felhasználja |
-|:-----|:-----------|:-------------|
-| `forrasok/<naming>.pdf` | 00 | 01, NLM |
-| `forrasok/citations_seed.json` | 00 | 04_citations_maker |
-| `forrasok/citations.json` | 04 (seed alapján) | 04, 06 |
-| `forrasok/nlm_q*_raw.txt` | 01 | 04 |
+- Tünet: `citations_seed.json` hiányzik, mert a user saját forrásokat hozott (01 kihagyva)
+- Gyökérok: a `02_nlm_notebook_setup` feltételezi a seed meglétét
+- Megoldás: manuálisan generáld a seed-et az `1_raw_inputs/` tartalmából; `nlm_uuid` marad null
+- Megjegyzés: ha a seed manuálisan generált, a `nlm_uuid` mezők null-ok maradnak 02-ig
 
+## 7. Hivatkozások
 
-# Ismert hibák
+- [pipeline.md](../pipeline.md)
+- [02_nlm_notebook_setup.md](02_nlm_notebook_setup.md)
 
-Nincs ismert, skill-specifikus pitfall. Általános: [pitfalls.md](../pitfalls.md)
+## 8. Visszajelzések
 
-# NOTE-ok (tesztelés visszajelzések)
+- 🔲 TODO: A user nem kell hogy manuálisan töltse fel a forrásokat az NLM-be. Az elképzelés: `1_raw_inputs/` feltöltés után a skill/automatizmus egyben feltölti az NLM-be. A jelenlegi "NLM feltöltési útmutató" rész ezért átdolgozandó, ha a 02_nlm_notebook_setup CLI-automatizmusa megbízhatóan működik.
+- ❔ QUESTION: A pipeline belépési pontja ("01. lépésnél Claude visszakérdezett") nem elég önálló. Kell-e strukturáltabb indítási kontextus a skillben, vagy a pipeline.md elé kerüljön egy "hogyan indítsuk el" leírás?
+- 💬 NOTE: Ha a user saját forrásokat hoz és az 01. lépés kihagyódik, a `citations_seed.json` nem jön létre automatikusan -- a 02_nlm_notebook_setup manuális seed-et igényel. Ez elfogadott workaround.
+- 🔲 TODO: Claude a fájlneveket elemzi és a naming convention kérdéseket ebből vezeti le -- de a struktúrát (szerző, év, típus) a saját elemzéséből kell kitöltenie, nem a user-rel kérdeztetni. A visszakérdezés csak akkor indokolt, ha az elemzés egyértelműen nem elegendő.
+- 🔲 TODO: Minden begyűjtött forrás eredetét rögzíteni kell: ki szerezte (user/Claude), honnan (URL/feltöltés), átnevezés előtti és utáni név. Tároló fájl: `1_raw_inputs/input_audit_trail.md`. Ez a skill §4 kimenetéhez tartozik -- a `citations_seed.json` mellé kötelező output.
+- 💬 NOTE: Open access DOCX fájl akadémiai témában (pl. DFT/jelfeldolgozás) gyakorlatilag nem elérhető -- egyetemek PDF-et publikálnak, Scribd/ResearchGate/Academia.edu letöltéshez login kell. Ha a pipeline DOCX-tesztet igényel, a user-nek kell feltöltenie saját DOCX forrást.
+- 🔲 TODO: Claude nem kérdezett vissza, hogy az adott héthez keressen-e még forrásokat (§3.2 Deep Research opció). A skill belépési pontján explicit prompt kell: "Keressek még releváns forrásokat ehhez a héthez?"
 
-- NOTE 💬 **01-02 lépés szoros függősége -- seed skip:** Ha a user saját forrásokat hoz (01. lépés kihagyódik), a `citations_seed.json` nem jö
+## 9. Változásjegyzék
+
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; pipeline diagram eltávolítva; TODO/NOTE/QUESTION konszolidálva |
+| 2026-05-26 | 1.1 | NOTE: 01-02 seed függőség workaround dokumentálva |
+| 2026-05-24 | 1.0 | Létrehozva (01-14 átszámozás) |

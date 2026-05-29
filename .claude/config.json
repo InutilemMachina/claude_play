@@ -1,0 +1,4 @@
+{
+  "_comment": "Pipeline konfigurációs értékek. Felülírja a script-beli default-okat.",
+  "nlm_path": "C:\\Users\\lasz\\AppData\\Roaming\\uv\\tools\\notebooklm-mcp-cli\\Scripts\\nlm.exe"
+}

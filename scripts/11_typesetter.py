@@ -1,7 +1,7 @@
 """
 11_typesetter.py -- Markdown linter for NLM pipeline output.
 
-Phase 1 (bullet-to-prose) removed: NLM --response-length long already produces prose.
+Phase 1 (bullet-to-prose) removed: NLM --response-length longer already produces prose.
 Phase 2: Whitespace/formatting linting (rules A, C, D, E, F, H).
 
 Usage:
@@ -11,6 +11,11 @@ Usage:
 import re
 import sys
 from pathlib import Path
+try:
+    from _encoding_fix import fix_stdout as _fix_stdout
+    _fix_stdout()
+except ImportError:
+    pass
 
 
 # ---- File I/O ----
@@ -136,8 +141,52 @@ def rule_h_dash_cleanup(text: str) -> tuple[str, int]:
     return header + body, count
 
 
+def rule_i_table_separator(text: str) -> tuple[str, int]:
+    """
+    Rule I: Fix malformed GFM table separator rows.
+    NLM sometimes generates: | :, - | :, - | :, - |
+    Correct GFM:             | :--- | :--- | :--- |
+    Also fixes: |---|  -> | :--- |  when alignment prefix detected.
+    """
+    count = 0
+
+    def fix_sep_row(m):
+        nonlocal count
+        inner = m.group(1)
+        # Check if this looks like a malformed separator
+        # Pattern: cells that are ":, -" or ":,-" or similar (comma between : and -)
+        if re.search(r':\s*,\s*-', inner):
+            # Count columns by splitting on |
+            cells = [c.strip() for c in inner.split('|') if c.strip()]
+            fixed_cells = []
+            for cell in cells:
+                # Determine alignment from original cell
+                has_left = cell.strip().startswith(':')
+                has_right = cell.strip().endswith(':')
+                if has_left and has_right:
+                    fixed_cells.append(':---:')
+                elif has_right:
+                    fixed_cells.append('---:')
+                elif has_left or ':' in cell:
+                    fixed_cells.append(':---')
+                else:
+                    fixed_cells.append('---')
+            count += 1
+            return '| ' + ' | '.join(fixed_cells) + ' |'
+        return m.group(0)
+
+    # Match table separator rows: lines starting with | and containing - signs
+    text = re.sub(
+        r'^\|([|\s:,\-]+)\|$',
+        fix_sep_row,
+        text,
+        flags=re.MULTILINE
+    )
+    return text, count
+
+
 def phase2_linting(text: str) -> str:
-    """Apply rules A, B, C, D, E, F, H. Rule G (heading numbering) uses a separate util."""
+    """Apply rules A–I. Rule G (heading numbering) uses a separate util."""
     print("[Phase 2] Linting...")
 
     text, n_a = rule_a_sup_paragraph_break(text)
@@ -165,6 +214,9 @@ def phase2_linting(text: str) -> str:
 
     text, n_h = rule_h_dash_cleanup(text)
     print(f"  Rule H (dash cleanup):         {n_h} fix(es)")
+
+    text, n_i = rule_i_table_separator(text)
+    print(f"  Rule I (table separator):      {n_i} fix(es)")
 
     print("[Phase 2] Done.")
     return text

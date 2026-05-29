@@ -1,163 +1,109 @@
 """
-citations_renumber.py -- Fix query-local [N] citation numbers in assembled Jegyzet.
+07_citations_renumber.py -- Post-assembly citation cleanup for Jegyzet.md
 
-Problem: NLM CLI restarts citation numbering at [1] for every query. When multiple
-query answers are assembled into one Jegyzet.md, inline <sup>[N]</sup> references
-are ambiguous.
+What this script does (new pipeline, 2026-05-29):
+  1. Convert plain [N] -> <sup>[N]</sup> in body text
+  2. Remove inline "Felhasznált/Hivatkozott forrás(ok):" blocks (NLM artifacts)
+  3. Deduplicate consecutive identical citations [N], [N] -> [N]
 
-Solution (B option):
-  1. Read citations.json       -- uuid -> global_number
-  2. For each nlm_q*_raw.txt   -- local_N -> uuid (per query)
-  3. Build local_N -> global_N per query
-  4. Apply replacements using <!-- Q:N --> section markers (preferred)
-     or unanimous-only fallback (no markers)
+Pre-condition: 05_assemble.py already mapped local->global citation numbers
+using citations_seed.json. This script only does formatting cleanup.
 
 Usage:
-    python scripts/citations_renumber.py --het 1 --tantargy matrixprofil_teszt
-    python scripts/citations_renumber.py --het 1 --tantargy matrixprofil_teszt --dry-run
+    python scripts/07_citations_renumber.py --week-dir test_outputs/mini/1_het
+    python scripts/07_citations_renumber.py --week-dir test_outputs/mini/1_het --dry-run
 """
 
 import argparse
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
-# Load helpers
+# Helpers
 # ---------------------------------------------------------------------------
 
-def load_citations_json(path):
-    """Load citations.json. Returns {uuid: global_num (int)}."""
-    with open(path, encoding='utf-8') as f:
-        raw = json.load(f)
-    uuid_to_global = {}
-    for key, val in raw.items():
-        if key.startswith('_'):
-            continue
-        if isinstance(val, dict) and 'nlm_uuid' in val:
-            uuid_to_global[val['nlm_uuid']] = int(key)
-    return uuid_to_global
+def load_seed(seed_path: Path) -> dict:
+    return json.loads(seed_path.read_bytes().decode("utf-8-sig"))
 
 
-def load_query_file(path):
+def convert_plain_citations(text: str) -> tuple[str, int]:
+    """Convert [N] and [N, M] plain brackets -> <sup>[N]</sup> etc.
+    Skips citations already wrapped in <sup>...</sup>.
     """
-    Load one NLM raw query JSON.
-    Returns {'answer': str, 'local_citations': {local_N_str: uuid_str}}.
-    """
-    with open(path, encoding='utf-8-sig') as f:
-        raw = json.load(f)
-    val = raw.get('value', raw)
-    return {
-        'answer': val.get('answer', ''),
-        'local_citations': val.get('citations', {}),
-    }
-
-
-def build_local_to_global(local_cits, uuid_to_global):
-    """
-    Build local_N -> global_N for one query.
-    local_cits: {"1": "uuid-a", "2": "uuid-b", ...}
-    Returns: {"1": 1, "2": 4, ...}  -- None for unknown UUIDs.
-    """
-    return {
-        local_n: uuid_to_global.get(uuid, None)
-        for local_n, uuid in local_cits.items()
-    }
-
-
-# ---------------------------------------------------------------------------
-# Replacement logic
-# ---------------------------------------------------------------------------
-
-def replace_citations_in_text(text, local_to_global):
-    """
-    Replace <sup>[N]</sup> and <sup>[N, M, ...]</sup> using local->global map.
-    Returns (modified_text, n_replacements).
-    """
-    count = [0]
+    count = 0
 
     def repl(m):
-        inner = m.group(1)
-        parts = [p.strip() for p in inner.split(',')]
-        new_parts = []
-        changed = False
-        for p in parts:
-            gn = local_to_global.get(p)
-            if gn is not None and str(gn) != p:
-                new_parts.append(str(gn))
-                changed = True
-            else:
-                new_parts.append(p)
-        if changed:
-            count[0] += 1
-        return '<sup>[' + ', '.join(new_parts) + ']</sup>'
+        nonlocal count
+        # Already wrapped? leave as-is (handled by negative lookbehind below)
+        count += 1
+        return f"<sup>{m.group(0)}</sup>"
 
-    text = re.sub(r'<sup>\[([0-9, ]+)\]</sup>', repl, text)
-    return text, count[0]
+    # Match [N] or [N, M, ...] NOT already inside <sup>
+    # Negative lookbehind for <sup> and negative lookahead for </sup>
+    pattern = r'(?<!<sup>)(\[\d+(?:,\s*\d+)*\])(?!</sup>)'
+    new_text = re.sub(pattern, repl, text)
+    return new_text, count
 
 
-def apply_by_section_markers(text, query_maps):
+def remove_inline_source_blocks(text: str) -> tuple[str, int]:
+    """Remove NLM-generated inline source blocks.
+    Patterns removed:
+      - Lines starting with 'Felhasznált források:' or 'Hivatkozott források:' etc.
+      - Following bullet lines that are part of that block (lines starting with * or -)
     """
-    Split on <!-- Q:N --> markers, apply per-query map, reassemble.
-    Returns (modified_text, counts_list).
-    """
-    marker_re = re.compile(r'(<!-- Q:(\d+) -->)')
-    parts = marker_re.split(text)
+    count = 0
+    lines = text.splitlines()
+    result = []
+    skip_bullets = False
 
-    if len(parts) == 1:
-        return text, []
+    SOURCE_BLOCK = re.compile(
+        r'^\s*(Felhaszn[aá]lt|Hivatkozott|Felhasznalt|Hivatkozott)\s+forr[aá]s(ok)?[:\.]?\s*$',
+        re.IGNORECASE
+    )
 
-    result = [parts[0]]
-    counts = []
-    i = 1
-    while i < len(parts):
-        marker = parts[i]
-        q_str = parts[i + 1]
-        section = parts[i + 2]
-        q_idx = int(q_str) - 1
-        if 0 <= q_idx < len(query_maps):
-            new_section, n = replace_citations_in_text(section, query_maps[q_idx])
-            counts.append(n)
-        else:
-            new_section = section
-            counts.append(0)
-        result.extend([marker, q_str, new_section])
-        i += 3
-
-    return ''.join(result), counts
-
-
-def apply_fallback_unanimous(text, query_maps):
-    """
-    Fallback (no section markers): only applies mappings where ALL queries agree.
-    Ambiguous mappings (different global_N for same local_N) are skipped.
-    Returns (modified_text, n_replacements).
-    """
-    all_maps = {}
-    for qmap in query_maps:
-        for local_n, global_n in qmap.items():
-            if global_n is None:
+    for line in lines:
+        if SOURCE_BLOCK.match(line):
+            count += 1
+            skip_bullets = True
+            continue  # skip the header line
+        if skip_bullets:
+            # Skip following bullet/star lines (inline source list)
+            if re.match(r'^\s*[*\-]\s+', line) or re.match(r'^\s*\d+\.\s+', line):
+                count += 1
                 continue
-            all_maps.setdefault(local_n, set()).add(global_n)
+            else:
+                skip_bullets = False
 
-    unanimous = {}
-    ambiguous = []
-    for local_n, gset in all_maps.items():
-        if len(gset) == 1:
-            unanimous[local_n] = next(iter(gset))
-        else:
-            ambiguous.append('  [' + local_n + '] -> ' + str(sorted(gset)) + ' (skipped)')
+        result.append(line)
 
-    if ambiguous:
-        print('WARN: ambiguous citations (no Q:N markers) -- skipped:')
-        for a in ambiguous:
-            print(a)
-        print('  Fix: add <!-- Q:N --> markers via 01_nlm_query_runner.')
-        print('  Applying only ' + str(len(unanimous)) + ' unambiguous mappings.')
+    return '\n'.join(result), count
 
-    return replace_citations_in_text(text, unanimous)
+
+def dedup_citations(text: str) -> tuple[str, int]:
+    """Remove consecutive duplicate citations: [N], [N] -> [N]."""
+    count = 0
+
+    def repl(m):
+        nonlocal count
+        count += 1
+        return m.group(1)  # keep first occurrence only
+
+    # Match [N] followed by one or more ,[N] (same N)
+    # e.g. [2], [2] -> [2]
+    new_text = re.sub(r'(<sup>\[(\d+)\]</sup>)(?:,\s*<sup>\[\2\]</sup>)+', r'\1', text)
+    if new_text != text:
+        # Count how many were removed
+        new_text2 = re.sub(
+            r'(<sup>\[(\d+)\]</sup>)(?:,\s*<sup>\[\2\]</sup>)+',
+            lambda m: m.group(1),
+            text
+        )
+        count = text.count('<sup>') - new_text.count('<sup>')
+    return new_text, count
 
 
 # ---------------------------------------------------------------------------
@@ -165,72 +111,63 @@ def apply_fallback_unanimous(text, query_maps):
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description='Fix query-local citations in Jegyzet.md')
-    parser.add_argument('--het', required=True, help='Week number (e.g. 1)')
-    parser.add_argument('--tantargy', required=True, help='Subject folder path')
-    parser.add_argument('--dry-run', action='store_true', help='Show changes, do not write')
+    parser = argparse.ArgumentParser(description="Citation cleanup for assembled Jegyzet.md")
+    parser.add_argument("--week-dir", required=True, type=Path,
+                        help="Heti mappa (pl. test_outputs/mini/1_het)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Csak statisztikát ír, nem módosít")
+    parser.add_argument("--no-sup", action="store_true",
+                        help="Ne konvertálja [N]-t <sup>[N]</sup>-re")
     args = parser.parse_args()
 
-    n = args.het
-    base = Path(args.tantargy) / (n + '_het')
-    forrasok = base / 'forrasok'
-    citations_path = forrasok / 'citations.json'
-    jegyzet_path = base / (n + '_Jegyzet.md')
+    week_dir = args.week_dir.resolve()
+    seed_path = week_dir / "1_raw_inputs" / "citations_seed.json"
+    wip_dir = week_dir / "4_wip_outputs"
 
-    if not citations_path.exists():
-        print('Hianyzik: ' + str(citations_path))
-        return
+    if not seed_path.exists():
+        sys.exit(f"HIBA: {seed_path} nem található")
+
+    seed = load_seed(seed_path)
+    week_num = seed.get("_meta", {}).get("week", 1)
+    jegyzet_path = wip_dir / f"{week_num}_Jegyzet.md"
+
     if not jegyzet_path.exists():
-        print('Hianyzik: ' + str(jegyzet_path))
-        return
+        sys.exit(f"HIBA: {jegyzet_path} nem található")
 
-    uuid_to_global = load_citations_json(citations_path)
-    print('citations.json: ' + str(len(uuid_to_global)) + ' source(s)')
+    text = jegyzet_path.read_text(encoding="utf-8")
 
-    query_files = sorted(forrasok.glob('nlm_q*_raw.txt'))
-    if not query_files:
-        query_files = sorted(forrasok.glob('nlm_q*.txt'))
-    print('Query files: ' + str([f.name for f in query_files]))
+    # Step 1: Remove inline source blocks
+    text, n_blocks = remove_inline_source_blocks(text)
+    print(f"  Forrásblokk eltávolítva: {n_blocks} sor")
 
-    query_maps = []
-    for qf in query_files:
-        qdata = load_query_file(qf)
-        lmap = build_local_to_global(qdata['local_citations'], uuid_to_global)
-        query_maps.append(lmap)
-        n_unk = sum(1 for v in lmap.values() if v is None)
-        print('  ' + qf.name + ': ' + str(len(lmap)) + ' citations, ' + str(n_unk) + ' unknown UUID(s)')
+    # Step 2: Deduplicate consecutive plain [N],[N]
+    text_dedup = re.sub(r'\[(\d+)\](?:,\s*\[\1\])+', r'[\1]', text)
+    n_dedup = text.count('[') - text_dedup.count('[') if text != text_dedup else 0
+    text = text_dedup
+    print(f"  Dupla citáció dedup: {n_dedup} eltávolítva")
 
-    with open(str(jegyzet_path), encoding='utf-8') as f:
-        text = f.read()
-
-    has_markers = bool(re.search(r'<!-- Q:\d+ -->', text))
-    if has_markers:
-        print('\nSection markers found -- applying per-query replacement...')
-        new_text, counts = apply_by_section_markers(text, query_maps)
-        total = sum(counts)
-        print('Total: ' + str(total) + ' replacements ' + str(counts))
+    # Step 3: Convert [N] -> <sup>[N]</sup>
+    if not args.no_sup:
+        text, n_sup = convert_plain_citations(text)
+        print(f"  [N] -> <sup>[N]</sup>: {n_sup} konvertálva")
     else:
-        print('\nWARN: no <!-- Q:N --> markers -- unanimous fallback...')
-        new_text, total = apply_fallback_unanimous(text, query_maps)
-        print('Total: ' + str(total) + ' replacements')
+        n_sup = 0
+
+    # Step 4: Deduplicate <sup>[N]</sup>,<sup>[N]</sup>
+    text, n_sup_dedup = dedup_citations(text)
+    print(f"  <sup> dupla dedup: {n_sup_dedup} eltávolítva")
+
+    print(f"  Összesen: {n_blocks + n_dedup + n_sup + n_sup_dedup} változás")
 
     if args.dry_run:
-        print('\n[DRY RUN] Changed lines:')
-        old_lines = text.splitlines()
-        new_lines = new_text.splitlines()
-        for i, (o, nu) in enumerate(zip(old_lines, new_lines)):
-            if o != nu:
-                print('  L' + str(i + 1) + ': ' + repr(o) + '  ->  ' + repr(nu))
+        print("[DRY RUN] -- fájl nem módosítva")
         return
 
-    bak_path = str(jegyzet_path) + '.bak'
-    shutil.copy2(str(jegyzet_path), bak_path)
-    with open(str(jegyzet_path), 'w', encoding='utf-8') as f:
-        f.write(new_text)
-
-    print('\nOK: ' + str(total) + ' replacements written to ' + str(jegyzet_path))
-    print('   Backup: ' + bak_path)
+    bak = str(jegyzet_path) + ".bak"
+    shutil.copy2(str(jegyzet_path), bak)
+    jegyzet_path.write_text(text, encoding="utf-8")
+    print(f"OK: {jegyzet_path} felülírva (backup: {bak})")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

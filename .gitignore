@@ -47,3 +47,4 @@ mineru_log.txt
 .DS_Store
 Thumbs.db
 desktop.ini
+pycache

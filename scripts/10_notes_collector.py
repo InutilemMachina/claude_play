@@ -31,6 +31,12 @@ import argparse
 import json
 import re
 import shutil
+import sys as _sys
+try:
+    from _encoding_fix import fix_stdout as _fix_stdout
+    _fix_stdout()
+except ImportError:
+    pass
 import sys
 from pathlib import Path
 

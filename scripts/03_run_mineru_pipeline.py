@@ -37,10 +37,14 @@ except ImportError:
     RICH = False
 
 # ── Konfiguracio ──────────────────────────────────────────────────────────────
-WARN_MB_DEFAULT = 20       # e felett figyelmeztetes + kerdes
-CONDA_ENV       = "mineru" # conda kornyezet neve
-MAGIC_PDF_CMD   = ["conda", "run", "-n", CONDA_ENV, "--no-capture-output",
-                   "mineru", "-p", "{pdf}", "-o", "{out}", "-m", "auto", "-b", "pipeline"]
+WARN_MB_DEFAULT    = 20    # e felett figyelmeztetes + kerdes (MB)
+WARN_PAGES_DEFAULT = 50    # e felett figyelmeztetes + kerdes (oldalszam)
+CONDA_ENV          = "mineru"
+
+def build_cmd(backend: str) -> list[str]:
+    """Build the MinerU command with the given backend."""
+    return ["conda", "run", "-n", CONDA_ENV, "--no-capture-output",
+            "mineru", "-p", "{pdf}", "-o", "{out}", "-m", "auto", "-b", backend]
 
 # ── Helper-ek ─────────────────────────────────────────────────────────────────
 console = Console() if RICH else None
@@ -84,20 +88,29 @@ def ask_user(prompt: str) -> str:
     return input().strip().lower()
 
 
-def should_process(pdf: Path, warn_mb: float) -> bool:
+def should_process(pdf: Path, warn_mb: float, warn_pages: int, pages: int) -> bool:
     """
-    Ha a fajl nagyobb warn_mb MB-nel, kerdi a felhasznalot.
+    Ha a fajl nagyobb warn_mb MB-nel VAGY tobb mint warn_pages oldal, kerdi a felhasznalot.
     Visszateres: True = feldolgozas, False = kihagyas.
     """
     mb = human_mb(pdf)
-    if mb < warn_mb:
+    over_mb    = mb >= warn_mb
+    over_pages = pages > 0 and pages >= warn_pages
+
+    if not over_mb and not over_pages:
         return True
 
-    size_str = f"{mb:.1f} MB"
+    reasons = []
+    if over_mb:
+        reasons.append(f"{mb:.1f} MB")
+    if over_pages:
+        reasons.append(f"{pages} oldal")
+    reason_str = ", ".join(reasons)
+
     if RICH:
         console.print(
             f"      [yellow]⚠️  Nagy fajl:[/yellow] [bold]{pdf.name}[/bold]"
-            f" [dim]({size_str})[/dim]"
+            f" [dim]({reason_str})[/dim]"
         )
         answer = ask_user(
             "      Feldolgozzuk? "
@@ -106,7 +119,7 @@ def should_process(pdf: Path, warn_mb: float) -> bool:
             "\\[[bold]q[/bold]]uit : "
         )
     else:
-        print(f"      ⚠️  Nagy fajl: {pdf.name} ({size_str})")
+        print(f"      ⚠️  Nagy fajl: {pdf.name} ({reason_str})")
         answer = ask_user("      Feldolgozzuk? [i]gen / [k]ihagyas / [q]uit : ")
 
     if answer in ("q", "quit", "exit"):
@@ -119,7 +132,7 @@ def should_process(pdf: Path, warn_mb: float) -> bool:
     return answer in ("i", "igen", "y", "yes", "")
 
 
-def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
+def run_mineru(pdf: Path, out_dir: Path, pages: int, backend: str = "pipeline") -> bool:
     """
     Futtatja a mineru-t, valosi idejU progress-barral.
     Visszateres: True = siker, False = hiba.
@@ -129,7 +142,7 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int) -> bool:
     log_path = pdf.parent.parent / "mineru_run.log"
     cmd = [
         c.replace("{pdf}", str(pdf)).replace("{out}", str(out_dir))
-        for c in MAGIC_PDF_CMD
+        for c in build_cmd(backend)
     ]
 
     # ── Rich progress bar ──────────────────────────────────────────────────
@@ -209,6 +222,19 @@ def main():
         "--warn-mb", type=float, default=WARN_MB_DEFAULT,
         help=f"Fajlmeret MB-ben, ami felett kerdez (alapertek: {WARN_MB_DEFAULT})"
     )
+    parser.add_argument(
+        "--warn-pages", type=int, default=WARN_PAGES_DEFAULT,
+        help=f"Oldalszam, ami felett kerdez (alapertek: {WARN_PAGES_DEFAULT})"
+    )
+    parser.add_argument(
+        "--backend", default="pipeline",
+        choices=["pipeline", "vlm-transformers", "vlm-sglang"],
+        help="MinerU backend (alapertek: pipeline=CPU; vlm-transformers=GPU)"
+    )
+    parser.add_argument(
+        "--yes", action="store_true",
+        help="Nagy fajloknal ne kerdezzen, mindet dolgozza fel"
+    )
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -225,10 +251,12 @@ def main():
         console.print(Rule(f"[bold]MinerU Pipeline[/bold] -- {root.name}"))
         console.print(
             f"[dim]Notebookok: {nb_total} | "
-            f"Figyelmeztetesi hatar: {args.warn_mb:.0f} MB[/dim]\n"
+            f"Hatar: {args.warn_mb:.0f} MB / {args.warn_pages} oldal | "
+            f"Backend: {args.backend}[/dim]\n"
         )
     else:
-        print(f"=== MinerU Pipeline: {root.name} ({nb_total} notebook) ===\n")
+        print(f"=== MinerU Pipeline: {root.name} ({nb_total} notebook) "
+              f"[{args.backend}] ===\n")
 
     results = []  # (notebook, fajl, statusz)
 
@@ -260,8 +288,8 @@ def main():
             else:
                 print(f"  [{f_idx}/{pdf_total}] {pdf.name} ({mb_str}, {pg_str})")
 
-            # Nagy fajl kerdes
-            if not should_process(pdf, args.warn_mb):
+            # Nagy fajl kerdes (kihagyva ha --yes)
+            if not args.yes and not should_process(pdf, args.warn_mb, args.warn_pages, pages):
                 if RICH:
                     console.print("      [yellow]→ KIHAGYVA[/yellow]")
                 else:
@@ -272,7 +300,7 @@ def main():
             # MinerU futtatasa
             # clean_dir-t adjuk at (nem clean_dir/pdf.stem):
             # MinerU maga hozza letre a <pdf_stem>/ alkonyvtarat belul
-            ok = run_mineru(pdf, clean_dir, pages)
+            ok = run_mineru(pdf, clean_dir, pages, backend=args.backend)
 
             if ok:
                 if RICH:

@@ -4,209 +4,109 @@ title: 02_NLM_NOTEBOOK_SETUP -- NLM Notebook Setup
 type: skill
 tags: [meta, skill]
 status: active
-version: 2.0
-updated: 2026-05-24
-description: NLM notebook letrehozasa CLI-vel. Notebook create + source add (PDF/URL) + Prompt B (chat configure) + mindmap create + citations_seed.json UUID-frissites. Pipeline 00b. lepese -- 00 es 01 kozott.
+version: 3.0
+updated: 2026-05-26
+description: NLM notebook létrehozása CLI-vel. Notebook create + source add (PDF/URL) + Prompt B (chat configure) + mindmap create + citations_seed.json UUID-frissítés. Pipeline 02. lépése.
 ---
 
-# 02_NLM_NOTEBOOK_SETUP.MD -- NLM Notebook Setup
+# 02_NLM_NOTEBOOK_SETUP
 
-_00b. lepes -- 00_references_collector utan, 01_nlm_query_runner elott_
+## 1. Cél
 
-# 1. Cel es helye a pipeline-ban
+Új NLM notebook létrehozása, források feltöltése, Prompt B beállítása, mindmap generálása, és a `citations_seed.json` UUID-mezőinek kitöltése -- teljesen CLI-ből.
 
-```
-00_references_collector  →  00b_nlm_notebook_setup  →  01_nlm_query_runner  →  ...
-```
+## 2. Bemenetek
 
-Ez a lepes teljes egeszeben automatizalt -- nem igenyel manualis NLM UI-használatot.
-A `notebooklm-mcp-cli` (`nlm`) CLI-n keresztul vegzi el:
+| Fájl | Honnan | Tartalom |
+|:-----|:-------|:---------|
+| `1_raw_inputs/*.pdf` | 01_references_collector | Letöltött PDF-ek |
+| `1_raw_inputs/*.html` | 01_references_collector | Weboldalak |
+| `1_raw_inputs/citations_seed.json` | 01_references_collector | Metaadatok, `nlm_uuid: null` |
+| `.claude/nlm_prompts.md` | Meta mappa | Prompt B szövege (ASCII változat) |
 
-1. Uj NLM notebook letrehozasa
-2. Forrasok feltoltese (PDF fajlok + URL-ek)
-3. Prompt B beallitasa (Configure Chat / Custom Instructions)
-4. Mindmap generalasa
-5. `citations_seed.json` UUID-mezok frissitese
-
-**Elofeltetel:** `00_references_collector` lefutott -- `forrasok/` mappa feltoltve,
-`citations_seed.json` letezik (`nlm_uuid: null` mezokkel).
-
-**Output:**
-- NLM notebook: eletben, forrasok indexelve, Prompt B aktiv, mindmap kesz
-- `forrasok/citations_seed.json`: `nlm_uuid` mezok kitoltve
-- `forrasok/nlm_mindmap_raw.txt`: mindmap strukturaja szovegkent
-- `1_Mindmap.md`: Mermaid flowchart (05_mindmap_manager elvegzi)
-
-# 2. Elofeltetelek
-
-## 2.1. nlm CLI elerhetosege
+**Előfeltétel:** `nlm` CLI elérhető és bejelentkezve.
 
 ```powershell
 $env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
 nlm --version
 ```
 
-Ha nem talalhato: `nlm login` (cookie megujitas, 2-4 hetente szukseges).
+Ha `Authentication Error`: `nlm login` (Edge megnyílik → Google bejelentkezés; 2-4 hetente szükséges).
 
-## 2.2. Szukseges bemenetek
+## 3. Eljárás
 
-| Bemeneti fajl | Honnan | Tartalom |
-|:--------------|:-------|:---------|
-| `N_het/forrasok/*.pdf` | 00_references_collector | Letoltott PDF-ek |
-| `N_het/forrasok/*.html` | 00_references_collector | Letoltott weboldalak |
-| `N_het/forrasok/citations_seed.json` | 00_references_collector | Metaadatok, `nlm_uuid: null` |
-| `.claude/nlm_prompts.md` | Meta mappa | Prompt B szovege (2. szekció, ASCII valtozat) |
-
-# 3. Workflow
-
-## 3.1. PATH beallitasa (minden PowerShell hivasnal kotelezo)
+### 3.1. PATH beállítása (minden PowerShell hívásban kötelező)
 
 ```powershell
 $env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
 ```
 
-## 3.2. Notebook letrehozasa
+### 3.2. Notebook létrehozása
 
 ```powershell
 nlm notebook create "<tantargy> - <N>. het"
+# Kimenet: ID: ff49ac69-0750-4773-bd4d-42536e96be3f
 ```
 
-**Pelda:**
-```powershell
-nlm notebook create "Matrixprofil Teszt 2 - 1. het"
-# Kimenet: ✓ Created notebook: ...
-#            ID: ff49ac69-0750-4773-bd4d-42536e96be3f
-```
+Az ID-t jegyezd fel -- minden következő parancshoz kell. Mentsd a `citations_seed.json` `_notebook.id` mezőjébe.
 
-A visszaadott ID-t jegyezd fel -- minden kovetkezo parancshoz kell.
-Ajanlott: mentsd el a `citations_seed.json` `_notebook.id` mezojebe.
+### 3.3. Források feltöltése
 
-## 3.3. Forrasok feltoltese
-
-### 3.3.1. PDF fajlok
-
+**PDF fájlok:**
 ```powershell
 $NB = "<notebook_id>"
-$DIR = "C:\Users\lasz\claude_play\<tantargy>\<N>_het\forrasok"
+$DIR = "C:\Users\lasz\claude_play\test_outputs\<tantargy>\N_het\1_raw_inputs"
 
 nlm source add $NB --file "$DIR\yeh2016_paper.pdf" --title "Matrix Profile I (Yeh 2016)" --wait
-# Kimenet: ✓ Added source: ...
-#            Source ID: 56662e98-04ce-4ba6-9f44-d2c97599eb50
+# Kimenet: Source ID: 56662e98-04ce-4ba6-9f44-d2c97599eb50
 ```
 
-A `--wait` flag megvarja a feldolgozas befejezeset (ajanlott, max 600s).
-Minden forrást egymás után kell feltolteni -- parhuzamos feltoltes nem tamogatott.
-
-### 3.3.2. URL forrasok
-
+**URL forrás:**
 ```powershell
-nlm source add $NB --url "https://stumpy.readthedocs.io/en/latest/Tutorial_The_Matrix_Profile.html" \
-  --title "STUMPY Tutorial (2024)" --wait
+nlm source add $NB --url "https://stumpy.readthedocs.io/..." --title "STUMPY Tutorial" --wait
 ```
 
-### 3.3.3. Visszaadott Source ID-k rogzitese
+Minden `source add` kimenetéből jegyezd fel a Source ID-t → `citations_seed.json` `nlm_uuid` mezői.
 
-Minden `source add` kimeneteben megjelenik a Source ID. Ezek a `citations_seed.json`
-`nlm_uuid` mezoit toltik ki (lasd 3.5. szekció).
+Minden forrást egymás után kell feltölteni (`--wait` kötelező). A `--wait` legfeljebb 600s-t vár.
 
-## 3.4. Prompt B beallitasa (Configure Chat)
+### 3.4. Prompt B beállítása
 
-**Fontos:** A Prompt B az NLM `Configure Chat > Custom Instructions` mezoje.
-CLI-vel allithato be, es a `nlm query notebook` parancsra is hat -- a JSON kimenet
-`citations` es `references` mezoi csak Prompt B mellett lesznek feltoltve.
-
-### 3.4.1. PowerShell heredoc minta (kotelezo forma)
-
-Multiline szoveg atadásához **kizarolag** a `@'...'@` (single-quote) heredoc hasznalhato.
-A `@"..."@` (double-quote) valtozot explandal es szintaksis hibat okoz.
+**Kötelező:** `@'...'@` (single-quote heredoc) -- a `@"..."@` szintaxishibát okoz.
 
 ```powershell
-$NB = "<notebook_id>"
-
 $promptB = @'
-# SZEREPKOR ES CEL
-
-Te egy rendkivul preciz, akademiai szintu kutatasi es adatintegracios asszisztens vagy.
-Kizarolag a feltoltott forrasokbol dolgozol. Ha egy informacio nem talalhato meg a
-forrasokban, jelold meg: A forrasok nem tartalmaznak informaciot a kovetkezore: [tema].
-
-# CITACIOS ES AUDITALASI SZABALYOK
-
-1. KOTELEZO FORRASMEGJELOLES: Minden allitas, numerikus adat, kovetkeztetes vegen
-   helyezz el szovegkozi hivatkozast. A generalt szovegbe ird bele a pontos forrasfajl
-   nevet kiterjeszetevel (pl. tavak2004.pdf).
-2. FORRASNEV-KONVENCION: A forrasokra kizarolag a Sources panelen lathato nevukkel es
-   kiterjeszetukkel hivatkozz. Ne rovidits, ne valtoztass a neveken.
-
-# ABRAK ES TABLAZATOK
-
-1. Ha a forrasban abra vagy tablazat talalhato, de nincs sorszama, elemezd a 3 kornyezo
-   bekezdesbol.
-2. Ha nevtelen abrara hivatkozol, generalj kontextusbol levezetett horgonyt.
-3. Ha a folyoszoveg nem hivatkozik az abrara, de az adatok egyeznek, kapcsold ossze.
-
-# KIMENETI FORMATUM
-
-* Valaszaidat strukturalt Markdown formatumban add meg.
-* Tablazatokat GFM formatumban generald, minden cellaban forrasattribucioval.
+[Prompt B szövege -- lásd nlm_prompts.md §2]
 '@
 
 & nlm chat configure $NB --goal custom --prompt $promptB
 # Kimenet: ✓ Chat configuration updated
 ```
 
-**Valasz hossza:** Az NLM alapertelmezetten "Alapertelmezett" valasz-hosszt allít be.
-A pipeline szamara `Hosszabb` valaszok szuksegesek -- ellenorizd, hogy a CLI tamogatja-e:
-`nlm chat configure $NB --response-length long` (flag neve tesztelendo; ha nem mukodik,
-manualis NLM UI-ban allitando be Hosszabb-ra).
+A Prompt B ASCII változatát használd (PowerShell encoding-probléma miatt). Az ékezetes változat az NLM webes UI-ban illeszthető be (lásd `nlm_prompts.md` §2).
 
-**Megjegyzes az ekezetek hianyrool:** A Prompt B ASCII valtozatot hasznal a PowerShell
-encoding-problema miatt. Az NLM webes UI-ban az ekezetes valtozat illesztheto be
-(lasd `nlm_prompts.md` 2. szekció, kepernyo).
-
-## 3.5. Mindmap generalasa
+### 3.5. Mindmap generálása
 
 ```powershell
 nlm mindmap create $NB --title "<tantargy> <N>. het" --confirm
-# Kimenet: ✓ Mind map created
-#            ID: d74b759b-81dc-432d-9229-ccc13331ff89
-#            Title: Matrix Profile: Foundations and Applications
+# Kimenet: Mindmap ID: d74b759b-...
 ```
 
-A mindmap ID mentendo a `citations_seed.json` `_notebook.mindmap_id` mezojebe.
+A Mindmap ID-t mentsd a `citations_seed.json` `_notebook.mindmap_id` mezőjébe.
 
-### 3.5.1. Mindmap tartalom lekerdezese (CLI workaround)
+⚠️ **Mindmap export (elsődleges módszer):** A Studio Gondolattérkép exportja az egész pipeline sarokköve. A CLI csak szöveges rekonstrukciót ad vissza -- ez nem megbízható. Az export a 08_mindmap_manager feladata (Ultra Explorer bővítmény).
 
-NOTE: Ez a workaround NEM adja vissza a Studio panel mindmap struktúráját -- csak egy szabad szöveges rekonstrukciót kap az NLM-től. A tényleges mindmap (Studio panel > Gondolattérkép) vizuális gráf-struktúrája ettől eltér, és jelenleg nem exportálható CLI-n át. Az nlm_mindmap_raw.txt tartalma ezért nem megbízható alapja a 04. lépés query-szerkesztésének.
-
-NOTE: A Studio panel mindmapje angol nyelvű (az NLM az angol forrásszövegek alapján generálja), holott a tananyag magyar. Ez nyelvi inkonzisztenciát okoz: a mindmap csomópontok angol terminológiával épülnek fel, a belőlük generált query-k és kimenetek pedig magyarok. Megvizsgálandó: van-e mód a mindmap generálás nyelvének befolyásolására (pl. Prompt B-n keresztül).
-
-A CLI-nek nincs natív mindmap-read parancsa (`nlm studio status` csak ID-t ad,
-`nlm export artifact` csak Google Docs/Sheets celudat tamogat).
-
-Workaround: a mindmap strukturajat `nlm query notebook` paranccsal kerdezzuk le:
-
-```powershell
-nlm query notebook $NB "Listazd a gondolatterkep teljes strukturajat: fofogalmak es minden alhivatkozasuk, hierarchikusan, kotojeles listaval. Az osszes csomopont neve jelenjen meg." --json
-```
-
-A kimenet `answer` mezoje tartalmazza a hierarchikus listat --> mentsd el
-`forrasok/nlm_mindmap_raw.txt`-be --> 05_mindmap_manager Mermaid-de alakitja.
-
-## 3.6. citations_seed.json frissitese UUID-ekkel
-
-A `source add` es `notebook create` kimenetebol szarmazo ID-kat irazd be a
-`citations_seed.json`-be:
+### 3.6. citations_seed.json frissítése UUID-ekkel
 
 ```json
 {
   "1": {
-    ...
+    "file": "yeh2016_paper.pdf",
     "nlm_uuid": "56662e98-04ce-4ba6-9f44-d2c97599eb50"
   },
   "_notebook": {
     "id": "ff49ac69-0750-4773-bd4d-42536e96be3f",
-    "title": "Matrixprofil Teszt 2 - 1. het",
+    "title": "Matrixprofil Teszt - 1. het",
     "url": "https://notebooklm.google.com/notebook/<id>",
     "mindmap_id": "d74b759b-81dc-432d-9229-ccc13331ff89",
     "created": "2026-05-22"
@@ -214,173 +114,84 @@ A `source add` es `notebook create` kimenetebol szarmazo ID-kat irazd be a
 }
 ```
 
-A `_notebook` kulcs egy informalis metadata blokk -- a `04_citations_maker` figyelmen
-kivul hagyja (numerikus kulcsokat dolgoz fel).
+### 3.7. NLM CLI pipeline parancsok (referencia)
 
-# 4. Ellenorzo lista
-
-- [ ] `nlm notebook create` sikerult, ID rogzitve
-- [ ] Minden forrás (`*.pdf`, `*.html`) feltoltve, Source ID-k rogzitve
-- [ ] `nlm chat configure` sikeres (`✓ Chat configuration updated`)
-- [ ] `nlm mindmap create` sikeres, Mindmap ID rogzitve
-- [ ] `citations_seed.json` `nlm_uuid` mezoi kitoltve
-- [ ] `nlm_mindmap_raw.txt` elmentve
-- [ ] `nlm notebook get <id>` visszaigazolja: `source_count` == vart szam
-
-# 5. Hasznos diagnosztikai parancsok
-
-```powershell
-# Notebook ellenorzese
-nlm notebook get <id>
-
-# Forrasok listaja
-nlm source list <id>
-
-# Studio artifaktok (mindmap status)
-nlm studio status <id>
-
-# Prompt B ellenorzese
-nlm chat configure <id>  # aktualis beallitas megjelenitese
-```
-
-# 6. Ismert korlatok
-
-| Problema | Ok | Megoldas |
-|:---------|:---|:---------|
-| `Got unexpected extra arguments` | `@"..."@` helyett `@'...'@` kell | Csereld le a heredoc tipusat |
-| `citations: {}` a query valaszban | Prompt B nincs aktivan | Ellenorizd: `nlm chat configure <id>` |
-| Forras `processing` allapoton ragad | NLM szerver lassu | Noveld a `--wait-timeout` erteket (alapert. 600s) |
-| `nlm login` szukseges | Cookie lejart (2-4 het) | `nlm login` -> bongeszo megnyilik |
-
-# 7. Kapcsolodo fajlok
-
-| Fajl | Keletkezik | Felhasznalo |
-|:-----|:-----------|:------------|
-| `forrasok/citations_seed.json` | 00, **00b** (UUID-kkel frissitve) | 04_citations_maker |
-| `forrasok/nlm_mindmap_raw.txt` | **00b** | 05_mindmap_manager |
-| NLM notebook (online) | **00b** | 01_nlm_query_runner |
-
-# Valtozasnaplo
-
-- 2026-05-22 -- Letrehozva; teljes CLI workflow dokumentalva (matrixprofil_teszt_2 PoC alapjan)
-
-# NOTE-ok (tesztelés visszajelzések)
-
-- NOTE 💬 **Studio panel mentés (auditálhatóság):** Az NLM query válaszait (nlm_q*.txt) a jobboldali Studio panelbe is le kell menteni. Indok: az NLM válaszok nem reprodukálhatók (azonos promptra más választ adhat), ezért az auditálhatóság megköveteli a Studio-ban is rögzített verziót. Megoldandó: 04_nlm_query_runner skill kiegészítése egy "Studio mentés" lépéssel (pl. `nlm studio artifact save` paranccsal, ha elérhető; egyébként UI-os manuális lépés).
-
-# Ismert hibák
-
-→ [pitfalls.md §2.4](../pitfalls.md) -- Multiline prompt: @'...'@ kötelező
-→ [pitfalls.md §2.3](../pitfalls.md) -- PowerShell query timeout
-
-# Nyitott kérdések
-
-- Export-Tool Chrome-bővítmény automatizálható-e Claude in Chrome-mal? (Studio Gondolattérkép + Data Tables export)
-- `nlm setup add "Claude Code"` -- tesztelendő
-- `nlm skill install` -- elérhető skill-ek listája?
-
-# Változásjegyzék
-
-| Dátum | Verzió | Leírás |
-|-------|--------|--------|
-
-# Auth és telepítés (átvéve nlm_integration.md-ből)
-
-_Forrás: .claude/nlm_integration.md -- 2026-05-24 beolvasztva_
-
-## 2. Telepített eszköz: `notebooklm-mcp-cli`
-
-## 2.1. Csomag azonosítás
-
-| Tulajdonság | Érték |
-|---|---|
-| Csomag neve | `notebooklm-mcp-cli` |
-| Típus | Python (uv tool) |
-| Verzió | 0.6.10 |
-| Szerző | Jacob Ben-David |
-| PyPI | https://pypi.org/project/notebooklm-mcp-cli/ |
-| GitHub | https://github.com/jacob-bd/notebooklm-mcp-cli |
-| Auth mechanizmus | Cookie kinyerés Edge-ből (`nlm login`) |
-| Binárisok | `nlm.exe`, `notebooklm-mcp.exe` |
-| Elérési út | `C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\` |
-| Credentials | `C:\Users\lasz\.notebooklm-mcp-cli\profiles\default` |
-| Cookie élettartam | 2-4 hét |
-
-**Nem tévesztendő össze:** `PleasePrompto/notebooklm-mcp` (https://github.com/PleasePrompto/notebooklm-mcp) -- npm csomag, Chrome Patchright automatizáció, teljesen más eszköz.
-
-## 2.2. Auth megújítás
-
-Ha `Authentication Error` jön:
-
-```bash
-nlm login
-# Edge megnyílik → Google bejelentkezés → OK után bezárja magát
-nlm notebook list  # ellenőrzés
-```
-
-## 3. Claude-ból való használat (Cowork session)
-
-## 3.1. Notebook lekérdezés
-
-Claude az alábbi mintával hívja a Windows-MCP PowerShell toolt:
-
-```powershell
-$env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
-nlm query notebook "<NOTEBOOK_ID_VAGY_ALIAS>" "<KÉRDÉS>" --json
-```
-
-Visszatérési struktúra (JSON) -- Prompt B aktív esetén:
-
-```json
-{
-  "value": {
-    "answer": "...",
-    "conversation_id": "...",
-    "sources_used": ["uuid1", "uuid2"],
-    "citations": {"1": "uuid1", "2": "uuid2"},
-    "references": [
-      {"source_id": "uuid1", "citation_number": 1, "cited_text": "..."}
-    ]
-  }
-}
-```
-
-Fontos: a `conversation_id`-t meg kell tartani a követő kérdésekhez (`--conversation-id <id>`).
-
-## 3.2. Pipeline lépések CLI-ből
-
-A `nlm` CLI a pipeline lépések nagy részét közvetlenül végrehajtja:
-
-| Lépés | CLI parancs |
+| Lépés | Parancs |
 |---|---|
 | Notebook lista | `nlm notebook list` |
-| Lekérdezés | `nlm query notebook <ID> "<kérdés>" --json` |
-| Prompt B beállítás | `nlm chat configure <ID> --goal custom --prompt <szoveg>` (Python subprocess-en át) |
-| Gondolattérkép | `nlm mindmap ...` |
-| Kvíz | `nlm quiz ...` |
-| Flashcard | `nlm flashcards ...` |
-| Dia | `nlm slides ...` |
-| Jelentés | `nlm report ...` |
-| Pipeline futtatás | `nlm pipeline ...` |
-| Cross-notebook | `nlm cross ...` |
+| Notebook ellenőrzés | `nlm notebook get <id>` |
+| Forrás lista | `nlm source list <id>` |
+| Studio státusz | `nlm studio status <id>` |
+| Prompt B ellenőrzés | `nlm chat configure <id>` |
+| Lekérdezés | `nlm query notebook <id> "<kérdés>" --json` |
 
+## 4. Kimenetek
 
+- NLM notebook (online): létrehozva, források indexelve, Prompt B aktív, mindmap kész
+- `1_raw_inputs/citations_seed.json`: `nlm_uuid` mezők kitöltve
+- `3_raw_outputs/nlm_mindmap_raw.txt`: mindmap szöveges rekonstrukciója (workaround)
 
-## Notebook-lista
+## 5. Ellenőrzés
 
+- [ ] `nlm notebook create` sikerült, ID rögzítve
+- [ ] Minden forrás feltöltve, Source ID-k rögzítve
+- [ ] `nlm chat configure` sikeres (`✓ Chat configuration updated`)
+- [ ] `nlm mindmap create` sikeres, Mindmap ID rögzítve
+- [ ] `citations_seed.json` `nlm_uuid` mezői kitöltve
+- [ ] `nlm notebook get <id>` `source_count` == várt szám
 
-| ID | Cím | Források | Prompt B |
-|---|---|---|---|
-| c894e121-3c39-4da0-af74-b1f2c82ffa69 | DFT | 9 | ❔ tesztelendő |
-| b26582da-9051-4a26-954b-4075013981e4 | Matrix Profile | 7 | ✅ aktív |
-| 9a4de53c-b8ea-4db9-8059-2add8a11700a | Dive into Time-Series Anomaly Detection | 1 | ❔ |
-| 8732cec4-a875-4afa-b0e1-27743febae1d | Introduction to Wavelets | 16 | ❔ |
-| 73a46dcf-c4ed-4148-8143-3b05c2dccbf5 | Áramlási rendellenességek | 41 | ❔ |
-| a053ecbf-4e39-4e9d-98e4-ac0063b62262 | Compressor Instabilities | 7 | ❔ |
-| 643cfc27-3cb1-4126-bd90-590b64a34402 | Tavakoli | 11 | ❔ |
-| fb2b02e6-7735-41f7-81db-73314a164255 | Termográfia a műszaki diagnosztikában | 33 | ❔ |
-| db5df32b-a4b2-41f0-b38a-38b3b30be8bc | synchrosqueezing and reassignment | 19 | ❔ |
-| cf7bc34a-7d46-44a6-821f-af02260f04ad | Sémák | 3 | ❔ |
+## 6. Hibakezelés
+
+| Tünet | Ok | Megoldás |
+|:------|:---|:---------|
+| `Got unexpected extra arguments` | `@"..."@` használva | Csereld `@'...'@`-ra |
+| `citations: {}` a query válaszban | Prompt B nem aktív | `nlm chat configure <id>` ellenőrzés |
+| Forrás `processing` állapon ragad | NLM szerver lassú | `--wait-timeout` növelése (alap: 600s) |
+| `nlm login` szükséges | Cookie lejárt (2-4 hét) | `nlm login` → böngésző megnyílik |
+| PPTX feltöltés sikertelen | NLM CLI csak PDF + URL | PPTX → PDF konverzió (Office mentés), majd `--file` |
+| HTML feltöltés sikertelen | `--file` csak PDF-et fogad | Nyilvánosan elérhető oldalhoz: `--url "<url>"` |
+| Forrásneveket NLM átírja | UI auto-generál nevet | `nlm source list <id>` → Source ID + cím loggolás → `citations_seed.json` |
+
+## 7. Hivatkozások
+
+- [pipeline.md](../pipeline.md)
+- [nlm_prompts.md](../nlm_prompts.md) -- Prompt B szövege
+- [08_mindmap_manager.md](08_mindmap_manager.md) -- mindmap export
+### Notebook-lista (ismert notebookok)
+
+| ID | Cím | Prompt B |
+|---|---|---|
+| c894e121-3c39-4da0-af74-b1f2c82ffa69 | DFT | ❔ |
+| b26582da-9051-4a26-954b-4075013981e4 | Matrix Profile | ✅ aktív |
+| fb2b02e6-7735-41f7-81db-73314a164255 | Termográfia a műszaki diagnosztikában | ❔ |
+| 8732cec4-a875-4afa-b0e1-27743febae1d | Introduction to Wavelets | ❔ |
+| 73a46dcf-c4ed-4148-8143-3b05c2dccbf5 | Áramlási rendellenességek | ❔ |
+| 5efb3ad6-4858-4c52-b95e-79d6102726ab | meta_file_updates_test - 1. het | ✅ aktív |
+| 060c9cfb-4404-4bff-a57b-ec26b4433773 | meta_file_updates_test - 2. het | ✅ aktív |
 
 Alias beállítása: `nlm alias set <rövidnév> <ID>`
 
+## 8. Visszajelzések
+
+- ❔ QUESTION: A user nem érti, miért van 🛑 checkpoint a 02. lépés után. Magyarázat: a checkpoint azért van, mert (1) az NLM notebook + Prompt B + mindmap manuális/CLI lépések, amelyek sikerét ellenőrizni kell, mielőtt a downstream lépések (03 MinerU, 04 DFS query) elindulnak -- ezek a mindmap struktúrájára épülnek; (2) ha a mindmap rosszul generálódik, az egész downstream pipeline csonka. A checkpoint tehát minőségbiztosítási pont, nem forrás-ellenőrzés. Megfontolás: a checkpoint leírása a pipeline.md §4-ben nem egyértelmű -- pontosítás indokolt.
+
+- ✅ `nlm chat configure $NB --response-length longer` (nem `long` -- tesztelve 2026-05-26). Opciók: `default` / `longer` / `shorter`.
+- ⚠️ WARNING: `--goal custom --prompt` és `--response-length` NEM adható meg külön parancsokban -- a második hívás visszaállítja a goal-t `default`-ra. Mindig egy parancsban: `nlm chat configure $NB --goal custom --prompt $p --response-length longer`.
+- ⚠️ WARNING: Prompt B `@'...'@` heredoc-ban `[tema]` vagy más szögletes zárójeleket tartalmazó szöveg `Got unexpected extra arguments` hibát okoz. Megoldás: a promptot temp fájlba kell írni (`Out-File`), majd `Get-Content -Raw`-val beolvasni stringként.
+- 🔲 TODO: **PPTX forrás `nlm_uuid: None` marad -- teljesen hiányzik a tartalomból, figyelmeztetés nélkül (tesztelve 2026-05-28, 2_het).** A `hari2024_slides.pptx` és `hari2024b_slides.pptx` fájlok `nlm_uuid: None` értékkel szerepelnek a `citations_seed.json`-ban -- NLM-be nem tölthetők fel PPTX formátumban. Következmény: az összes NLM lekérdezés (43 db) ezekre egyetlen hivatkozást sem tartalmaz. Az olvasó számára ezek a forrásanyagok láthatatlanok, és a pipeline sehol nem jelzi, hogy 2 forrás kimaradt. Megoldás: (1) `01_references_collector` vagy `02_nlm_notebook_setup` checkpoint figyelmeztetést adjon `nlm_uuid: None` esetén; (2) a Bevezetés szekció megjegyezze, hogy mely források maradtak ki.
+- 💬 NOTE: DOC és PPTX fájlok feltöltése `--file`-lal sikertelen (tesztelve 2026-05-27). HTML fájlok lokálisan mentve szintén nem tölthetők fel -- csak `--url`-ként, nyilvánosan elérhető oldalhoz.
+- 🔲 TODO: Az NLM UI szerint számos formátum támogatott: pdf, txt, md, docx, csv, pptx, epub, hang- és videóformátumok, képek (png, jpg, stb.). Megvizsgálandó: a CLI `--file` flag mely formátumokat fogadja el ténylegesen, és hogyan illeszkedik ez a pipeline §6 forrástípus-táblázatába. Ha PPTX és DOCX CLI-n is feltölthető, a pipeline §6 ❔ státuszok felülvizsgálandók.
+- 💬 NOTE: Notebook-lista frissítendő -- meta_file_updates_test notebookok hozzáadva (§7).
+- 🔲 TODO: **NLM Mindmap title angolul generálódott, miközben a tartalom és a DFS queries magyarul futottak (tesztelve 2026-05-28, 2_het).** A `citations_seed.json._notebook.mindmap_title` = `"Dynamics and Diagnostics of Fluid Flow Anomalies"` (angol), de az NLM válaszok és a mindmap export teljes egészében magyarul van (`Áramlástechnikai Gépek Rezgésdiagnosztikája és Üzemzavarai`). A 02. lépés checkpoint-jánál ellenőrizendő, hogy a mindmap generálás során milyen nyelven készül el, és hogy a `mindmap_title` a `citations_seed.json`-ban mindig az export tényleges nevét tükrözi-e.
+- 🔲 TODO: A mindmap CLI workaround (`nlm query notebook` → `nlm_mindmap_raw.txt`) nem a Studio vizuális gráfját adja vissza, csak szöveges rekonstrukciót. Megvizsgálandó: van-e natív mindmap-read parancs, vagy automatizálható-e a Studio export (Claude in Chrome MCP).
+- 💬 NOTE: A Prompt B ASCII változatot használ a PowerShell encoding-probléma miatt. Az ékezetes változat NLM UI-ban illeszthető be (nlm_prompts.md §2).
+- 💬 NOTE: Studio panel mentés (auditálhatóság): `nlm studio` CLI csak `status`, `delete`, `rename` parancsot ismer -- `save`/`export` **NEM érhető el CLI-n** (tesztelve 2026-05-26). A Studio export kizárólag Export-Tool böngészőbővítménnyel lehetséges. Az audit trail manuális lépés.
+- ❔ QUESTION: Chrome Extension (Export-Tool / Ultra Explorer) automatizálható-e Claude in Chrome MCP-vel? (Studio Gondolattérkép + Data Tables export)
+
+## 9. Változásjegyzék
+
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; ékezetek visszaállítva; §8 Visszajelzések; pipeline diagram és felesleges szekciók eltávolítva; Auth/telepítés beolvasztva |
+| 2026-05-24 | 2.0 | Auth és telepítés beolvasztva (nlm_integration.md); notebook-lista hozzáadva |
+| 2026-05-22 | 1.0 | Létrehozva; teljes CLI workflow dokumentálva |

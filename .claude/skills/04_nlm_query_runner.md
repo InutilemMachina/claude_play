@@ -1,313 +1,170 @@
 ---
 name: 04_nlm_query_runner
-title: 04_NLM_QUERY_RUNNER — NLM Query Runner
+title: 04_NLM_QUERY_RUNNER -- NLM Query Runner
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.3
-updated: 2026-05-25
-description: NLM notebook lekérdezése CLI-n keresztül. Mindmap szintek alapján tematikus queryek (Q1-Q4) + Qfig (figura/táblázat katalógus), raw JSON mentés, citations.json alapozása.
+version: 2.0
+updated: 2026-05-26
+description: NLM notebook lekérdezése CLI-n keresztül. Mindmap DFS alapján tematikus queryek + Qfig (figura/táblázat katalógus), raw JSON mentés, citations.json inicializálása.
 ---
 
-# 04_NLM_QUERY_RUNNER.MD — NLM Query Runner
-_04. lépés_
+# 04_NLM_QUERY_RUNNER
 
-> **Megjegyzés:** A régi `01_html_to_md` lépés NLM Studio HTML-export importálásra épült.
-> Az NLM CLI (Prompt B) direkten lekérdezi a notebookot -- HTML export felesleges.
-> Ez a skill a CLI-alapú workflow-t dokumentálja.
+## 1. Cél
 
-# 1. Mit csinál pontosan
+Az NLM notebook mindmap-jét Depth-First-Search sorrendben bejárva tematikus lekérdezéseket futtat, a nyers válaszokat elmenti, és inicializálja a `citations.json`-t.
 
-1. A mindmap `## 2. szint` témáit lekérdezi az NLM notebooktól.
-2. Minden queryt `forrasok/nlm_qN_raw.txt`-be ment (JSON, Prompt B kimenet).
-3. A `citations` mezőkből inicializálja a `forrasok/citations.json`-t (UUID-dedup).
-4. **Szekció-markereket** (`<!-- Q:N -->`) szúr a Jegyzet-vázlatba, hogy a
-   `04_citations_maker` per-szekció renumberinget tudjon végezni.
+## 2. Bemenetek
 
-# 2. NLM CLI parancsok
+- NLM notebook ID (02_nlm_notebook_setup kimenet)
+- `4_wip_outputs/N_Mindmap.md` (08_mindmap_manager kimenet) -- a query-témák forrása
+- `1_raw_inputs/citations_seed.json` -- UUID-mapping referencia
+
+**Előfeltétel:** 02 (notebook + Prompt B aktív) és 08 (mindmap export) lefutott.
+
+## 3. Eljárás
+
+### 3.1. PATH beállítása
 
 ```powershell
-# PATH beállítás (minden sessionben egyszer)
 $env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
+```
 
-# Alap query (level-2 mindmap tematika szerint)
-nlm query notebook "<NOTEBOOK_ID>" "<kerdes>" --json | Out-File forrasok/nlm_q2_raw.txt -Encoding utf8
+### 3.2. Mindmap-vezérelt DFS lekérdezések
+
+Az NLM belső query-sablonja szint szerint:
+
+```
+Gyökér (1. szint):
+"Beszélgessen az ezekben a forrásokban tárgyalt <fő node> témakörről."
+
+2. szint (gyerek):
+"Beszélgessen az ezekben a forrásokban tárgyalt,
+ a(z) <szülő node> tágabb kontextusába tartozó <gyerek node> témakörről."
+
+3. szint (unoka):
+"Beszélgessen az ezekben a forrásokban tárgyalt,
+ a(z) <szülő node> tágabb kontextusába tartozó <unoka node> témakörről."
+```
+
+**Fontos:** A `<szülő node>` mindig az egy szinttel feljebb lévő csomópont -- nem a gyökér.
+
+**ASCII-korlát:** Ha a CLI csonkítja az outputot ékezetes kérdésnél, ASCII fallbacket küldj.
+
+**Példa (Termográfia, 1. hét):**
+```powershell
+$NB = "<notebook_id>"
+
+# Gyökér query
+$q1 = "Mi az infravoros termografia, miert fontos mernoki es diagnosztikai szempontbol?"
+nlm query notebook $NB $q1 --json | Out-File 3_raw_outputs/nlm_q1_raw.txt -Encoding utf8
+
+# 2. szint: Sugárzásfizika
+$q2 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Sugarzasfizikai alaptorvenyek temakorrol -- reszletesen."
+nlm query notebook $NB $q2 --json | Out-File 3_raw_outputs/nlm_q2_raw.txt -Encoding utf8
 
 # Folytatás ugyanabban a konverzációban
-nlm query notebook "<ID>" "<kerdes>" --conversation-id <conv_id> --json | Out-File forrasok/nlm_q3_raw.txt -Encoding utf8
+nlm query notebook $NB $q3 --conversation-id <conv_id> --json | Out-File 3_raw_outputs/nlm_q3_raw.txt -Encoding utf8
 ```
 
-**Ékezetes query workaround:** Ha a CLI csonkítja az outputot ékezetes kérdésnél,
-az ASCII változatot küldd (pl. "Idosor" helyett "Idősor"). Stabil megoldásig
-idézőjelbe is tehető: `"\"Idősor alapfogalmak\""`.
+A `conversation_id`-t az első lekérdezés visszaadja -- meg kell tartani a követő kérdésekhez.
 
-# 3. Query-tematika (level-2 mindmap alapján)
+⚠️ **Napi kvóta:** Az NLM-nek napi kérdéslimit-je van. `RESOURCE_EXHAUSTED` hiba esetén várj, és használd a `--resume --sleep 5` flageket (lásd §6).
 
-Minden héthez a mindmap 2. szintű csomópontjai adják a query témákat:
+### 3.3. Qfig -- figura és táblázat lekérdezés
 
-| Query | Szerepkör | Minta kérdés |
-|:------|:----------|:-------------|
-| Q1 | **Bevezető + összefoglaló** -- mi a témakör, miért fontos, mit fog tartalmazni az anyag; NEM részletes tárgyalás | Mi az [téma], miért releváns, és milyen főbb területeket érint a tantárgy? Rövid bevezető szükséges, nem részletes kifejtés. |
-| Q2 | 1. szekció -- kizárólag saját mindmap-csomópontja | Ismertesd az alapvető fogalmakat és matematikai definíciókat! |
-| Q3 | 2. szekció -- kizárólag saját mindmap-csomópontja | Ismertesd a főbb módszereket/algoritmusokat és azok összefüggéseit! |
-| Q4 | 3. szekció -- kizárólag saját mindmap-csomópontja | Milyen alkalmazási területek léteznek, milyen példákkal? |
-| Q5 | Kérdések (13 lépéshez) | [13_question_bank_collector promptja] |
-
-⚠️ **Redundancia-szabály:** Q1 és Q2-Q4 NEM fedhetik át egymást. Q1 bevezeti a tágabb kontextust; Q2-Q4 kizárólag a saját mindmap-szekciójukat tárgyalják részletesen. Az assembler (lépés 05) ellenőrzi az átfedést.
-
-A sorrend nem kötött; a mindmap struktúrája határozza meg.
-
-## 3.1. Mindmap-vezérelt query sablonok (NLM belső logika)
-
-Az NLM mindmap-nézetben a csomópontokra kattintva a következő belső queryt küldi a RAG-nak:
-
-**Gyökér csomópont:**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt <fő node> témakörről.
-```
-
-**2. szint (gyerek node):**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt,
-a(z) <szülő node> tágabb kontextusába tartozó <gyerek node> témakörről.
-```
-
-**3. szint (unoka node):**
-```
-Beszélgessen az ezekben a forrásokban tárgyalt,
-a(z) <szülő node> tágabb kontextusába tartozó <unoka node> témakörről.
-```
-
-A szülő mindig az **egy szinttel feljebb lévő csomópont** neve -- nem a gyökér.
-
-### Implikáció a Q1-Q4 queryekre
-
-A helyes pipeline-sorrend: **00b (mindmap) → 01 (queryek mindmap alapján)**.
-
-| Query | Sablon szint | Szerepkör | Minta |
-|:------|:-------------|:----------|:------|
-| Q1 | Gyökér -- bevezető | Kontextus, motiváció, terjedelem; **nem részletes tárgyalás** | `"Mi az <tantárgy>, miért fontos mérnöki/tudományos szempontból, és milyen főbb területeket érint? Rövid bevezetőt kérünk."` |
-| Q2-Q4 | 2. szint | Kizárólag saját szekció részletesen | `"... a(z) <tantárgy> ... <főcsomópont> témakörről -- részletesen."` |
-| Q5 (opció) | 3. szint | Részszekció mélyítés | `"... a(z) <főcsomópont> ... <részcsomópont> témakörről."` |
-
-**Konkrét minta (Termografia, 1. hét):**
-```powershell
-# Q1 -- bevezeto (rovid, NEM atfogo)
-$q1 = "Mi az infravoros termografia, miert fontos mernoki es diagnosztikai szempontbol, es milyen fo teruletek tartoznak a tantargyhoz? Rovid bevezetot kerunk, nem reszletes targyalast."
-# Q2 -- level-2: Sugarzasfizika (kizarolag)
-$q2 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Sugarzasfizikai alaptorvenyek temakorrol -- reszletesen, definiciokkal es egyenletekkel."
-# Q3 -- level-2: Hokamerak (kizarolag)
-$q3 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Hokamerak es merestechnika temakorrol -- reszletesen, muszaki parametereivel."
-# Q4 -- level-2: Alkalmazasok (kizarolag)
-$q4 = "Beszelgessen az ezekben a forrasokban targyalt, a(z) Infravoros termografia tagabb kontextusaba tartozo Alkalmazasi teruletek temakorrol -- konkret peldakkal es esetulmanyokkal."
-```
-
-⚠️ **ASCII-korlát:** A CLI-n küldött kérdésben ékezetek elfogadottak, de
-ha az output csonka, ASCII fallback-et alkalmazz (l. §2 workaround).
-
-# 4. Qfig -- figura és táblázat lekérdezés
-
-A Qfig egy **egyszer futtatott** speciális query, amely az NLM saját Vision API-ját
-használja a feltöltött PDF-ek ábráinak és táblázatainak katalogizálására.
-Futtatandó: **Q1-Q4 előtt, egyszer per notebook**.
-
-Output: `3_raw_outputs/nlm_qfig_raw.txt` → feldolgozza: `scripts/03-1_qfig_parser.py`
-→ feltölti a `figure_catalog.json` `caption` + `keywords` mezőit.
-
-## 4.1. Qfig query sablon
-
-```
-Sorold fel az összes ábrát, diagramot és táblázatot a feltöltött forrásokból.
-Minden elemhez add meg pontosan:
-- FORRÁS: fájlnév kiterjesztéssel (pontosan ahogy a Sources panelen látható)
-- SZÁM: az ábra/táblázat sorszáma a forrásban (pl. "Figure 3", "3. ábra", "Table 1")
-- ALÁÍRÁS: az eredeti caption szó szerint (ha van a forrásban)
-- LEÍRÁS: 1-2 mondatos saját leírás arról, mit ábrázol és mihez kapcsolódik
-- TÉMAKÖR: 2-3 kulcsszó (angolul), amelyek a tartalmat jellemzik
-```
-
-## 4.2. CLI parancs
+A Qfig egy **egyszer futtatott** speciális query, amelyet **Q1 előtt** kell futtatni:
 
 ```powershell
-$qfig = "Sorold fel az osszes abrat, diagramot es tablazatot a feltoltott forrasokbol. Minden elemhez add meg pontosan: FORRAS: fajlnev kiterjesztessel. SZAM: az abra/tablazat sorszama a forrasban. ALAIRAS: az eredeti caption szo szerint (ha van). LEIRAS: 1-2 mondatos sajat leiras. TEMAKÖR: 2-3 kulcsszo angolul."
-nlm query notebook "<NOTEBOOK_ID>" $qfig --json | Out-File 3_raw_outputs/nlm_qfig_raw.txt -Encoding utf8
+$qfig = "Sorold fel az osszes abrat, diagramot es tablazatot a feltoltott forrasokbol. Minden elemhez add meg pontosan: FORRAS: fajlnev kiterjesztessel. SZAM: az abra/tablazat sorszama. ALAIRAS: az eredeti caption szo szerint. LEIRAS: 1-2 mondatos sajat leiras. TEMAKÖR: 2-3 kulcsszo angolul."
+nlm query notebook $NB $qfig --json | Out-File 3_raw_outputs/nlm_qfig_raw.txt -Encoding utf8
 ```
 
-⚠️ **Ékezetes parancs:** ASCII fallback kötelező a CLI-n (l. §2 workaround). A query szövege
-hosszabb, mint Q1-Q4 -- ha timeout-ol, bontsd két részre (ábrák / táblázatok).
+A `03-1_qfig_parser.py` a Qfig outputból tölti fel a `figure_catalog.json` `caption` + `keywords` mezőit.
 
-## 4.3. Kapcsolat a figure_catalog.json-hoz
+### 3.4. citations.json inicializálása
 
-A `03-1_qfig_parser.py` a Qfig outputból tölti fel:
-- `entry["caption"]` -- eredeti forrás-caption (ALÁÍRÁS mező)
-- `entry["keywords"]` -- kulcsszavak listája (TÉMAKÖR mező, vesszőre bontva)
-- `entry["vlm_done"]` -- `true` (jelzi: caption már kitöltve, nem kell `--vlm` flag)
-
-Ha a `figure_catalog.json`-ban egy entry `vlm_done: true`, a `03_util_figure_catalog.py
---vlm` flag kihagyja (nem futtat Claude Vision API-t rá -- takarékos).
-
-# 5. Szekció-markerek injektálása
-
-A Jegyzet-összeállítás során minden query-forrású blokk elé `<!-- Q:N -->` kerül:
-
-```markdown
-<!-- Q:2 -->
-## 2. Alapfogalmak és definíciók
-
-Az idősor $T = t_1, ..., t_n$ ... <sup>[1]</sup>
-
-<!-- Q:3 -->
-## 3. Algoritmusok
-
-A STAMP algoritmus ... <sup>[1]</sup>
-```
-
-Ez teszi lehetővé, hogy a `citations_renumber.py` per-szekció végezzen pontos
-local→global cserét (nem kell fallback).
-
-# 6. citations.json inicializálása
-
-## 6.1. references mezo szerkezete (tesztelve 2026-05-22)
-
-A `references` mezo elemei **nem** `{id, ...}` formájúak, hanem:
-
-```json
-{
-  "source_id": "8bc56719-029d-4033-821b-607a96b6864a",
-  "citation_number": 1,
-  "cited_text": "..."
-}
-```
-
-Python olvasáshoz: `{r["source_id"]: r for r in val["references"]}`.
-
-## 6.2. citations mezo hiánya (rövid query esetén)
-
-Tapasztalat: ha a query szövege rövid (~50-80 kar) vagy kevés szekciót fed,
-az NLM a `citations` és `references` JSON mezőket üresen adja vissza (`{}`, `[]`),
-bár az `answer` szöveg inline citációkat tartalmaz (`[fajlnev.pdf: 43]` formában).
-
-⚠️ **Q1 redesign (2026-05-25) hatása:** Q1 mostantól bevezető/összefoglaló szerepkörű -- rövidebb, kevesebb JSON citations-t ad vissza. A citations-inicializálás stratégiája ennek megfelelően frissítve:
-
-**Megoldás:**
-1. **Q1 alapján inicializáld** a `citations.json`-t (UUID dedup) -- kevesebb entry várható, mint korábban.
-2. **Q2-Q4 JSON citations** (ha van) szintén adjuk hozzá a dedup logikával.
-3. **Inline fallback (kötelező):** Q1-Q4 `answer` mezőiből (regex: `\[([^:]+\.(?:pdf|html))[:\d\s,–-]*\]`)
-   kinyert fájlneveket mappeld vissza a `citations_seed.json` `nlm_uuid` mezőivel.
-   Minden még nem szereplő UUID-ot add hozzá a citations.json-hoz.
-4. **Elvárt végeredmény:** minden notebookba töltött forrás szerepeljen a citations.json-ban
-   (ellenőrzés: `set(citations_seed uuid-k) == set(citations.json nlm_uuid-k)`).
-
-## 6.3. Python olvasási minta (UTF-8-sig + CRLF)
-
-A PowerShell `Out-File -Encoding utf8` BOM-os UTF-8-et és CRLF sortörést ír.
-Python-ban kötelező:
-
+Python olvasáshoz (kötelező UTF-8-sig + CRLF kezelés):
 ```python
-raw = Path("nlm_q1_raw.txt").read_bytes().decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+raw = Path("nlm_q1_raw.txt").read_bytes().decode("utf-8-sig").replace("\r\n", "\n")
 obj = json.loads(raw)
 val = obj.get("value", obj)
 ```
 
-`encoding="utf-8"` önmagában JSONDecodeError-t okozhat a BOM miatt.
+**Stratégia:**
+1. Q1 JSON `citations` mező → UUID dedup → `citations.json` inicializálás
+2. Q2-Q4 JSON citations → hozzáadás dedup logikával
+3. Inline fallback: `answer` mezőkből `\[([^:]+\.pdf)\]` regex → `citations_seed.json` UUID-mapping
 
-## 6.4. citations.json builder (helyes implementáció)
+**Elvárt végeredmény:** `set(citations_seed uuid-k) == set(citations.json nlm_uuid-k)`
 
-```python
-import json, re
-from pathlib import Path
+### 3.5. Szekció-markerek injektálása
 
-DIR = Path("N_het/forrasok")
+Minden query-forrású blokk elé `<!-- Q:N -->` kerül a Jegyzet-összeállítás során -- a `07_citations_renumber.py` per-szekció renumberinghez.
 
-def load_nlm(fname):
-    raw = (DIR / fname).read_bytes().decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
-    return json.loads(raw).get("value", {})
-
-seed = json.loads((DIR / "citations_seed.json").read_text(encoding="utf-8"))
-uuid_to_entry = {v["nlm_uuid"]: v for k, v in seed.items()
-                 if not k.startswith("_") and v.get("nlm_uuid")}
-file_to_uuid  = {v["file"]: v["nlm_uuid"] for v in uuid_to_entry.values()}
-
-# 1. Q1 alapján: JSON citations (teljes)
-q1 = load_nlm("nlm_q1_raw.txt")
-q1_cits = q1.get("citations", {})
-
-uuid_to_global = {}
-citations = {}
-n = 1
-
-for local_k in sorted(q1_cits.keys(), key=lambda x: int(x)):
-    uuid = q1_cits[local_k]
-    if uuid not in uuid_to_global:
-        entry = uuid_to_entry.get(uuid, {})
-        citations[str(n)] = {
-            "title": entry.get("title", ""), "authors": entry.get("authors", ""),
-            "year":  entry.get("year",  ""), "venue":   entry.get("venue",   ""),
-            "doi":   entry.get("doi"),       "file":    entry.get("file",    ""),
-            "url":   entry.get("url_download", ""),
-            "nlm_uuid": uuid, "type": entry.get("type", "paper"),
-            "note":  entry.get("note", ""),
-        }
-        uuid_to_global[uuid] = n
-        n += 1
-
-# 2. Q2/Q3: inline fajlnev-hivatkozasok (fallback)
-for qf in ["nlm_q2_raw.txt", "nlm_q3_raw.txt"]:
-    ans = load_nlm(qf).get("answer", "")
-    for fname in re.findall(r'\[([^:\]]+\.(?:pdf|html))', ans):
-        uuid = file_to_uuid.get(fname.strip())
-        if uuid and uuid not in uuid_to_global:
-            entry = uuid_to_entry[uuid]
-            citations[str(n)] = {
-                "title": entry.get("title", ""), "authors": entry.get("authors", ""),
-                "year":  entry.get("year",  ""), "venue":   entry.get("venue",   ""),
-                "doi":   entry.get("doi"),       "file":    entry.get("file",    ""),
-                "url":   entry.get("url_download", ""),
-                "nlm_uuid": uuid, "type": entry.get("type", "paper"),
-                "note":  entry.get("note", ""),
-            }
-            uuid_to_global[uuid] = n
-            n += 1
-
-(DIR / "citations.json").write_text(
-    json.dumps(citations, ensure_ascii=False, indent=2), encoding="utf-8"
-)
+```markdown
+<!-- Q:2 -->
+## 2. Alapfogalmak
+...
+<!-- Q:3 -->
+## 3. Algoritmusok
 ```
 
-Claude végzi az első alkalommal; a `04_citations_maker` karbantartja
-(szám nem változhat, csak bővülhet).
-
-# 7. Output fájlok
+## 4. Kimenetek
 
 | Fájl | Tartalom |
 |:-----|:---------|
 | `3_raw_outputs/nlm_qfig_raw.txt` | Qfig: ábra/táblázat katalógus (NLM Vision kimenet) |
-| `3_raw_outputs/nlm_qN_raw.txt` | Q1-Q4: tematikus NLM CLI JSON kimenet (Prompt B) |
+| `3_raw_outputs/nlm_q1_raw.txt` ... `nlm_qN_raw.txt` | Tematikus NLM CLI JSON kimenet (Prompt B) |
 | `3_raw_outputs/citations.json` | UUID-alapú forrásregiszter (04 inicializálja, 07 karbantartja) |
-| `4_wip_outputs/N_Jegyzet.md` (váz) | Összeállított szekciók `<!-- Q:N -->` markerekkel |
 
-# 8. Régi 01_html_to_md (archív)
+## 5. Ellenőrzés
 
-Az eredeti lépés NLM Studio HTML-exportot dolgozott fel Markdown-ná.
-Ha valaki Studio HTML-exportot tölt fel (Export-Tool nélkül), a régi workflow:
-1. HTML → Pandoc vagy BeautifulSoup → `.md` konverzió
-2. Citáció-mezők hiányoznak → `citations.json` kézi kitöltés szükséges
+- [ ] Minden tervezett query (Qfig + Q1..QN) lefutott
+- [ ] `nlm_q*_raw.txt` fájlok nem üresek, `answer` mező nem null
+- [ ] `citations.json` létezik, bejegyzések száma >= notebookba töltött forrásszám
+- [ ] `<!-- Q:N -->` markerek injektálva a Jegyzet-vázlatba
 
-Ez az út **nem ajánlott** -- Prompt B és CLI nélkül UUID-ek nem állnak rendelkezésre.
+## 6. Hibakezelés
 
+| Tünet | Ok | Megoldás |
+|:------|:---|:---------|
+| `citations: {}` üres a JSON-ban | Prompt B nem aktív, vagy query túl rövid | `nlm chat configure <id>` ellenőrzés; ha aktív → inline regex fallback (§3.4) |
+| `r["id"]` KeyError references iterációnál | `references` elemei `{source_id, citation_number, cited_text}`, nem `{id, ...}` | `{r["source_id"]: r for r in val["references"]}` lookup dict |
+| `MCP error -32001: Request timed out` | MCP alapértelmezett 30 s timeout | Query szöveget tartsd <100 kar; vagy `--timeout 180` flag |
+| `Got unexpected extra arguments` multiline promptnál | `@"..."@` double-quote heredoc expandál | Kizárólag `@'...'@` single-quote heredoc: `$prompt = @'...'@; & nlm ... --prompt $prompt` |
+| `RESOURCE_EXHAUSTED` JSON hiba minden query-n | Napi NLM kvóta kimerítve | Várj kvóta-reset-ig (éjfél PT); `--resume --sleep 5` flagekkel folytasd: `python 04_nlm_dfs_queries.py --resume --sleep 5 --week-dir ...` |
 
-# Ismert hibák
+## 7. Hivatkozások
 
-→ [pitfalls.md §2.1](../pitfalls.md) -- Üres citations/references rövid query-nél
-→ [pitfalls.md §2.2](../pitfalls.md) -- references mező struktúrája (nem {id: ...})
-→ [pitfalls.md §2.3](../pitfalls.md) -- PowerShell query timeout
-→ [pitfalls.md §2.4](../pitfalls.md) -- Multiline prompt: @'...'@ kötelező
+- [pipeline.md](../pipeline.md)
+- [08_mindmap_manager.md](08_mindmap_manager.md) -- a query-témák forrása
+- [07_citations_maker.md](07_citations_maker.md) -- citations.json karbantartás
 
-# NOTE-ok (tesztelés visszajelzések)
+## 8. Visszajelzések
 
-- NOTE 💬 **Studio panel mentés (auditálhatóság):** Az NLM query válaszait a Studio jobboldali panelbe is le kell menteni. Indok: az NLM válaszok nem reprodukálhatók (azonos promptra más választ adhat), ezért az audit trail megköveteli a Studio-ban rögzített verziót. Megoldandó: minden `nlm query` után `nlm studio artifact save` (ha elérhető CLI-n); egyébként 😎 manuális: Studio panel > Mentés. Rögzítendő a lépés checklistjébe.
-- NOTE 💬 **Válasz hossza:** `nlm chat configure --response-length long` legyen a pipeline alapbeállítása. Ellenőrizendő a CLI flagek pontos szintaxisa (`nlm configure --help`).
+- 🔲 TODO: Minden NLM lekérdezés válaszát a Studio panelbe is menteni kell (auditálhatóság, reprodukálhatóság). Jelenlegi állapot: csak `3_raw_outputs/nlm_q*.txt`-be kerül, Studio-ba nem. Megvizsgálandó: `nlm studio artifact save` parancs elérhető-e CLI-n; ha nem, 😎 manuális lépés (Studio jobboldali panel → Mentés). Prioritás: a Studio-ba mentett tartalmak újra felhasználhatók és kereshetők NLM-en belül.
+- ✅ `nlm chat configure $NB --response-length longer` (nem `long`). A `nlm query notebook` timeout növelhető: `--timeout 180` flag (default: 120s).
+- 🔲 TODO: A Qfig query eredete nem egyértelmű a user számára (tesztelve 2026-05-27). A prompt (`Sorold fel az osszes abrat...`) a §3.3-ban van definiálva, de a pipeline.md IO táblázata csak `scripts/03-1_qfig_parser.py -- Qfig query` szövegre hivatkozik -- nem derül ki, hogy ez egy NLM CLI lekérdezés, amelyet Claude futtat le. A 03-1 sor inputjaként `NLM notebook (🔌)` szerepel, de ez nem magyarázza, hogy milyen kérdést tesz fel Claude. Javítandó: a pipeline.md IO táblában a Qfig sort bővíteni: `scripts/03-1_qfig_parser.py -- Qfig query (04 §3.3 prompt)`.
+- 🔲 TODO: A Qfig lekérdezés eredménye (`nlm_qfig_raw.txt`) mentési helye és státusza nem konzisztensen nyomon követett -- a §3.3 rögzíti az elvárt helyet, de a korábbi teszten ez nem volt lementve. A checklist ezt tartalmazza.
+- 🔲 TODO: Formátum-eltérés a Qfig NLM output és a `03-1_qfig_parser.py` között (tesztelve 2026-05-27). A parser per-soros `FORRAS: érték` formátumot vár (FIELD_RE regex), de az NLM Markdown táblázatot ad vissza (`| FORRAS | SZAM | ALAIRAS | ... |`). Eredmény: 0 entry parse-olva mindkét hétre (1_het: 9 katalógusbejegyzés, 2_het: 34 — mind 0 match). Megoldás: vagy a Qfig prompt módosítandó ("adj per-soros listát"), vagy a parser bővítendő Markdown-tábla támogatással. Prioritás: magas (03-1 jelenleg teljesen inaktív).
+- 🔲 TODO: Függőségi ellentmondás (tesztelve 2026-05-27): `scripts/04_nlm_dfs_queries.py` sor 171 megköveteli `3_raw_outputs/nlm_mindmap_export.md` fájlt, amely a **08_mindmap_manager** kimenete (Ultra Explorer bővítmény, manuális export). A pipeline.md IO táblázata szerint a sorrend `02→03→04→...→08`, vagyis 04 fut 08 előtt -- de a DFS script nem fut 08 nélkül. Következmény: 04 nem hajtható végre, amíg a mindmap exportot a user manuálisan el nem végzi (NLM Studio → Ultra Explorer → `nlm_mindmap_export.md`). A pipeline.md §3-ban rögzített "helyes sorrend" módosítandó: `02 (mindmap generálás) → 03 (MinerU) → 08 (mindmap export) → 04 (DFS lekérdezések)`.
+- 🔲 TODO: Az NLM absztrakt szövegét (középső panel) Q1 helyett vagy Q1 előtt kellene lekérdezni: `nlm query <id> "Adj egy absztraktot a témakörben."`. Ez reprodukálhatóbb bevezető, mint a generált Q1.
+- 🔲 TODO: **Vizuális progress megjelenítés hiányzik (tesztelve 2026-05-27).** A user nem látja a DFS futását. Elvárt: egy terminálablak (pl. `Start-Process` Windows Terminal), amely valós időben mutatja: `[1/2 hét] [5/41 kérdés] Q05 -- Cooley-Tukey FFT`. Jelenlegi állapot: a stdout csak logfájlba megy, nem látható. Megoldás: `04_nlm_dfs_queries.py`-ban `rich.progress` vagy egyszerű `tqdm` progress bar, és a script Windows Terminalból legyen indítva (nem MCP-ből).
+- 💬 NOTE: Napi kvóta kimerülés tapasztalva (2026-05-27): a kvóta notebook-független -- a 2_het notebook is RESOURCE_EXHAUSTED hibát ad, holott azon még egyetlen DFS query sem futott. A limit tehát Google-fiók szintű (nem per-notebook). Tesztnap összesített lekérdezések: 1_het Qfig(1) + DFS próba(2, leállítva) + DFS újra(40) + 2_het Qfig(1) + tesztlekérdezések ≈ 50 körül merül ki. Következő futtatás: másnap (kvóta éjfélkor PT szerint reset).
+- 💬 NOTE: Napi kvóta kimerülés tapasztalva (2026-05-27): 1_het 41 queryből 40 sikerült, Q41 (Parciális differenciálegyenletek) RESOURCE_EXHAUSTED hibával leállt. A 2_het DFS ugyanazon a napon nem futtatható. A `--resume` flag másnap kihagyja a kész fájlokat, de Q41 nem mentődött -- `--resume` nélküli újrafuttatás felülírja az összeset. Javasolt eljárás: Q41-et manuálisan pótolni (`nlm query notebook ... --json > nlm_q41_raw.txt`), majd a 2_het DFS-t másnap `--sleep 5`-tel indítani.
+- 🔲 TODO: **DFS állapot-perzisztencia hiányzik (tesztelve 2026-05-27).** Ha az NLM napi kvóta lejár, a következő session-ben a skill/agent nem tudja, hol tartott a feldolgozás. Szükséges: `3_raw_outputs/dfs_state.json` fájl, amely tárolja: `{"total_weeks": 2, "current_week": 1, "total_queries": 41, "completed": 7, "last_query": "Q07", "quota_exhausted": false}`. A `--resume` flag a meglévő `nlm_q*_raw.txt` fájlok alapján ugrik, de ez nem tantárgy-szintű állapot -- ha a script újraindul egy új session-ben, nem tudja hány hét van hátra. Perzisztens állapotfájl a tantárgy gyökerében (`<tantargy>/dfs_state.json`) kezelné ezt.
+- ✅ **Névkonvenció eltérés javítva (2026-05-28).** `04_nlm_dfs_queries.py` zero-padding eltávolítva: `nlm_q{i}_raw.txt` (padding nélkül). `05_assemble.py` ugyanezt a sémát használja. Kanonikus konvenció a `pipeline.md §2`-ben rögzítve.
+- 🔲 TODO: A `04_nlm_dfs_queries.py` --dry-run kimenete L0-L4 mélységig generál queryket (1_het: 41, 2_het: 43). A pipeline.md §3 csak 3 szintet (Gyökér / 2. szint / 3. szint) dokumentál, de a script default `--max-level 99` → az egész mindmap-et lekérdezi. Nem egyértelmű, hogy a mélységi korlát szándékos-e. Mérlegelendő: `--max-level 2` alapértelmezés (pontosan 3 szint), vagy explicit dokumentálás, hogy az összes szint lekérdezése a cél.
+- ✅ DFS implementálandó → **KÉSZ**: `scripts/04_nlm_dfs_queries.py` teljes DFS traversal (--resume, --sleep, --max-level, RESOURCE_EXHAUSTED detekció). A Q1-Q4 fix struktúra elavult -- a DFS script az NLM notebook ID-jét a `citations_seed.json _notebook.id` mezőből olvassa.
+- 🔲 TODO: **Raw fájlnév-konvenció nem hordoz mindmap-pozíció-információt (user feedback, 2026-05-28).** Jelenlegi névséma: `nlm_q1_raw.txt`, `nlm_q01_raw.txt` -- a sorszám csak a DFS traversal sorrendjét jelöli, nem a mindmap fában elfoglalt helyet. Például nem derül ki, hogy a fájl melyik ág, melyik szint, melyik node-jához tartozik. Javasolt névséma: `nlm_q_<L0>-<L1>-<L2>_raw.txt`, ahol a szintindex a DFT traversal ágát jelöli (pl. `nlm_q_1-2-3_raw.txt` = 1. főág, 2. alág, 3. levél). Alternatíva: metadata-fájl (`dfs_state.json`) amely a sorszám↔node-path leképezést tárolja. Mérlegelendő: visszafelé kompatibilitás az assemblerrel (05_assemble.py egyszerű sorszámra vár); átállás esetén assembler-módosítás is szükséges.
 
-# Változásjegyzék
+## 9. Változásjegyzék
 
-| Dátum | Verzió 
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; DFS logika §3.2-ben; §8 Visszajelzések; archív szekció és inline script eltávolítva |
+| 2026-05-25 | 1.3 | Qfig §4; citations.json builder; Q1 redesign (bevezető szerepkör); DFS sorrend dokumentálva |
+| 2026-05-24 | 1.2 | CLI workaround; conversation_id megőrzése |
+| 2026-05-22 | 1.0 | Létrehozva |

@@ -16,6 +16,7 @@ Usage:
 import argparse
 import re
 import shutil
+import sys
 from pathlib import Path
 
 # Headings whose normalized name EXACTLY matches one of these stay unnumbered.
@@ -25,6 +26,11 @@ UNNUMBERED = {
     'valtozasnaplo',
     'valtozasjegyzek',
     'megjegyzes',
+    # pipeline-specific unnumbered sections
+    'bevezetes',           # ## Bevezetés (assembler Q1 wrapper)
+    'tartalomjegyzek',     # ## Tartalomjegyzék (10_notes_collector)
+    'tartalom',            # alt short form
+    'hivatkozasjegyzek',   # ## Hivatkozásjegyzék (assembler reference list)
 }
 # QUESTION: hol helyezkednek el ezek egy egyetemi/akademiai jegyzetben? 
 
@@ -150,8 +156,12 @@ def renumber(text, base_level=None):
     return ''.join(result), n
 
 def process(path, dry_run=False, base_level=None):
-    with open(path, encoding='utf-8') as f:
-        text = f.read()
+    try:
+        with open(path, encoding='utf-8') as f:
+            text = f.read()
+    except OSError as e:
+        print(f'  ERROR olvasás: {path.name}: {e}', file=sys.stderr)
+        return 0
     new_text, n = renumber(text, base_level)
     if n == 0:
         print('  OK (no changes): ' + path.name); return 0
@@ -161,9 +171,13 @@ def process(path, dry_run=False, base_level=None):
             if o != nu:
                 print('    L' + str(i+1) + ': ' + repr(o) + ' -> ' + repr(nu))
         return n
-    shutil.copy2(str(path), str(path) + '.bak')
-    with open(str(path), 'w', encoding='utf-8') as f:
-        f.write(new_text)
+    try:
+        shutil.copy2(str(path), str(path) + '.bak')
+        with open(str(path), 'w', encoding='utf-8') as f:
+            f.write(new_text)
+    except OSError as e:
+        print(f'  ERROR írás: {path.name}: {e}', file=sys.stderr)
+        return 0
     print('  FIXED (' + str(n) + '): ' + path.name)
     return n
 

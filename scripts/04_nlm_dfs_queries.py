@@ -8,7 +8,7 @@ Usage:
     python scripts/04_nlm_dfs_queries.py --week-dir test_outputs/DFT_teszt/1_het
 
 Output:
-    3_raw_outputs/nlm_qNN_raw.txt  (one per mindmap node, zero-padded)
+    3_raw_outputs/nlm_qN_raw.txt   (one per mindmap node, 1-indexed)
     3_raw_outputs/dfs_query_log.txt
 
 Template:
@@ -19,12 +19,31 @@ Template:
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-NLM_PATH = r"C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\nlm.exe"
+# NLM CLI path resolution (priority: env var > .claude/config.json > default)
+_DEFAULT_NLM_PATH = r"C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\nlm.exe"
+
+def _resolve_nlm_path() -> str:
+    """Resolve nlm.exe path: NLM_PATH env var > .claude/config.json > default."""
+    if env := os.environ.get("NLM_PATH"):
+        return env
+    # Look for .claude/config.json in project root (parent of scripts/)
+    cfg = Path(__file__).parent.parent / ".claude" / "config.json"
+    if cfg.exists():
+        try:
+            data = json.loads(cfg.read_bytes().decode("utf-8-sig"))
+            if p := data.get("nlm_path"):
+                return p
+        except Exception:
+            pass
+    return _DEFAULT_NLM_PATH
+
+NLM_PATH = _resolve_nlm_path()
 
 # ---------------------------------------------------------------------------
 # Mindmap parser
@@ -76,6 +95,50 @@ def parse_mindmap(path: Path) -> list[tuple[str, str | None]]:
         stack.append((level, name))
 
     return nodes
+
+
+# ---------------------------------------------------------------------------
+# Qfig query (ingyenes VLM alternatíva -- RC-4 fix)
+# ---------------------------------------------------------------------------
+
+QFIG_PROMPT = (
+    "Sorold fel az osszes abrat, diagramot, grafikont es tablazatot a forrasokban! "
+    "Minden elemhez add meg: (1) a forras nevet kiterjeszessel, (2) az abra szamat ha van, "
+    "(3) a captionjet ha van, (4) 3-5 angol kulcsszot vesszevel elvalasztva, amelyek "
+    "leirjak a vizualis tartalmat. Formatum minden elemhez:\n"
+    "FORRAS: <fajlnev.pdf>\n"
+    "SZAM: <abra szama vagy 'nincs'>\n"
+    "CAPTION: <caption szovege vagy 'nincs'>\n"
+    "KEYWORDS: <kulcsszavak>\n"
+    "---"
+)
+
+
+def run_qfig_query(nb_id: str, out_path: Path) -> bool:
+    """Run a single Qfig query and write output to out_path."""
+    import subprocess
+    cmd = [NLM_PATH, "query", "notebook", nb_id, QFIG_PROMPT, "--json"]
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, encoding="utf-8",
+            errors="replace", timeout=300
+        )
+        output = result.stdout.strip()
+        if output:
+            out_path.write_text(output, encoding="utf-8")
+            print(f"  Qfig: {out_path.name} ({len(output)} chars, rc={result.returncode})")
+            return result.returncode == 0
+        else:
+            print(f"  Qfig: EMPTY output, rc={result.returncode}", file=sys.stderr)
+            if result.stderr:
+                print(f"  stderr: {result.stderr[:200]}", file=sys.stderr)
+            return False
+    except subprocess.TimeoutExpired:
+        print("  Qfig: TIMEOUT", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"  Qfig: ERROR: {e}", file=sys.stderr)
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +217,8 @@ def main():
                         help=f"Skip existing output files larger than {MIN_VALID_BYTES} bytes")
     parser.add_argument("--sleep", type=float, default=2.0,
                         help="Seconds to sleep between queries (default: 2)")
+    parser.add_argument("--qfig", action="store_true",
+                        help="Run Qfig figure query (writes nlm_qfig_raw.txt); skips DFS")
     args = parser.parse_args()
 
     week_dir = Path(args.week_dir).resolve()
@@ -166,6 +231,13 @@ def main():
     nb_id = seed.get("_notebook", {}).get("id")
     if not nb_id:
         sys.exit("HIBA: _notebook.id hiányzik a citations_seed.json-ből")
+
+    # --qfig mode: run figure query only, skip DFS
+    if args.qfig:
+        qfig_path = raw_out / "nlm_qfig_raw.txt"
+        print(f"Qfig query → {qfig_path.name}")
+        ok = run_qfig_query(nb_id, qfig_path)
+        sys.exit(0 if ok else 1)
 
     # Parse mindmap
     mindmap_path = raw_out / "nlm_mindmap_export.md"
@@ -187,6 +259,18 @@ def main():
     filtered = [(n, p) for n, p in nodes if level_map.get(n, 0) <= args.max_level]
     print(f"Futtatandó (max-level={args.max_level}): {len(filtered)} query")
 
+    # Write dfs_node_list.json for 05_assemble.py (L1 sectioning)
+    node_list = {}
+    for i, (node, parent) in enumerate(filtered, 1):
+        node_list[str(i)] = {
+            "name": node,
+            "level": level_map.get(node, 0),
+            "parent": parent,
+        }
+    node_list_path = raw_out / "dfs_node_list.json"
+    node_list_path.write_text(json.dumps(node_list, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"dfs_node_list.json írva: {len(node_list)} bejegyzés")
+
     if args.dry_run:
         for i, (node, parent) in enumerate(filtered, 1):
             q = build_query(node, parent)
@@ -200,9 +284,9 @@ def main():
         log_fh.write(f"DFS NLM queries -- {len(filtered)} csomópont\n\n")
         for i, (node, parent) in enumerate(filtered, 1):
             q = build_query(node, parent)
-            out_file = raw_out / f"nlm_q{i:02d}_raw.txt"
+            out_file = raw_out / f"nlm_q{i}_raw.txt"
             ts = time.strftime("%H:%M:%S")
-            msg = f"[{ts}] Q{i:02d}/{len(filtered)} L{level_map.get(node,0)} -- {node}"
+            msg = f"[{ts}] Q{i}/{len(filtered)} L{level_map.get(node,0)} -- {node}"
             print(msg)
             log_fh.write(f"{msg}\n  Query: {q}\n")
             # --resume: skip if file already exists and is valid

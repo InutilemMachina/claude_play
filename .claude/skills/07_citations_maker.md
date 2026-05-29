@@ -1,125 +1,77 @@
 ---
 name: 07_citations_maker
-title: 07_CITATIONS_MAKER — Citations Maker
+title: 07_CITATIONS_MAKER -- Citations Maker
 type: skill
 tags: [meta, skill]
 status: active
-version: 1.0
-updated: 2026-05-22
-description: UUID-alapú citáció-kezelés. citations.json építése NLM Prompt B kimenetéből + globális atsorszámozás (B opció). Checkpoint: 👤 jóváhagyás.
+version: 2.0
+updated: 2026-05-26
+description: UUID-alapú citáció-kezelés. citations.json karbantartása, globális atsorszámozás (citations_renumber.py), szószedet generálás. 🛑 Checkpoint: 😎 jóváhagyás szükséges.
 ---
 
-# 07_CITATIONS_MAKER.MD — Citations Maker
-_04. lépés -- 🛑 Checkpoint: 👤 jóváhagyás szükséges_
+# 07_CITATIONS_MAKER
 
-# 1. Háttér -- Miért kell?
+## 1. Cél
 
-Az NLM CLI (Prompt B aktív) minden querynél **helyi** [1..n] citáció-számokat generál.
-Ha több query anyaga kerül egy Jegyzetbe, az inline `<sup>[2]</sup>` hivatkozás más forrást
-jelent a Q2-es szekciókban mint a Q4-esekben.
+A Jegyzetben szereplő per-query lokális citáció-számokat globálisan atsorszámozza, és karbantartja a `citations.json` forrásregisztert.
 
-**B opció (UUID-alapú dedup + globális atsorszámozás):**
-- `forrasok/citations.json` minden forrást **UUID alapján** tárol (NLM Prompt B adja).
-- `scripts/07_citations_renumber.py` visszaalakítja a query-lokális számokat globálisakra.
-- Szekció-markerek (`<!-- Q:N -->`) teszik pontossá a cserét; markerek nélkül csak
-  egyértelmű (minden queryben azonos) mappingek kerülnek alkalmazásra.
+**Miért kell?** Az NLM CLI minden querynél helyi [1..n] számokat generál. Ha több query anyaga kerül egy Jegyzetbe, az inline `<sup>[2]</sup>` más forrást jelent Q2-ben mint Q4-ben.
 
-# 2. citations.json séma
+## 2. Bemenetek
 
-```json
-{
-  "1": {
-    "title": "Matrix Profile I...",
-    "authors": "Yeh, C-C. M. et al.",
-    "year": "2016",
-    "venue": "IEEE ICDM 2016",
-    "file": "yeh2016_paper.pdf",
-    "url": null,
-    "nlm_uuid": "72d4e1ee-a813-4764-a33e-873a136e0c81",
-    "note": "STAMP algoritmus, MASS szubrutin"
-  },
-  "_pipeline_note": "NLM UUID-k a Prompt B citations mezoibol. ..."
-}
-```
+- `3_raw_outputs/citations.json` -- UUID-alapú forrásregiszter (04 inicializálta)
+- `3_raw_outputs/nlm_q*.txt` -- NLM query JSON kimenet (Prompt B)
+- `4_wip_outputs/N_Jegyzet.md` -- `<!-- Q:N -->` markerekkel
 
-Kulcs: globális sorrend (`"1"`, `"2"`, ...) = a forrás elsőként felbukkant queryjében elfoglalt sorrend.
+## 3. Eljárás
 
-# 3. Workflow
+### 3.1. citations.json karbantartása
 
-## 3.0. Hiányos konverzió pótlása az assembly kimenetén
+**Ha nem létezik:** 04_nlm_query_runner inicializálja (lásd ott).
 
-Az `01_nlm_query_runner` assembly lépés NEM kezeli az alábbi hivatkozástípusokat:
-
-| Típus | Példa | Hol jelenik meg |
-|:------|:------|:----------------|
-| Multi-file inline | `[yeh2016.pdf: 43, zhu2016.pdf: 605]` | Q2, Q3 body |
-| Q1 tartomány | `[3-5]`, `[22, 24, 27-29]` | Q1 body |
-
-**Megoldás:** 04 futásakor Python scripttel pótolni (ld. §3.2 alatt).
-
-```python
-# Multi-file: regex + file_to_global map
-MULTI_RE = re.compile(r'\[(?:[A-Za-z0-9_]+\.(?:pdf|html):[^\]]+)\]')
-def replace_multi(m):
-    files = re.findall(r'([A-Za-z0-9_]+\.(?:pdf|html))', m.group(0))
-    return make_sup(sorted({file_to_global[f] for f in files if f in file_to_global}))
-text = MULTI_RE.sub(replace_multi, text)
-
-# Q1 tartomány: csak a <!-- Q:1 --> ... <!-- Q:2 --> szekción belül
-def parse_local_nums(s):
-    nums = []
-    for p in re.split(r',\s*', s):
-        rng = re.match(r'^(\d+)[–\-](\d+)$', p.strip())
-        if rng: nums.extend(range(int(rng.group(1)), int(rng.group(2))+1))
-        elif p.strip().isdigit(): nums.append(int(p.strip()))
-    return nums
-```
-
-## 3.1. citations.json építése / frissítése
-
-**Ha nem létezik:** Claude manuálisan építi az NLM query JSON `citations` és `references`
-mezőiből. UUID-onként egyszer szerepelhet egy forrás.
-
-**Ha létezik:** Csak új UUID-eket egészít ki; meglévők száma nem változhat.
+**Ha létezik:** Csak új UUID-eket egészítünk ki; meglévők száma nem változhat.
 
 Szabályok:
-- Kulcs mindig sorrendi int-string (`"1"`, `"2"`, ...), szabad slot nincs.
-- `nlm_uuid` kötelező (Prompt B adja).
-- `file` mező a `forrasok/` relatív fájlnévre mutat (0_references_collector naming).
-- Ismeretlen UUID esetén `"???"` kerül a `note` mezőbe; 👤 feladata pótolni.
+- Kulcs: sorrendi int-string (`"1"`, `"2"`, ...), szabad slot nincs
+- `nlm_uuid` kötelező (Prompt B adja)
+- Ismeretlen UUID esetén `"???"` kerül a `note` mezőbe; 😎 feladata pótolni
 
-## 3.2. Citáció-számok javítása (citations_renumber.py)
+### 3.2. Citáció-számok atsorszámozása
 
 ```bash
 python scripts/07_citations_renumber.py --het N --tantargy <mappa>
 ```
 
-A szkript:
+A script:
 1. `citations.json` → UUID → global_N map
-2. Minden `nlm_q*_raw.txt` → `citations` dict → local_N → UUID → global_N
-3. Ha van `<!-- Q:N -->` marker a Jegyzetben: per-szekció csere (pontos)
+2. Minden `nlm_q*_raw.txt` `citations` dict → local_N → UUID → global_N
+3. Ha van `<!-- Q:N -->` marker: per-szekció csere (pontos)
 4. Ha nincs: csak egyértelmű (unanimus) mappingek cseréje (biztonságos fallback)
 5. Backup: `N_Jegyzet.md.bak` -- in-place felülírás
 
-## 3.3. Forrásjegyzék regenerálása
+**Speciális hivatkozástípusok kezelése:**
 
-A Jegyzet `## Forrásjegyzék` szakasza a `citations.json` alapján regenerálódik:
+| Típus | Példa | Kezelés |
+|:------|:------|:--------|
+| Multi-file inline | `[yeh2016.pdf: 43, zhu2016.pdf: 605]` | file_to_global map |
+| Q1 tartomány | `[3-5]`, `[22, 24, 27-29]` | parse_local_nums regex |
+
+### 3.3. Forrásjegyzék regenerálása
+
+A Jegyzet `## Forrásjegyzék` szakasza `citations.json` alapján regenerálódik (IEEE formátum):
 
 ```markdown
 ## Forrásjegyzék
 
 **[1]** Yeh, C-C. M. et al., "Matrix Profile I...," *IEEE ICDM*, 2016.
-**[2]** Zhu, Y. et al., "Matrix Profile II...," *IEEE ICDM*, 2016.
 ```
 
-IEEE formátum. Ha `file` létezik: link `forrasok/fajlnev.pdf`-re. Ha `url`: külső link.
+Ha `file` létezik: link `1_raw_inputs/fajlnev.pdf`-re. Ha `url`: külső link.
 
-# 4. Checkpoint -- 👤 jóváhagyás
-
-Claude leáll és a következőt jeleníti meg:
+### 3.4. Checkpoint -- 😎 jóváhagyás
 
 ```
-🛑 04_citations_maker CHECKPOINT
+🛑 07_citations_maker CHECKPOINT
 
 citations.json: N forrás, M new UUID
 Citáció-cserék: K db (X pontosan, Y fallback)
@@ -127,34 +79,60 @@ Ismeretlen UUID-ek: [lista ha van]
 
 Forrásjegyzék:
 [1] ...
-[2] ...
 
-👤 Ellenőrizd a forráslistát. Jóváhagyás: "ok" / "folytasd"
+😎 Ellenőrizd a forráslistát. "ok" / "folytasd"
 ```
 
-# 5. Fontos szabályok
+## 4. Kimenetek
 
-- **Ne duplikálj UUID-et** a citations.json-ban.
-- **Ne módosítsd a globális számokat** visszafelé -- csak bővítés lehetséges.
-- **In-place módosítás:** Csak `<sup>[N]</sup>` és Forrásjegyzék változik a Jegyzetben.
-- **Relatív útvonalak:** Linkek a `.md` fájlhoz képest relatívak.
+- `3_raw_outputs/citations.json` -- frissített forrásregiszter
+- `4_wip_outputs/N_Szozedet.md` -- szószedet (NLM Prompt D via `nlm_szozedet_raw.txt`)
+- `4_wip_outputs/N_Jegyzet.md` -- atsorszámozott citációk + Forrásjegyzék
 
-# 6. Kapcsolódó fájlok
+## 5. Ellenőrzés
 
-| Fájl | Szerepe |
-|:-----|:--------|
-| `forrasok/citations.json` | Master forrásregiszter (UUID-alapú) |
-| `scripts/07_citations_renumber.py` | Renumber script |
-| `forrasok/nlm_q*_raw.txt` | NLM query JSON (Prompt B kimenet) |
-| `N_Jegyzet.md` | In-place módosítás célpontja |
+- [ ] Nincs duplikált UUID `citations.json`-ban
+- [ ] Globális számok nem módosultak visszafelé (csak bővítés)
+- [ ] `<sup>[N]</sup>` számok a Forrásjegyzékkel konzisztensek
+- [ ] Backup (`N_Jegyzet.md.bak`) létezik
+- [ ] 😎 jóváhagyás megérkezett
 
+## 6. Hibakezelés
 
-# Ismert hibák
+- Tünet: `citations: {}` üres a JSON-ban
+- Gyökérok: Prompt B nem aktív, vagy a query rövid → inline fallback szükséges
+- Megoldás: regex fallback `\[([^:]+\.pdf)\]` az `answer` mezőkből
 
-→ [pitfalls.md §1.1](../pitfalls.md) -- Write tool JSON csonkítás
-→ [pitfalls.md §1.2](../pitfalls.md) -- PowerShell Out-File UTF-8-sig + CRLF
-→ [pitfalls.md §3.3](../pitfalls.md) -- Assembly lépés hiányos konverzió
+- Tünet: `citations.json` utolsó sorban csonkul, `JSONDecodeError: Unterminated string`
+- Gyökérok: Write tool puffer nem kezeli megbízhatóan a >3 KB ékezetes JSON-t
+- Megoldás: JSON íráshoz `bash cat > fájl << 'HEREDOC'` minta (single-quote heredoc)
+- Tünet: `nlm_q*_raw.txt` beolvasása `JSONDecodeError`-t dob, fájl látszólag helyes
+- Gyökérok: PowerShell `Out-File -Encoding utf8` BOM-os UTF-8 + CRLF-t ír
+- Megoldás: `raw = Path(f).read_bytes().decode("utf-8-sig").replace("\r\n", "\n"); json.loads(raw)`
 
-# NOTE-ok (tesztelés visszajelzések)
+## 7. Hivatkozások
 
-- NOTE 💬 **Szószedet NLM-alapra teendő:** A jelenlegi `1_Szozedet.md` Claude-feladatból jön (`1_Jegyzet.md` alapján), nem NLM-queryből. Következmény: (1) nem reprodukálható; (2) nem auditálható (nincs Studio-beli nyom); (3) token-igényes. Megoldandó: dedikált `nlm query` hívás Prompt C szöveggel (definiálandó `nlm_pr
+- [pipeline.md](../pipeline.md)
+- [scripts/07_citations_renumber.py](../../scripts/)
+- [04_nlm_query_runner.md](04_nlm_query_runner.md) -- citations.json inicializálás
+
+## 8. Visszajelzések
+
+- 🔲 TODO: **`scripts/07_citations_renumber.py` elavult mappakonvenció (tesztelve 2026-05-27).** A script `base / 'forrasok'` útvonalat keres (`forrasok/citations.json`, `forrasok/nlm_q*_raw.txt`), de az aktuális pipeline struktúra `3_raw_outputs/`-t használ. Következmény: `Hianyzik: .../forrasok/citations.json` hibával leáll. Frissítendő: `forrasok` → `3_raw_outputs`. Megjegyzés: a `05_assemble.py` már elvégzi a local→global citáció-mapping-et az összeállítás során, így ez a script részben redundáns lehet.
+- 🔲 TODO: **`citations.json` nem generálódik automatikusan (tesztelve 2026-05-27).** A `04_nlm_dfs_queries.py` csak a `nlm_q*.txt` fájlokat írja -- `citations.json`-t nem inicializál. A skill §3.1 szerint a 04 feladata lenne, de nincs script rá. A `07_citations_renumber.py` inputjaként szükséges. Megoldás: a `citations_seed.json` UUID-mappingből + a `nlm_q*.txt` fájlok `references` mezőiből kell összeépíteni; ezt a logikát vagy a `04_nlm_dfs_queries.py`-ba kell integrálni, vagy önálló `04_util_build_citations.py` scriptbe.
+- 🔲 TODO: **Öt különböző hivatkozás-stílus egyszerre egy dokumentumban (külső szemlélő, 2026-05-28).** Az NLM per-szekciónként más formátumban adja vissza a citációkat, és az assembler mindet változtatás nélkül illeszti be: (1) `[1-3]` szám-only; (2) `[5] **Wikipedia**` inline vastag szöveg; (3) `**FORRÁS: Wikipedia, MIT...**` záróblokk-formátum; (4) `Forrás: \`fajlnev.pdf\`` backtick-es sor; (5) `[84, \`Discrete Fourier transform - Wikipedia\`]` szám+backtick+fájlnév. Következmény: az összefűzött dokumentum hivatkozásai kaotikusak. Megoldás: Prompt B egységesítése (`[N]` szám-only inline, külön FORRÁSJEGYZÉK-szekció per-query), vagy post-process normalizálás a 07_citations_renumber.py-ban.
+- 🔲 TODO: **Forrás megjelenítési neve eltér a fájlnévtől (tesztelve 2026-05-28, 2_het).** A `citations_seed.json`-ban: `nagyi_NA_slides.pdf`, de az NLM válaszokban `Aramlasi rendellenessegek (Nagy).pdf` (ékezet nélkül, NLM-belső megjelenítési névként). Ugyanerre a forrásra 3 névvariáns jelenik meg a Jegyzetben: `Aramlasi rendellenessegek (Nagy).pdf`, `Aramlasi rendellenessegek (Nagy)` (.pdf nélkül), `nagyi_NA_slides.pdf`. Megoldás: `citations_seed.json`-ban egy `display_name` mező bevezetése, amely az NLM-beli megjelenítési nevet tárolja; a `07_citations_renumber.py` ezt használja egységesítésre.
+- 🔲 TODO: **Per-szekciós forrásblokkok elnevezése inkonzisztens (tesztelve 2026-05-28, 2_het).** Különböző szekciókban: `**Hivatkozott források:**`, `**Felhasznált források:**`, `**Hivatkozott/Felhasznált források:**`, vagy semmi. Az NLM Prompt B nem írja elő, milyen névvel zárja a szekciót. Egységesítendő: Prompt B-be beépíteni az elvárt szöveget, pl. "A válasz végén mindig `**Felhasznált források:**` blokkot írj."
+- 🔲 TODO: **Inline FORRÁSJEGYZÉK blokkban -- nem összesített, nem IEEE (külső szemlélő, 2026-05-28).** Q1 és Q35 végén bullet lista: `* \`Discrete Fourier transform - Wikipedia\`` formátumban -- ez az NLM per-query forrásmegjelölése, nem egy szabványos forrásjegyzék. Az összefűzött Jegyzetben ezek a blokkok "beleszúrtan" maradnak a szöveg közepén. Az `05_assemble.py` ezeket nem szűri ki. Megoldás: per-query FORRÁSJEGYZÉK blokkokat eltávolítani az összefűzésnél, az összesített IEEE-stílusú Forrásjegyzéket a `07_citations_maker` generálja a dokumentum végén.
+- 🔲 TODO: **A szövegközi hivatkozások nem IEEE formátumban jelennek meg a wip Jegyzetben (user feedback, 2026-05-28).** Például: `[27, 'Discrete Fourier transform - Wikipedi']` -- ez az NLM nyers JSON `citations` mezőjének változtatás nélküli beragasztása. Az elvárt formátum: `<sup>[27]</sup>` (szám-only inline), a Forrásjegyzékben `[27] Szerző, "Cím," ...` (IEEE). Gyökérok: (1) `07_citations_renumber.py` nem futott (elavult útvonalak); (2) `05_assemble.py` a nyers `citations` dict-et inline szúrja be, nem formázott `<sup>` tagként. Megoldás: az assembler formázza a citations dict-et `<sup>[N]</sup>` alakra az összefűzés során, ne a nyers szöveget illessze be.
+- ✅ **Prompt D definiálva** (2026-05-26): `nlm_prompts.md §4` -- ASCII CLI query szószedet generáláshoz. Futtatás: `nlm query notebook $NB $promptD --json | Out-File 3_raw_outputs/nlm_szozedet_raw.txt`. Következő lépés: tesztelni Termografia_teszt_v3-on.
+- 🔲 TODO: **Duplikált citációk `[N],[N]` egymás után (mini teszt, 2026-05-28).** 78 előfordulás a mini Jegyzetben. Oka: az NLM ugyanazt a forrást több helyi számon is idézi (pl. [4] és [5] = ugyanaz az UUID), és az `05_assemble.py` `replace_local_citations()` mindkettőt ugyanarra a globális számra mapeli, de nem dedup-olja az inline-ba kerülő listát. Eredmény: `[2], [2]` vagy `[1], [1], [2]` sorozatok. Fix: `replace_local_citations()` dedup logika: `mapped = sorted(set(...))` (a set() már ott van, de listává konvertálja visszafelé). Ellenőrzendő: a `sorted(set(...))` sor a kódban -- ha igen, a probléma más (pl. két egymást követő egyedi `[N]` hivatkozás az `answer`-ben).
+- 💬 NOTE: A `nlm_szozedet_raw.txt` feldolgozásához szükséges lehet egy `07_szozedet_parser.py` script (hasonlóan 03-1_qfig_parser-hez); egyelőre manuális feldolgozás vagy Claude-feladatként.
+
+## 9. Változásjegyzék
+
+| Dátum | Verzió | Leírás |
+|-------|--------|--------|
+| 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; csonkított NOTE-ok pótolva |
+| 2026-05-25 | 1.1 | NOTE: szószedet NLM-alapra teendő |
+| 2026-05-24 | 1.0 | Létrehozva |
