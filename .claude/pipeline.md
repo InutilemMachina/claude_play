@@ -34,7 +34,7 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | `4_wip_outputs/N_Jegyzet.md` | 🤖 | [10_notes_collector](skills/10_notes_collector.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (Tartalomjegyzék) |
 | `4_wip_outputs/N_Jegyzet.md` | 🐍 | `scripts/11_util_heading_numberer.py` | 🐍 | `4_wip_outputs/N_Jegyzet.md` (sorszámozott fejlécek) |
 | `4_wip_outputs/N_Jegyzet.md` | 🤖 | [11_typesetter](skills/11_typesetter.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (lint + próza) |
-| `4_wip_outputs/N_Jegyzet.md` | 🤖 | [11b_quality_reviewer](skills/11b_quality_reviewer.md) -- pedagógiai review | 🤖 🚦 | (belső checkpoint + `4_wip_outputs/N_Review.md`) |
+| `4_wip_outputs/N_Jegyzet.md` | 🐍+🤖 | [11b_quality_reviewer](skills/11b_quality_reviewer.md) -- `11b_quality_check.py` (metrikák) + Explore review | 🐍+🤖 🚦 | (belső checkpoint + `4_wip_outputs/N_Review.md`) |
 | `4_wip_outputs/N_Jegyzet.md` + template | 🤖 | [12_presentation_maker](skills/12_presentation_maker.md) | 🤖+🐍 | `4_wip_outputs/N_Prezentacio.md` → `5_clean_outputs/N_Prezentacio.pptx` |
 | NLM notebook (mindmap-vez.) | 🔌 | [13_question_bank_collector](skills/13_question_bank_collector.md) | 🔌+🤖 | `4_wip_outputs/N_Kerdesek.md` |
 | `4_wip_outputs/N_*.md` | 🤖 | [14_bsc_filter](skills/14_bsc_filter.md) | 🐍 | `5_clean_outputs/` |

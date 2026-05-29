@@ -108,6 +108,7 @@ Te egy magyar egyetemi tananyagszerkesztő vagy. Olvasd el a Jegyzetet és ért�
 
 ## 8. Visszajelzések
 
+- ✅ **`11b_quality_check.py` scriptesítve (2026-05-29).** A §3.1 automatikus metrikák most determinisztikus Python scriptben futnak (API nélkül). Kimenet: `## szekciók`, `### eloszlás`, `<sup>` citáció, 💡/🗺️ blokkok, képek; kritikus metrikák: inline forrásblokk (0), dupla citáció (0), romlott `<!, Q:` marker (0, Rule H regresszió-teszt), ToC blokkok (1, idempotencia), törött anchor (0). **Exit kód 1** kritikus hiba esetén (CI-barát). Futtatás: `python scripts/11b_quality_check.py --week-dir <path> [--json]`. Az Explore-agent alapú kvalitatív review (§3.2) emellett marad a tartalmi/pedagógiai értékeléshez.
 - ✅ **Skill létrehozva (2026-05-29, mini teszt post-mortem).** A 72-pontos 4. fejezet (RC-6) rávilágított, hogy a pipeline-ból hiányzik egy formalizált kvalitatív ellenőrző pont. A mini teszten az `Explore` agent `1/5` publikálhatósági értékelést adott. A P0 fixek (RC-1/RC-2) után: 72 → 4 alszekció a 4. fejezetben.
 - 💬 NOTE: Az Explore agent nem igényel külön ANTHROPIC_API_KEY-t -- a FleetView harness kezeli. Így API-kulcs nélkül is futtatható.
 
