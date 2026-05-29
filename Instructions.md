@@ -2,8 +2,8 @@
 title: Instructions
 type: project_constitution
 tag: [meta]
-version: 2.0
-updated: 2026-05-26
+version: 2.1
+updated: 2026-05-29
 description: Projekt-szintű elvek, jelölések és dokumentációs szabványok.
 ---
 
@@ -144,7 +144,7 @@ claude_play/
 
 ## 11. Visszajelzések protokoll
 
-Minden skill `## 8. Visszajelzések` szekciójában gyűlnek a tesztelés során felmerülő bejegyzések.
+A tesztelés során felmerülő bejegyzések jelölése egységes:
 
 | Jelölés | Típus | Mikor kerül ide |
 |---|---|---|
@@ -155,6 +155,18 @@ Minden skill `## 8. Visszajelzések` szekciójában gyűlnek a tesztelés során
 
 Lezárt vagy beépített tétel → átvezetés a Változásjegyzékbe, törlés a Visszajelzésekből.
 
+### 11.1. Hol gyűlnek a bejegyzések (kanonikus hely)
+
+**Inline TODO/NOTE a szövegtörzsben TILOS** — minden bejegyzés a saját fájl dedikált szekciójába kerül, a kontextusa mellé:
+
+| Forrás | Kanonikus hely |
+|---|---|
+| Skill működése | az adott skill `## 8. Visszajelzések` |
+| Hiba egy lépésben | az adott skill `## 6. Hibakezelés` |
+| Meta-fájl (CLAUDE.md, Instructions.md, pipeline.md, prompts/*, templates/*) | a fájl végén egy `## Nyitott pontok` szekció |
+
+**Elv: „lokálisan írni, centralizáltan olvasni".** A bejegyzés ott keletkezik, ahol releváns (lokális kontextus). Az operatív prioritási sort a `project_status.md` Backlog-szekciója adja — ez **nem másol**, csak hivatkozik a fenti forrásokra. Az aggregátor a `scripts/15_backlog_index.py`-vel regenerálható (nincs kézi karbantartás).
+
 ## 12. Nyitott kérdések
 
 Architektúrális döntések, amelyek meghatározzák a projekt irányát, de még nem zártak.
@@ -163,5 +175,7 @@ Architektúrális döntések, amelyek meghatározzák a projekt irányát, de m�
 |:--|:-------|:--------------|
 | Q1 | Éles tantárgynál a `.claude/` meta-mappa másolódjon-e a tantárgy könyvtárába, vagy hivatkozás maradjon a `claude_play/` gyökérre? | Instructions.md §6, pipeline.md |
 
-TODO: itt is relatív linkek alkalmazása
-TODO: már itt felvezetni, hogy minden fájl YAML header `tag` értéke `meta`/`skill`/`test`/`prod`/
+## 13. Nyitott pontok
+
+- 🔲 TODO: Relatív linkek következetes alkalmazása a meta-fájlok közti hivatkozásokban (CLAUDE.md, Instructions.md).
+- 🔲 TODO: YAML header `tag` séma rögzítése: minden fájl `tag` értéke `meta` / `skill` / `test` / `prod` egyike legyen.

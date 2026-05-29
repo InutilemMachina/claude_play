@@ -2,8 +2,8 @@
 title: Pipeline.md -- NLM pipeline
 type: meta
 status: active
-version: 7.0
-updated: 2026-05-26
+version: 8.0
+updated: 2026-05-29
 description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO táblázat, mappastruktúra, checkpointok.
 ---
 
@@ -144,11 +144,10 @@ A 🚦 jelölések az IO táblázatban (§1) mutatják a checkpoint lépéseket.
 | 12 után 🚦 | pptx generált, 😎 ellenőrzés | 13-14 |
 
 # 5. Pipeline-szintű szabályok
-NOTE a dash szabályok nem a pipeline-ra vonatkoznak, ezeket értelmesebb helyen kéne rögzíteni
-⚠️ **Dash kiirtás (Rule H):** Minden `4_wip_outputs/` és `5_clean_outputs/` fájlban tilos a `--` (dupla kötőjel), `–` (n-dash) és `—` (m-dash). Magyarban ezek szinte mindig NLM formázási mellékhatások. Implementálandó: `11_typesetter.py` Rule H.
 
 ⚠️ **NLM Studio Mindmap -- architektúrai sarokkő:** A Studio Gondolattérkép exportja (08. lépés, Ultra Explorer bővítmény) adja a lekérdezési struktúrát (04), a BSc/MSc határt (13-14) és a pedagógiai szerkezetet (05, 06). Ha kiesik vagy rosszul generálódik, az egész downstream csonka. Ellenőrizendő a 02. lépés checkpoint-jánál.
-TODO !!! Hard-code szükséges, hogy a user mentse ki a mindmap-et a ./targy/het/raw_outputs-ba. A fájlnévet meg kell adni?
+
+💬 **Tipográfiai szabályok** (dash-kiirtás, tábla-szeparátor, terminológia): a `11_typesetter` skill `§3.3` Rule H/I/J a kanonikus hely -- itt nem ismételjük.
 
 # 6. Forrástípusok
 
@@ -171,16 +170,17 @@ Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta sz
 
 ⚠️ **Weblap PDF-ként (alternatíva):** `msedge --headless --print-to-pdf="output.pdf" "<URL>"` majd MinerU -- ha a weblap képei is kellenek (a helyi HTML extraktor csak szöveget ad).
 
-# 7. Visszajelzések
+# 7. Nyitott pontok
 
-- ✅ **Camera-ready DOCX export kész (2026-05-29).** `scripts/14_util_pandoc_export.py`: a `N_Jegyzet.md` → `N_Jegyzet.docx` Pandoc-kal, a `templates/due_jegyzet_template.docx` reference-stílusaival. `--bsc` flag a `_bsc` verzióhoz. Pandoc 3.9 telepítve (winget); a script PATH > `.claude/config.json` > winget-glob sorrendben keresi a pandoc.exe-t (PATH-frissítés nélkül is működik). Tesztelve: mini 1_Jegyzet.md → 210 KB docx, helyes ToC + struktúra. A PPTX-et továbbra is a `12_pptx_gyarto.py` (python-pptx) generálja, nem Pandoc.
-- ✅ `nlm chat configure $NB --response-length longer` (nem `long`) -- tesztelve 2026-05-26. `nlm query notebook --timeout N` flag is elérhető (default: 120s).
-- 🔲 TODO: A `test_outputs/<TantargyNeve>/` mappa (pl. `meta_file_updates_test`) nem jelenik meg sem a `project_status.md`-ben, sem a `templates/context_sablon.md`-ban. A context_sablon-ban célszerű lenne heti tematika nevet megadni (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan a context_sablon-ban), és melyik lépésnél (01 vagy 02 checkpoint előtt).
+- 🔲 TODO: A `test_outputs/<TantargyNeve>/` mappa (pl. `meta_file_updates_test`) nem jelenik meg sem a `project_status.md`-ben, sem a `templates/context_sablon.md`-ban. A context_sablon-ban célszerű lenne heti tematika nevet megadni (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan), és melyik lépésnél (01 vagy 02 checkpoint).
+- 🔲 TODO: Mindmap export hard-code szabály -- a user mentse ki a mindmap-et a `3_raw_outputs/nlm_mindmap_export.md`-be (08. lépés). A fájlnév-konvenció rögzítendő a 08 skillben.
+- 💬 NOTE: `nlm chat configure --response-length longer` (nem `long`); `nlm query notebook --timeout N` (default 120s) -- tesztelve 2026-05-26.
 
 # Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-29 | 8.0 | M4: §5 dash-blokk duplikáció törölve (11_typesetter a kanonikus); §7 "Visszajelzések"→"Nyitott pontok"; camera-ready DOCX (14_util_pandoc_export) + 11b + forrás-extraktor + Qfig/C.3 IO sorok; inline TODO-k a §5-ből a §7-be |
 | 2026-05-26 | 7.0 | Overhaul: inline NOTE/TODO-k eltávolítva; §3 DFS szint-3 sablon hozzáadva; §4 12. checkpoint táblában; §5 NOTE→⚠️ szabály; §6 NOTE prefix törölve; §7 Visszajelzések szekció |
 | 2026-05-26 | 6.0 | M3: mappanév konvenció (1_raw_inputs..5_clean_outputs); M2: YAML name mezők szinkronizálva; 06b/03b/03c átnevezve 06/03-1/03-2 |
 | 2026-05-25 | 5.1 | Heading hierarchia gap NOTE (05_assemble Q1); §5 Pipeline-szintű szabályok (Rule H dash cleanup, mindmap sarokkő) |

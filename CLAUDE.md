@@ -2,8 +2,8 @@
 title: CLAUDE.md -- master index
 type: meta
 tag: [meta]
-version: 1.0
-updated: 2026-05-26
+version: 1.1
+updated: 2026-05-29
 description: Belépési pont, olvasási sorrend és fájlindex.
 ---
 
@@ -34,17 +34,18 @@ Más fájlt csak akkor olvass be, ha a feladat ezt közvetlenül igényli.
 
 ## 4. Fájlkatalógus
 
-- `.claude/pipeline.md` -- pipeline és függőségek
-- `Instructions.md` -- projekt-alkotmány
-- `.claude/project_status.md` -- futási állapot
-- `.claude/skill_template.md` -- skill-sablon
-- `.claude/skills/*.md` -- egyes pipeline-lépések
-- `scripts/*.py` -- automatizmusok
+- [Instructions.md](Instructions.md) -- projekt-alkotmány
+- [.claude/pipeline.md](.claude/pipeline.md) -- pipeline és függőségek
+- [.claude/project_status.md](.claude/project_status.md) -- futási állapot + Backlog
+- [.claude/nlm_prompts.md](.claude/nlm_prompts.md) -- prompt index
+- [.claude/prompts/](.claude/prompts/) -- NLM/Claude promptok (B, C.1-C.4, D, E)
+- [.claude/skill_template.md](.claude/skill_template.md) -- skill-sablon
+- [.claude/skills/](.claude/skills/) -- egyes pipeline-lépések
+- [scripts/](scripts/) -- automatizmusok
+- [.claude/archive/](.claude/archive/) -- elavult skillek, promptok, naplók
 
 ## 5. Kommunikáció
 
 - Tömör, egyértelmű, redundanciamentes.
 - Ne ismételd meg a globális szabályokat.
 - Ha valami nem egyértelmű, a megfelelő kanonikus fájlra hivatkozz.
-
-TODO: itt is relatív linkek alkalmazása
