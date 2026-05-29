@@ -2,7 +2,7 @@
 title: Project Status -- Playground PDCA log
 type: log
 status: active
-version: 3.0
+version: 3.1
 updated: 2026-05-29
 description: Playground (claude_play) PDCA log. Session elején Claude olvassa be. NEM tantárgy-specifikus.
 ---
@@ -14,9 +14,29 @@ TODO: Ez a fájl szerkezetileg szétesett -- rendbe kell tenni (gép+ember olvas
 
 # Project Status -- Playground PDCA Log
 
-_Frissítve: 2026-05-29 (3. update -- mini teszt post-mortem)_
+_Frissítve: 2026-05-29 (4. update -- iteráció 2 tanulságok)_
 
 ## ⚡ AKTUÁLIS BRANCH: meta_file_updates
+
+### Iteráció 2 eredmények (2026-05-29)
+
+**Elvégzett (J változások):**
+
+| J | Változás | Eredmény |
+|---|---------|---------|
+| J1 | Prompt B: prose + ismétlés tilalma + ## kötelező | User elvégezte NLM notebookon |
+| J2 | `--max-level 2` (37→23 query) | Bullet 85%→40%, Prose 15%→59% |
+| J3 | Q1 bevezető-prompt | Q1: 5269→1213 kar (-77%) |
+| J4 | Rule J terminológia (11_typesetter) | 18 terminológiai javítás/futás |
+| J5 | Mindmap cleanup (Aszálybetegség→Korai tűzjelzés) | Off-topic node eltávolítva |
+
+**Megtalált bugok (javítva):**
+- `05_assemble.py` L1/L2 `##` duplikáció: J1 Prompt B + assembler konfliktusnál kettős fejléc → `extract_section_title()` most L1/L2-nél is strip-el
+
+**Nyitott (következő session):**
+- Q14–Q23 NLM RESOURCE_EXHAUSTED; `--resume` futtatandó ha kvóta resetel
+- Terminológia Rule J bővítendő tantárgy-specifikus párral (tantárgyanként `TERM_MAP`)
+- Kvóta reset időpontja: Google-fiók szintű, kb. éjfél PT (Pacific Time)
 
 **Utolsó commit:** `fix(pipeline): RC-1/RC-2/RC-3 — heading structure, L1 sectioning, citations`
 

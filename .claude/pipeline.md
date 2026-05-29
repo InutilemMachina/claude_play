@@ -48,10 +48,26 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 
 ⚠️ **MSc jelölés**: mindmap export UTÁN, DFS (04) ELŐTT: a user `[MSc]` előtaggal jelöli az MSc-szintű csomópontokat az `nlm_mindmap_export.md`-ben. Ez a 14_bsc_filter és a DFS traversal alapja.
 
+**04 DFS ajánlott beállítások (tesztelve 2026-05-29):**
+```powershell
+python scripts/04_nlm_dfs_queries.py `
+    --week-dir test_outputs/<Tantargy>/N_het `
+    --max-level 2 `   # BSc: L0+L1+L2 elég (~15-25 query); --max-level 99 = összes
+    --sleep 5         # NLM kvóta kímélése; RESOURCE_EXHAUSTED esetén --resume-mal folytatható
+```
+- `--max-level 2`: BSc kurzusoknál ajánlott. Csökkenti az ismétlést (L3 részletes törvénylevezetések kiesnek), feleannyi quota-t használ, gyorsabb pipeline.
+- `--resume`: ha a kvóta elfogy, újrafuttatva kihagyja a már megírt, érvényes fájlokat.
+- `dfs_node_list.json`: minden futás után generálódik; az `05_assemble.py` ebből tudja a node szintjét (L1/L2 → `##` szekció).
+
+**Prompt B interakció az assembler-rel (kritikus):**
+- A Prompt B `## kötelező első sor` szabály miatt az NLM minden válasz elejére `##`-t ír.
+- Az assembler L1/L2 node-oknál saját `## {node_name}`-t szúr be ÉS eltávolítja az NLM vezető `##`-jét (kettős fejléc elkerülése). Ha a Prompt B formátumot változtat, mindig ellenőrizd az assembler fejléc-logikájával való interakciót.
+
 **Raw fájlnév-konvenció:**
 - DFS query outputok: `nlm_q{N}_raw.txt` (N=1,2,3,... -- padding nélkül)
 - Mindmap export: az Ultra Explorer letöltés után **manuálisan átnevezendő** `nlm_mindmap_export.md`-re
 - Egyéb NLM raw: `nlm_qfig_raw.txt`, `nlm_szozedet_raw.txt`
+- DFS metadat: `dfs_node_list.json` (automatikusan generálódik `04` futásakor)
 
 **Heading sorszámozás felelőse (D6):**
 - `05_assemble.py` NEM ad sorszámot a fejléceknek

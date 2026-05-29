@@ -53,8 +53,20 @@ python scripts\11_util_heading_numberer.py test_outputs\<Tantargy>\N_het\4_wip_o
 | **F** | LaTeX `$`/`$$` delimiter párosítás (csak figyelmeztet) |
 | **G** | Fejléc-hierarchia számozás (`scripts/11_util_heading_numberer.py`) |
 | **H** | Dash kiirtás: `--`, `–`, `—` → eltávolítás (NLM mellékhatás) |
+| **I** | GFM tábla-szeparátor javítás: `\| :, - \|` → `\| :--- \|` (NLM formázási hiba) |
+| **J** | Terminológia normalizálás: ingadozó magyar szakkifejezések → kanonikus forma |
 
 **Rule H részletek:** Minden `4_wip_outputs/` és `5_clean_outputs/` fájlban tilos `--`, `–`, `—`. Magyarban ezek szinte mindig hibák.
+
+**Rule I részletek:** Az NLM olykor `| :, - |` elválasztó sort generál GFM tábla-szeparátorként. Ez érvénytelen szintaxis — a renderelők nem ismerik fel táblázatként. Fix: `:---` formátumra normalizálás.
+
+**Rule J részletek (IR termográfia + általános):** Per-query NLM válaszok különböző terminológiát használnak ugyanarra a fogalomra. Kanonikus párok:
+- `emissziós tényező`, `emittancia`, `sugárzási tényező` → `emisszivitás`
+- `légköri ablak(ok)` → `atmoszferikus ablak(ok)`
+- `szürke test` → `szürketest`
+- `hőkamera(ák)` → `IR kamera(ák)`
+
+**Bővítés:** A TERM_MAP dict `11_typesetter.py`-ban könnyen bővíthető tantárgy-specifikus párral.
 
 **Idempotens:** Többszöri futtatás nem szúr be felesleges üres sorokat.
 **UTF-8 BOM nélkül** írja vissza a fájlt.
@@ -73,6 +85,8 @@ python scripts\11_util_heading_numberer.py test_outputs\<Tantargy>\N_het\4_wip_o
 - [ ] LaTeX delimiterek párosak (Szabály F -- csak figyelmeztetés)
 - [ ] Minden `##`+ fejléc számozott (Szabály G)
 - [ ] Nincs `--`, `–`, `—` (Szabály H)
+- [ ] Tábla-szeparátor `| :--- |` formátumú (Szabály I)
+- [ ] Terminológia normalizált (Szabály J -- Rule J log mutatja a javítások számát)
 - [ ] Hivatkozás-szám változatlan (`<sup>` darabszám)
 - [ ] Képek száma változatlan (`![` darabszám)
 
