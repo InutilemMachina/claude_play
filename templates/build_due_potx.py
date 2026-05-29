@@ -327,13 +327,18 @@ def footer_phs(start_id=15, date_fld=True):
   {txb}
 </p:sp>"""
 
-    date_text = ('<a:p><a:fld type="datetimeFigureOut">'
+    # a:fld requires a unique id attribute (GUID format)
+    date_text = ('<a:p>'
+                 '<a:fld id="{5BCAD085-E8A6-8845-BD4E-CB4CCA059FC4}" type="datetimeFigureOut">'
                  '<a:rPr lang="hu-HU" smtClean="0"/>'
-                 '<a:t>2026.01.01.</a:t></a:fld></a:p>')
+                 '<a:t>2026.01.01.</a:t></a:fld>'
+                 '<a:endParaRPr lang="hu-HU"/></a:p>')
     auth_text = '<a:p><a:r><a:rPr lang="hu-HU" sz="1000" dirty="0"/><a:t>Előadó neve</a:t></a:r></a:p>'
-    page_text = ('<a:p><a:fld type="slidenum">'
+    page_text = ('<a:p>'
+                 '<a:fld id="{C1FF6DA9-008F-8B48-92A6-B652298478BF}" type="slidenum">'
                  '<a:rPr lang="hu-HU" smtClean="0"/>'
-                 '<a:t>‹#›</a:t></a:fld></a:p>')
+                 '<a:t>‹#›</a:t></a:fld>'
+                 '<a:endParaRPr lang="hu-HU"/></a:p>')
 
     d = _footer_sp(start_id,   "footer_date",
                    '<p:ph type="dt" sz="half" idx="10"/>',
@@ -439,7 +444,7 @@ def build_layout_01_cim():
                  noFill(), "", date_txb)
 
     shapes = accent + wm + rule + main_title + subti + author_sp + date_sp
-    xml = layout_xml("DUE Cím", "title", shapes, bg)
+    xml = layout_xml("DUE Cím", "blank", shapes, bg)
     # rId1=slideMaster, rId2=image1.png (nagy logo), master is rId1
     rels = layout_rels([("rId2", "image1.png")], master_idx=1)
     return xml, rels
@@ -563,7 +568,7 @@ def build_content_layout(name, layout_idx, hint_title, hint_body,
                      h1_sz=h1_sz, h2_sz=h2_sz, h3_sz=h3_sz, hint=hint_body)
     footers = footer_phs(15)
     shapes = chrome + title + body + footers
-    xml = layout_xml(name, "titleAndContent", shapes)
+    xml = layout_xml(name, "blank", shapes)
     rels = layout_rels([("rId2", "image2.png")], master_idx=1)
     return xml, rels
 
@@ -637,7 +642,7 @@ def build_layout_07_kep_szoveg():
 
     footers = footer_phs(17)
     shapes = chrome + title + left_sp + vsep + img_sp + cap_sp + footers
-    xml = layout_xml("DUE Kép+Szöveg", "twoObj", shapes)
+    xml = layout_xml("DUE Kép+Szöveg", "blank", shapes)
     rels = layout_rels([("rId2", "image2.png")], master_idx=1)
     return xml, rels
 
@@ -680,7 +685,7 @@ def build_layout_08_abra():
 
     footers = footer_phs(17)
     shapes = chrome + title + img_sp + fig_sep + cap_sp + footers
-    xml = layout_xml("DUE Ábra", "obj", shapes)
+    xml = layout_xml("DUE Ábra", "blank", shapes)
     rels = layout_rels([("rId2", "image2.png")], master_idx=1)
     return xml, rels
 
@@ -746,7 +751,7 @@ def build_layout_09_tablazat():
 
     footers = footer_phs(17)
     shapes = chrome + title + tbl_title_sp + title_sep + tbl_sp + footers
-    xml = layout_xml("DUE Táblázat", "tbl", shapes)
+    xml = layout_xml("DUE Táblázat", "blank", shapes)
     rels = layout_rels([("rId2", "image2.png")], master_idx=1)
     return xml, rels
 
@@ -1089,14 +1094,89 @@ def main():
     new_master_rels = build_master_rels().encode("utf-8")
     new_theme = build_theme().encode("utf-8")
 
-    # Entries to SKIP from base pptx (slides, old layouts, old master/theme)
+    # Entries to SKIP from base pptx (slides, old layouts, old master)
+    # NOTE: ppt/theme/ is NOT fully skipped — theme2.xml (notesMaster) is kept;
+    #       only theme1.xml is injected fresh below.
     skip_prefixes = (
         "ppt/slides/",
         "ppt/notesSlides/",
         "ppt/slideLayouts/",
         "ppt/slideMasters/",
-        "ppt/theme/",
     )
+    skip_exact = {
+        "ppt/theme/theme1.xml",   # replaced with DUE theme
+    }
+
+    from lxml import etree as ET
+
+    # Namespace maps for patching
+    CT_NS   = "http://schemas.openxmlformats.org/package/2006/content-types"
+    RELS_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
+
+    # Content type string substitutions
+    CT_PPT  = "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"
+    CT_POTX = "application/vnd.openxmlformats-officedocument.presentationml.template.main+xml"
+    CT_SL   = "application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"
+    CT_SM   = "application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"
+    CT_TH   = "application/vnd.openxmlformats-officedocument.theme+xml"
+
+    # Rel types to remove from presentation.xml.rels
+    REL_SLIDE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
+    REL_NOTES = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide"
+
+    def patch_content_types(data: bytes) -> bytes:
+        root = ET.fromstring(data)
+        # Remove all Overrides for slides, notesSlides, old layouts, old master, old theme, webextensions
+        keep_prefixes = {"/ppt/presentation.xml", "/ppt/presProps.xml", "/ppt/viewProps.xml",
+                         "/ppt/tableStyles.xml", "/docProps/"}
+        for ov in list(root.findall(f"{{{CT_NS}}}Override")):
+            pn = ov.get("PartName", "")
+            if any(pn.startswith(f"/ppt/{p}/")
+                   for p in ("slides","notesSlides","slideLayouts","slideMasters","theme","webextensions")):
+                root.remove(ov)
+        # Fix presentation content type
+        for ov in root.findall(f"{{{CT_NS}}}Override"):
+            if ov.get("ContentType") == CT_PPT:
+                ov.set("ContentType", CT_POTX)
+        # Remove Default for old webextensions if any
+        for ov in list(root.findall(f"{{{CT_NS}}}Override")):
+            if "webextension" in ov.get("PartName", ""):
+                root.remove(ov)
+        # Inject new entries
+        def add_override(part, ct):
+            ov = ET.SubElement(root, f"{{{CT_NS}}}Override")
+            ov.set("PartName", part)
+            ov.set("ContentType", ct)
+        add_override("/ppt/slideMasters/slideMaster1.xml", CT_SM)
+        add_override("/ppt/theme/theme1.xml", CT_TH)
+        for i in range(1, 13):
+            add_override(f"/ppt/slideLayouts/slideLayout{i}.xml", CT_SL)
+        return ET.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+
+    def patch_prs_rels(data: bytes) -> bytes:
+        root = ET.fromstring(data)
+        for rel in list(root.findall(f"{{{RELS_NS}}}Relationship")):
+            rt = rel.get("Type", "")
+            if rt in (REL_SLIDE, REL_NOTES):
+                root.remove(rel)
+        return ET.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+
+    def patch_root_rels(data: bytes) -> bytes:
+        """Remove webextension reference from root _rels/.rels."""
+        root = ET.fromstring(data)
+        for rel in list(root.findall(f"{{{RELS_NS}}}Relationship")):
+            tgt = rel.get("Target", "")
+            if "webextension" in tgt or "taskpane" in tgt:
+                root.remove(rel)
+        return ET.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+
+    def patch_presentation(data: bytes) -> bytes:
+        root = ET.fromstring(data)
+        ns_p = "http://schemas.openxmlformats.org/presentationml/2006/main"
+        sldIdLst = root.find(f"{{{ns_p}}}sldIdLst")
+        if sldIdLst is not None:
+            root.remove(sldIdLst)
+        return ET.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
 
     FINAL_OUT.unlink(missing_ok=True)
     with zipfile.ZipFile(BASE_PPTX) as zin, \
@@ -1105,52 +1185,24 @@ def main():
         for item in zin.infolist():
             fn = item.filename
 
-            # Skip slides, old layouts, old master/theme
+            # Skip slides, notes slides, old layouts, old master, webextensions, exact files
             if any(fn.startswith(p) for p in skip_prefixes):
                 continue
-            # Skip webextensions (not needed in template)
+            if fn in skip_exact:
+                continue
             if fn.startswith("ppt/webextensions/"):
                 continue
 
             data = zin.read(fn)
 
-            # Patch Content_Types: pptx → potx + remove slide/notes entries
             if fn == "[Content_Types].xml":
-                data = data.replace(
-                    b"presentationml.presentation.main+xml",
-                    b"presentationml.template.main+xml"
-                )
-                # Remove slide/notes/layout/master/theme overrides
-                import re as _re
-                data = _re.sub(
-                    rb'\s*<Override PartName="/ppt/(slides|notesSlides|slideLayouts|slideMasters|theme)/[^"]*"[^/]*/>\n?',
-                    b"", data
-                )
-                # Remove webextensions
-                data = _re.sub(
-                    rb'\s*<Override PartName="/ppt/webextensions/[^"]*"[^/]*/>\n?',
-                    b"", data
-                )
-                # Inject new layout, master, theme overrides
-                layout_overrides = b"\n".join(
-                    f'  <Override PartName="/ppt/slideLayouts/{fn_}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>'.encode()
-                    for fn_ in [f"slideLayout{i}" for i in range(1, 13)]
-                )
-                master_override = b'  <Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>'
-                theme_override  = b'  <Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
-                inject = b"\n" + master_override + b"\n" + theme_override + b"\n" + layout_overrides
-                data = data.replace(b"</Types>", inject + b"\n</Types>")
-
-            # Patch presentation.xml: remove slide id list, keep master ref
-            if fn == "ppt/presentation.xml":
-                data = _re.sub(rb'<p:sldIdLst>.*?</p:sldIdLst>', b"", data, flags=_re.DOTALL)
-
-            # Patch presentation.xml.rels: remove slide relationships
-            if fn == "ppt/_rels/presentation.xml.rels":
-                data = _re.sub(
-                    rb'\s*<Relationship[^>]*"slide[^"]*"[^/]*/>\n?',
-                    b"", data
-                )
+                data = patch_content_types(data)
+            elif fn == "_rels/.rels":
+                data = patch_root_rels(data)
+            elif fn == "ppt/_rels/presentation.xml.rels":
+                data = patch_prs_rels(data)
+            elif fn == "ppt/presentation.xml":
+                data = patch_presentation(data)
 
             zout.writestr(item, data)
 
