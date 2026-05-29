@@ -151,17 +151,24 @@ TODO !!! Hard-code szükséges, hogy a user mentse ki a mindmap-et a ./targy/het
 
 # 6. Forrástípusok
 
-Minden forrástípushoz definiálni kell egy **determinisztikus extraktort**, amely `2_clean_inputs/<forrás>/` struktúrát hoz létre (szöveg + képek).
+Minden forrástípushoz determinisztikus extraktor, amely `2_clean_inputs/<forrás>/auto/<forrás>.md` struktúrát hoz létre (szöveg + képek). A PDF-et a MinerU, a többit a `03_util_source_extractor.py` kezeli.
 
 | Forrástípus | Extraktor | Státusz |
 |:------------|:----------|:--------|
 | PDF | MinerU (`03_run_mineru_pipeline.py`) | ✅ definiált |
-| PPTX | PDF-konverzió → MinerU | ❔ tervezendő -- 🔲 TODO: hatékony megoldás kell (nem feltétlenül MinerU), de pipeline-illeszkedéssel; pl. python-pptx szövegkivonás vagy Pandoc |
-| DOCX | Pandoc / python-docx | ❔ tervezendő |
-| HTML (URL) | NLM-be URL-ként (de `2_clean_inputs` nem keletkezik) | ⚠️ részleges -- 🔲 TODO: weblap lementésnél vagy `msedge --headless --print-to-pdf` (PDF), vagy SingleFile Edge CLI ( https://github.com/gildas-lormeau/single-file-cli ) -- ez utóbbi önálló HTML-t generál képekkel. Döntés szükséges, melyik illeszkedik jobban a pipeline-ba. |
-| HTML (helyi) | Nincs | ❌ hiányzik |
+| PPTX | `03_util_source_extractor.py --types pptx` (python-pptx: dia-szöveg + táblák + beágyazott képek) | ✅ kész (2026-05-29) |
+| HTML (helyi) | `03_util_source_extractor.py --types html` (beautifulsoup4: törzsszöveg, script/style/nav szűréssel) | ✅ kész (2026-05-29) |
+| DOCX | `03_util_source_extractor.py --types docx` (python-docx) | ⚙️ kód kész, de `pip install python-docx` szükséges (graceful skip ha hiányzik) |
+| HTML (URL) | NLM-be URL-ként (NLM forrásként), VAGY weblap-mentés → helyi HTML extraktor | ✅ az NLM az URL-t kezeli; a `2_clean_inputs` szöveghez a helyi HTML útvonal |
 
-⚠️ **Weblap PDF-ként:** `msedge --headless --print-to-pdf="output.pdf" "<URL>"` -- a sima HTML mentés képeket veszít.
+**Futtatás (03 MinerU mellett):**
+```powershell
+# PDF: MinerU; minden más:
+python scripts/03_util_source_extractor.py --week-dir test_outputs/<Tantargy>/N_het
+```
+Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta szöveg).
+
+⚠️ **Weblap PDF-ként (alternatíva):** `msedge --headless --print-to-pdf="output.pdf" "<URL>"` majd MinerU -- ha a weblap képei is kellenek (a helyi HTML extraktor csak szöveget ad).
 
 # 7. Visszajelzések
 
