@@ -70,6 +70,7 @@ python scripts/04_nlm_dfs_queries.py `
 
 **Utility modulok (nem önálló pipeline-lépések):**
 - `scripts/_encoding_fix.py` — UTF-8 stdout wrapper; több script importálja (`05_assemble`, `10_notes_collector`, `11_typesetter`, `06_table_caption_injector`). Nem szükséges külön futtatni.
+- `scripts/15_backlog_index.py` — read-only aggregátor: a meta-fájlok `## Nyitott pontok` + skillek `§8` nyitott (🔲/❔/⚠️) tételeit listázza (Instructions §11.1). `--md` markdown kimenethez.
 
 **Raw fájlnév-konvenció:**
 - DFS query outputok: `nlm_q{N}_raw.txt` (N=1,2,3,... -- padding nélkül)
@@ -172,7 +173,7 @@ Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta sz
 
 # 7. Nyitott pontok
 
-- 🔲 TODO: A `test_outputs/<TantargyNeve>/` mappa (pl. `meta_file_updates_test`) nem jelenik meg sem a `project_status.md`-ben, sem a `templates/context_sablon.md`-ban. A context_sablon-ban célszerű lenne heti tematika nevet megadni (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan), és melyik lépésnél (01 vagy 02 checkpoint).
+- 🔲 TODO: A heti tematika nevét a `templates/course_development_template.md` §2 táblája tárolja (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan), és melyik lépésnél (01 vagy 02 checkpoint).
 - 🔲 TODO: Mindmap export hard-code szabály -- a user mentse ki a mindmap-et a `3_raw_outputs/nlm_mindmap_export.md`-be (08. lépés). A fájlnév-konvenció rögzítendő a 08 skillben.
 - 💬 NOTE: `nlm chat configure --response-length longer` (nem `long`); `nlm query notebook --timeout N` (default 120s) -- tesztelve 2026-05-26.
 
