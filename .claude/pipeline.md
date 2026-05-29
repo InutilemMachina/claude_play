@@ -16,8 +16,10 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | User PDF-ek, URL-ek | 😎 | [01_references_collector](skills/01_references_collector.md) | 🤖+😎 | `1_raw_inputs/` + `citations_seed.json` |
 | `1_raw_inputs/` | 🤖+😎 | [02_nlm_notebook_setup](skills/02_nlm_notebook_setup.md) | 🔌 🚦 | NLM notebook + [Prompt B](nlm_prompts.md#2-prompt-b--notebooklm-custom-instructions) + UUID-k |
 | `1_raw_inputs/*.pdf` | 😎 | [03_mineru_extractor](skills/03_mineru_extractor.md) | 🐍 | `2_clean_inputs/<forrasnev>/auto/` + `3_raw_outputs/figure_catalog.json` |
-| NLM notebook | 🔌 | `scripts/03-1_qfig_parser.py` -- Qfig query → caption + keywords | 🐍 | `3_raw_outputs/figure_catalog.json` (caption + keywords) |
+| NLM notebook | 🔌 | `scripts/03-1_qfig_parser.py` -- Qfig CLI query → caption + keywords | 🐍 | `3_raw_outputs/figure_catalog.json` (caption + keywords) |
+| [Prompt C.3](prompts/prompt_c3_abrajegyzek.md) Studio output | 😎 | `scripts/03_util_studio_parser.py --c3` -- C.3 táblázat → keywords | 🐍 | `3_raw_outputs/figure_catalog.json` (NLM keywords, **ajánlott fallback**) |
 | `2_clean_inputs/` | 🐍 | `scripts/03_util_figure_catalog.py --vlm` -- VLM caption+keywords | 🐍 | `3_raw_outputs/figure_catalog.json` (`vlm_done=True`) |
+| `2_clean_inputs/` | 🐍 | `scripts/03_util_figure_catalog.py --from-caption` -- caption→keywords (offline) | 🐍 | `3_raw_outputs/figure_catalog.json` (caption-alapú keywords) |
 | `3_raw_outputs/figure_catalog.json` | 🐍 | `scripts/03-2_dedup_figures.py` -- hash-alapú dedup | 🐍 | `3_raw_outputs/figure_catalog.json` (`duplicate` flag) |
 | NLM notebook (Studio) | 😎 | [08_mindmap_manager](skills/08_mindmap_manager.md) -- Ultra Explorer export + **MSc jelölés** | 😎 🚦 | `3_raw_outputs/nlm_mindmap_export.md` (átnevezve!) |
 | `3_raw_outputs/nlm_mindmap_export.md` | 🔌 | [04_nlm_query_runner](skills/04_nlm_query_runner.md) -- DFS lekérdezések | 🔌 | `3_raw_outputs/nlm_q{N}_raw.txt` + `3_raw_outputs/nlm_qfig_raw.txt` |
@@ -26,6 +28,8 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | `4_wip_outputs/N_Jegyzet.md` draft | 🤖 | [06_excerpt_block_maker](skills/06_excerpt_block_maker.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (blockquote-ok) |
 | `4_wip_outputs/N_Jegyzet.md` | 🐍 | [06b_table_caption_injector](skills/06b_table_caption_injector.md) -- táblázat feliratok felülre | 🐍 | `4_wip_outputs/N_Jegyzet.md` (táblázat captionök) |
 | `citations_seed.json` + `3_raw_outputs/` | 🤖 | [07_citations_maker](skills/07_citations_maker.md) | 🤖 🚦 | `4_wip_outputs/N_Szozedet.md` + `3_raw_outputs/citations.json` |
+| [Prompt C.1](prompts/prompt_c1_forrasattekinto.md) Studio output | 😎 | `scripts/03_util_studio_parser.py --c1` | 🐍 | `4_wip_outputs/N_Forrasattekinto.md` |
+| [Prompt C.4](prompts/prompt_c4_kerdesbank_alap.md) Studio output | 😎 | `scripts/03_util_studio_parser.py --c4` | 🐍 | `4_wip_outputs/N_Kerdesek.md` |
 | `3_raw_outputs/figure_catalog.json` + `3_raw_outputs/` | 🐍 | [09_figure_mapper](skills/09_figure_mapper.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (FIG blokkok) |
 | `4_wip_outputs/N_Jegyzet.md` | 🤖 | [10_notes_collector](skills/10_notes_collector.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (Tartalomjegyzék) |
 | `4_wip_outputs/N_Jegyzet.md` | 🐍 | `scripts/11_util_heading_numberer.py` | 🐍 | `4_wip_outputs/N_Jegyzet.md` (sorszámozott fejlécek) |
@@ -71,6 +75,10 @@ python scripts/04_nlm_dfs_queries.py `
 - Mindmap export: az Ultra Explorer letöltés után **manuálisan átnevezendő** `nlm_mindmap_export.md`-re
 - Egyéb NLM raw: `nlm_qfig_raw.txt`, `nlm_szozedet_raw.txt`
 - DFS metadat: `dfs_node_list.json` (automatikusan generálódik `04` futásakor)
+- Studio C.1 output: `nlm_c1_forrasattekinto_raw.md` (NLM default névről átmásolandó)
+- Studio C.3 output: `nlm_c3_abrajegyzek_raw.md` (NLM default névről átmásolandó)
+- Studio C.4 output: `nlm_c4_kerdesbank_raw.md` (NLM default névről átmásolandó)
+- NLM default nevek (átmásolás előtt): "A forrásokban található ábrák...md", "...vizsgakérdés-alap.md" stb.
 
 **Heading sorszámozás felelőse (D6):**
 - `05_assemble.py` NEM ad sorszámot a fejléceknek
