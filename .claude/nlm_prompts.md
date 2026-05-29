@@ -14,7 +14,7 @@ description: Index. Minden prompt kanonikus helye .claude/prompts/. Ne szerkeszd
 |:-------|:-----|:---------------|:-----------|
 | A — Claude Project Instructions | `.claude/archive/prompt_a.md` | -- | Elavult -- aktualitása kérdéses |
 | B — NLM Custom Instructions | [prompt_b_nlm_custom_instructions.md](prompts/prompt_b_nlm_custom_instructions.md) | 02 | Legfontosabb; minden notebookon beállítandó |
-| C — Data Tables Studio | [prompt_c_datatables.md](prompts/prompt_c_datatables.md) | 01 / 09 / 13 | C.3 = képpipeline fallback |
+| C — Data Tables Studio | [prompt_c_datatables.md](prompts/prompt_c_datatables.md) (index) → [C.1](prompts/prompt_c1_forrasattekinto.md) / [C.2](prompts/prompt_c2_fogalomterkep.md) / [C.3](prompts/prompt_c3_abrajegyzek.md) / [C.4](prompts/prompt_c4_kerdesbank_alap.md) | 01 / 07 / 09 / 13 | C.3 = képpipeline fallback |
 | D — Szószedet CLI query | [prompt_d_szozedet.md](prompts/prompt_d_szozedet.md) | 07 | `nlm query ... --json` |
 | E — Kérdésbank CLI query | [prompt_e_kerdesbank.md](prompts/prompt_e_kerdesbank.md) | 13 | `nlm query ... --json` |
 

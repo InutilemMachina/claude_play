@@ -89,7 +89,7 @@ Ha a `09_figure_mapper.py` lefut de nem talál egyezést (vagy korábban `vlm_do
 
 | # | Módszer | Előny | Hátrány |
 |---|---------|-------|---------|
-| **A** | **NLM Studio Data Tables (Prompt C, manuális)** | Ingyenes, kontextuálisan gazdag, nem igényel API kulcsot vagy CLI kvótát | Manuális lépés (UI) |
+| **A** | **NLM Studio Data Tables ([Prompt C.3](../prompts/prompt_c3_abrajegyzek.md), manuális)** | Ingyenes, kontextuálisan gazdag, nem igényel API kulcsot vagy CLI kvótát | Manuális lépés (UI) |
 | **B** | **`04_nlm_dfs_queries.py --qfig` (CLI)** | Automatizált, ingyenes | NLM napi kvóta terhére, RESOURCE_EXHAUSTED lehetséges |
 | **C** | **`03_util_figure_catalog.py --from-caption`** | Teljesen offline, script | Caption-minőségtől függ, EN→HU mismatch |
 
@@ -132,7 +132,7 @@ Ez a legmegbízhatóbb útvonal VLM és CLI kvóta nélkül. **Mindig ezt kell j
 - ✅ **Blokkoló feltétel lazítva (2026-05-29).** `vlm_done=True` feltétel helyett `keywords != []` elegendő. A `09_figure_mapper.py` most fut Qfig- és caption-alapú keywords-szel is. A §2 és §6 frissítve.
 - ✅ **ToC kizárva a paragraph matchingből (2026-05-29).** `is_preserved_block()` mostantól kizárja a `- [...]` link-listából álló blokkokat (>50% link-sor). Korábban a ToC kapta a legtöbb keywordhitett és minden kép oda kerülhetett.
 - ✅ **`--from-caption` fallback (2026-05-29).** `03_util_figure_catalog.py --from-caption`: caption tokenizálás EN→HU szinoníma-bővítéssel, API kulcs és NLM kvóta nélkül.
-- 💬 **TANULSÁG: NLM Studio Data Tables (Prompt C) mint elsődleges manuális fallback** — nem volt dokumentálva ebben a skillben, holott ez a legmegbízhatóbb út ha VLM és Qfig CLI nem elérhető. Felvéve a §6 Hibakezelés táblába A-prioritással.
+- 💬 **TANULSÁG: NLM Studio Data Tables ([Prompt C.3](../prompts/prompt_c3_abrajegyzek.md)) mint elsődleges manuális fallback** — nem volt dokumentálva ebben a skillben, holott ez a legmegbízhatóbb út ha VLM és Qfig CLI nem elérhető. Felvéve a §6 Hibakezelés táblába A-prioritással.
 - 🔲 TODO: **Előfeltétel pontatlan a skill §2-ban (tesztelve 2026-05-28).** A §2 szerint a blokkoló feltétel `keywords == []`, de a script (line 133-136) `vlm_done=True` hiányát ellenőrzi és kilép. Ha `vlm_done=False` (pl. VLM nem futott), a script "No entries with vlm_done=True. Run 03_util_figure_catalog.py --vlm first." üzenettel exitál -- a `keywords`-t meg sem nézi. A §2 szövegét frissíteni kell: "Előfeltétel: `vlm_done=True` legalább egy entrynél (03_util_figure_catalog.py --vlm lefutott)."
 - 🔲 TODO: **Nincsenek képek a wip Jegyzetben (user feedback, 2026-05-28, 1_het).** A `4_wip_outputs/1_Jegyzet.md` nem tartalmaz egyetlen képet sem. Gyökérok: (1) `09_figure_mapper` blokkolt (`vlm_done=False`), így `inserted_after_paragraph` mezők üresek; (2) `10_notes_collector --no-figures` opcióval futott (képbeillesztés szándékosan kihagyva). A teljes kép-pipeline (03-1 Qfig → 09 mapper → 10 inserter) blokkolt a `vlm_done` és a Qfig formátum-eltérés miatt. Következmény: a Jegyzet szöveg-only -- a forrás PDF-ek vizuális tartalma (ábrák, táblázatok) elvész.
 - ✅ **VLM lépés pipeline-ban dokumentálva (javítva 2026-05-28).** `pipeline.md §1` IO táblájába felvéve: `03_util_figure_catalog.py --vlm` a 03-1_qfig_parser után, 03-2_dedup előtt.
