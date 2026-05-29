@@ -96,6 +96,7 @@ Ha a felhasználó kulcsszó-listát ad meg, a skill `<a id="idx-kulcsszó"></a>
 
 ## 8. Visszajelzések
 
+- ✅ **ToC idempotencia javítva (2026-05-29, KRITIKUS).** Az `insert_toc()` korábban mindig beszúrt egy új `## Tartalomjegyzék` blokkot a meglévő eltávolítása nélkül → kétszeri/háromszori futás 2-3 ToC blokkot eredményezett (mini teszt: 3 ToC). Fix: új `strip_existing_toc()` függvény eltávolítja az összes meglévő ToC blokkot a beszúrás előtt. A futás mostantól idempotens.
 - ✅ **`--dry-run` UnicodeEncodeError javítva (2026-05-28).** `scripts/_encoding_fix.py` modul bevezetve; `10_notes_collector.py` importálja és alkalmazza induláskor.
 - ✅ **Bevezetés és Tartalomjegyzék unnumbered (2026-05-28).** `11_util_heading_numberer.py` UNNUMBERED listába felvéve: `bevezetes`, `tartalomjegyzek`, `hivatkozasjegyzek`.
 - ✅ **ToC dupla sorszámozás + (QN) suffix javítva (2026-05-28).** `05_assemble.py` átírva: nem generál `## N. szekció (QN)` fejlécet, hanem az NLM válasz első `##`-jét használja cím gyanánt. Heading_numberer az egyetlen sorszámozó.
