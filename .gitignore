@@ -16,7 +16,7 @@
 # Teszt projektmappák
 test_sources/
 test_outputs/
-.claude/archive
+# .claude/archive -- archivált skillok és promptok -- verziókövetendők, NEM ignorálandók
 nlm_experiments/
 **/*teszt*/
 **/*test*/
