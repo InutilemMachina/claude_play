@@ -177,6 +177,7 @@ Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta sz
 - 🔲 TODO: A heti tematika nevét a `templates/course_development_template.md` §2 táblája tárolja (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan), és melyik lépésnél (01 vagy 02 checkpoint).
 - 🔲 TODO: Mindmap export hard-code szabály -- a user mentse ki a mindmap-et a `3_raw_outputs/nlm_mindmap_export.md`-be (08. lépés). A fájlnév-konvenció rögzítendő a 08 skillben.
 - 💬 NOTE: `nlm chat configure --response-length longer` (nem `long`); `nlm query notebook --timeout N` (default 120s) -- tesztelve 2026-05-26.
+- 💬 NOTE: `nlm chat configure --response-length` maradkon default
 
 # Változásjegyzék
 
