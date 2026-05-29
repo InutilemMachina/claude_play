@@ -239,7 +239,7 @@ def main():
     # --qfig mode: run figure query only, skip DFS
     if args.qfig:
         qfig_path = raw_out / "nlm_qfig_raw.txt"
-        print(f"Qfig query → {qfig_path.name}")
+        print(f"Qfig query -> {qfig_path.name}")
         ok = run_qfig_query(nb_id, qfig_path)
         sys.exit(0 if ok else 1)
 

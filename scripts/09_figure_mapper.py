@@ -48,7 +48,7 @@ def load_md(path: Path) -> str:
 def is_preserved_block(block: str) -> bool:
     """Return True if block should be excluded from paragraph matching."""
     first_line = block.lstrip().split("\n")[0]
-    return (
+    if (
         first_line.startswith("#") or
         first_line.startswith("![") or
         first_line.startswith("<!--") or
@@ -56,7 +56,14 @@ def is_preserved_block(block: str) -> bool:
         first_line.startswith("---") or
         first_line.startswith("{") or   # YAML-like
         not first_line.strip()
-    )
+    ):
+        return True
+    # Exclude ToC-like blocks: blocks dominated by markdown link-list items "- [..."
+    link_lines = sum(1 for l in block.splitlines() if re.match(r'\s*-\s+\[', l))
+    total_lines = len([l for l in block.splitlines() if l.strip()])
+    if total_lines > 0 and link_lines / total_lines > 0.5:
+        return True
+    return False
 
 
 def extract_paragraphs(md_text: str) -> list[str]:
@@ -129,13 +136,18 @@ def main() -> None:
     catalog: dict = json.loads(catalog_path.read_text(encoding="utf-8"))
     md_text = load_md(md_path)
 
-    # Sanity check: VLM must have run
+    # Sanity check: need at least some entries with keywords (vlm_done nem kötelező)
+    # Keywords jöhetnek: (1) 03_util_figure_catalog.py --vlm, vagy (2) 03-1_qfig_parser.py (Qfig)
     vlm_done_count = sum(1 for e in catalog.values() if e.get("vlm_done"))
-    if vlm_done_count == 0:
-        print("[Warning] No entries with vlm_done=True. Run 03_util_figure_catalog.py --vlm first.")
+    has_keywords   = sum(1 for e in catalog.values() if e.get("keywords"))
+    if has_keywords == 0:
+        print("[Warning] No entries with keywords. Run either:")
+        print("  03_util_figure_catalog.py --vlm  (Claude Vision API)")
+        print("  04_nlm_dfs_queries.py --qfig + 03-1_qfig_parser.py  (NLM Qfig, free)")
         sys.exit(0)
+    if vlm_done_count == 0:
+        print(f"[Info] vlm_done=False everywhere, de {has_keywords} bejegyzésnek van keywords (Qfig alapú) -- folytatom.")
 
-    has_keywords = sum(1 for e in catalog.values() if e.get("keywords"))
     print(f"[09_figure_mapper] Catalog: {len(catalog)} entries, "
           f"{vlm_done_count} VLM done, {has_keywords} with keywords")
 

@@ -238,6 +238,11 @@ def main() -> None:
         action="store_true",
         help="Enable VLM captioning via Claude vision API (requires ANTHROPIC_API_KEY)"
     )
+    parser.add_argument(
+        "--from-caption",
+        action="store_true",
+        help="Derive keywords from existing captions (no API needed; fallback when VLM/Qfig unavailable)"
+    )
     args = parser.parse_args()
 
     kepek_dir = Path(args.kepek_dir)
@@ -262,7 +267,70 @@ def main() -> None:
         )
         print(f"Wrote {len(catalog)} entries -> {out_path}")
 
-    # --- Step 2 (optional): VLM captioning ---
+    # --- Step 2a (optional): Caption-based keywords (free, no API) ---
+    if args.from_caption:
+        # English stopwords for caption parsing
+        _STOP = {
+            "a", "an", "the", "of", "in", "on", "with", "and", "or", "for",
+            "its", "it", "is", "are", "be", "by", "as", "at", "to", "from",
+            "figure", "table", "chart", "shows", "show", "example", "examples",
+            "white", "areas", "most", "their", "that", "this", "which",
+            "illustration", "simplified",
+        }
+        # EN→HU synonym pairs for IR thermography (improves Hungarian text matching)
+        _SYNONYMS = {
+            "camera":       ["kamera"],
+            "detector":     ["detektor"],
+            "spectral":     ["spektrális", "spektrum"],
+            "atmospheric":  ["atmoszferikus", "légköri"],
+            "attenuation":  ["csillapítás", "elnyelés"],
+            "planck":       ["planck"],
+            "blackbody":    ["feketetest"],
+            "wavelength":   ["hullámhossz"],
+            "temperature":  ["hőmérséklet"],
+            "infrared":     ["infravörös"],
+            "radiation":    ["sugárzás"],
+            "emissivity":   ["emisszivitás"],
+            "transmission": ["transzmisszió"],
+            "response":     ["válasz"],
+            "materials":    ["anyag"],
+            "diagram":      ["diagram"],
+        }
+        updated = 0
+        for entry in catalog.values():
+            if entry.get("keywords"):
+                continue  # already has keywords, skip
+            caption = entry.get("caption", "")
+            if not caption:
+                continue
+            tokens = re.findall(r"[a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ]+", caption)
+            kws = []
+            for t in tokens:
+                tl = t.lower()
+                if len(tl) <= 3 or tl in _STOP:
+                    continue
+                kws.append(tl)
+                # Add Hungarian synonyms for better matching against HU text
+                for syn in _SYNONYMS.get(tl, []):
+                    kws.append(syn)
+            # Deduplicate, keep order, max 12 keywords
+            seen: set = set()
+            dedup = []
+            for k in kws:
+                if k not in seen:
+                    seen.add(k)
+                    dedup.append(k)
+            entry["keywords"] = dedup[:12]
+            updated += 1
+        if updated:
+            out_path.write_text(
+                json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            print(f"[from-caption] {updated} entries kaptak caption-alap keyw. -> {out_path}")
+        else:
+            print("[from-caption] Minden entry-nek mar volt keywords, nincs valtozas.")
+
+    # --- Step 2b (optional): VLM captioning ---
     if args.vlm:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
