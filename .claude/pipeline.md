@@ -37,7 +37,8 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | `4_wip_outputs/N_Jegyzet.md` | 🐍+🤖 | [11b_quality_reviewer](skills/11b_quality_reviewer.md) -- `11b_quality_check.py` (metrikák) + Explore review | 🐍+🤖 🚦 | (belső checkpoint + `4_wip_outputs/N_Review.md`) |
 | `4_wip_outputs/N_Jegyzet.md` + template | 🤖 | [12_presentation_maker](skills/12_presentation_maker.md) | 🤖+🐍 | `4_wip_outputs/N_Prezentacio.md` → `5_clean_outputs/N_Prezentacio.pptx` |
 | NLM notebook (mindmap-vez.) | 🔌 | [13_question_bank_collector](skills/13_question_bank_collector.md) | 🔌+🤖 | `4_wip_outputs/N_Kerdesek.md` |
-| `4_wip_outputs/N_*.md` | 🤖 | [14_bsc_filter](skills/14_bsc_filter.md) | 🐍 | `5_clean_outputs/` |
+| `4_wip_outputs/N_*.md` | 🤖 | [14_bsc_filter](skills/14_bsc_filter.md) | 🐍 | `5_clean_outputs/*_bsc.md` |
+| `4_wip_outputs/N_Jegyzet.md` v. `5_clean_outputs/*_bsc.md` | 🐍 | `scripts/14_util_pandoc_export.py` -- camera-ready DOCX (Pandoc + template) | 🐍 | `5_clean_outputs/N_Jegyzet[_bsc].docx` |
 
 💡 **Egy NLM notebook = egy hét anyaga.** Prompt B és forrás-UUID-ek per-hét izoláltak.
 
@@ -172,7 +173,7 @@ Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta sz
 
 # 7. Visszajelzések
 
-- 💬 NOTE: Az `egyelőre` prioritás: a `4_wip_outputs` tartalmilag magas minőségű legyen; a `templates/due_presentation_template.pptx` és `due_jegyzet_template.docx` alapján majd prezentáció és jegyzet is kell. Pandoc vizsgálandó a konverzióhoz.
+- ✅ **Camera-ready DOCX export kész (2026-05-29).** `scripts/14_util_pandoc_export.py`: a `N_Jegyzet.md` → `N_Jegyzet.docx` Pandoc-kal, a `templates/due_jegyzet_template.docx` reference-stílusaival. `--bsc` flag a `_bsc` verzióhoz. Pandoc 3.9 telepítve (winget); a script PATH > `.claude/config.json` > winget-glob sorrendben keresi a pandoc.exe-t (PATH-frissítés nélkül is működik). Tesztelve: mini 1_Jegyzet.md → 210 KB docx, helyes ToC + struktúra. A PPTX-et továbbra is a `12_pptx_gyarto.py` (python-pptx) generálja, nem Pandoc.
 - ✅ `nlm chat configure $NB --response-length longer` (nem `long`) -- tesztelve 2026-05-26. `nlm query notebook --timeout N` flag is elérhető (default: 120s).
 - 🔲 TODO: A `test_outputs/<TantargyNeve>/` mappa (pl. `meta_file_updates_test`) nem jelenik meg sem a `project_status.md`-ben, sem a `templates/context_sablon.md`-ban. A context_sablon-ban célszerű lenne heti tematika nevet megadni (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan a context_sablon-ban), és melyik lépésnél (01 vagy 02 checkpoint előtt).
 
