@@ -2,7 +2,7 @@
 title: Instructions
 type: project_constitution
 tag: [meta]
-version: 2.2
+version: 2.3
 updated: 2026-05-29
 description: Projekt-szintű elvek, jelölések és dokumentációs szabványok.
 ---
@@ -178,6 +178,10 @@ Lezárt vagy beépített tétel → átvezetés a Változásjegyzékbe, törlés
 | Skill működése | az adott skill `## 8. Visszajelzések` |
 | Hiba egy lépésben | az adott skill `## 6. Hibakezelés` |
 | Meta-fájl (CLAUDE.md, Instructions.md, pipeline.md, prompts/*, templates/*) | a fájl végén egy `## Nyitott pontok` szekció |
+| wip/clean output -- **tartalmi/minőségi** (konkrét kimenetről) | a kimenet melletti `N_Review.md` (tantárgy-specifikus, eldobható a teszttel) |
+| wip/clean output -- **pipeline-tanulság** (a kimenet hibát tár fel) | a megfelelő skill `## 8` (tartós) |
+
+A wip/clean visszajelzésnél a **természet dönt**: a konkrét tananyagról szóló észrevétel a `N_Review.md`-be (lokális, eldobható); a pipeline-t érintő tanulság a skill `§8`-ba (tartós). Ha egy tartalmi észrevétel tartós pipeline-tanulsággá érik, átemelendő a skillbe.
 
 **Elv: „lokálisan írni, centralizáltan olvasni".** A bejegyzés ott keletkezik, ahol releváns (lokális kontextus). Az operatív prioritási sort a `project_status.md` Backlog-szekciója adja — ez **nem másol**, csak hivatkozik a fenti forrásokra. Az aggregátor a `scripts/15_backlog_index.py`-vel regenerálható (nincs kézi karbantartás).
 

@@ -81,7 +81,18 @@ Te egy magyar egyetemi tananyagszerkesztő vagy. Olvasd el a Jegyzetet és ért�
 
 ## 4. Kimenetek
 
-- `4_wip_outputs/N_Review.md` -- szerkesztői jelentés (opcionális, ha agent output rögzítendő)
+- `4_wip_outputs/N_Review.md` -- szerkesztői jelentés + a **tartalmi/minőségi visszajelzés kanonikus helye** (Instructions §11.1, kétcsatornás modell).
+
+### 4.1. Visszajelzés-csatornák (Instructions §11.1)
+
+A wip/clean outputról szóló visszajelzés a **természete** szerint kerül a helyére:
+
+| Visszajelzés típusa | Hely | Élettartam |
+|---|---|---|
+| **Tartalmi/minőségi** -- a konkrét tananyagról (pl. „a 4. fejezet redundáns") | `N_Review.md` (e skill kimenete, a kimenet mellett) | eldobható a teszttel |
+| **Pipeline-tanulság** -- a kimenet pipeline-hibát tár fel (pl. „a Rule H tönkreteszi a kommenteket") | a megfelelő skill `§8` | tartós |
+
+Ha egy tartalmi észrevétel tartós pipeline-tanulsággá érik, **átemelendő** a `N_Review.md`-ből a megfelelő skill `§8`-ba.
 
 ## 5. Ellenőrzési lista
 
