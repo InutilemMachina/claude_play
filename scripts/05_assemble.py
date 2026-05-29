@@ -93,9 +93,16 @@ def build_reference_section(seed: dict) -> list[str]:
         author = v.get("author") or v.get("authors") or "?"
         title  = v.get("title", "?")
         year   = v.get("year", "?")
-        fname  = v.get("filename") or v.get("file", "?")
+        fname  = v.get("filename") or v.get("file")
+        url    = v.get("url")
+        if fname:
+            loc = f"Fájl: `{fname}`"
+        elif url:
+            loc = f"URL: {url}"
+        else:
+            loc = "Forrás: ?"
         lines.append(
-            f'[{k}] {author}. "{title}," {year}. Fájl: `{fname}`'
+            f'<sup>[{k}]</sup> {author}. "{title}," {year}. {loc}'
         )
     return lines
 
@@ -247,13 +254,15 @@ def assemble(week_dir: Path, args) -> str:
         node_name  = node_info.get("name", "")
 
         body.append(f"<!-- Q:{qi} -->")
-        if node_level == 1 and node_name:
-            # L1 nodes always get a ## section with the mindmap node name
+        if node_level in (1, 2) and node_name:
+            # L1 és L2 nodes always get a ## section with the mindmap node name.
+            # L1 = fő ágak (Alapelvek, Fizikai Törvények, stb.)
+            # L2 = al-ágak (Sugárzási törvények, Emisszivitás stb.) — RC-2 teljes fix.
             body.append(f"## {node_name}")
             body.append("")
             body.append(text)
         else:
-            # L2+ nodes: try to extract title from NLM answer heading
+            # L3+ nodes: try to extract title from NLM answer heading
             section_title, text_body = extract_section_title(text)
             if section_title:
                 body.append(f"## {section_title}")
