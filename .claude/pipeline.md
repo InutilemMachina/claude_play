@@ -24,7 +24,7 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | `3_raw_outputs/nlm_q*.txt` | 🤖 | [05b_nlm_output_checker](skills/05b_nlm_output_checker.md) -- minőségellenőrzés | 🤖 🚦 | (belső checkpoint) |
 | `3_raw_outputs/nlm_q*.txt` | 🐍 | `scripts/05_assemble.py` -- DFS outputok összefűzése | 🐍 | `4_wip_outputs/N_Jegyzet.md` (draft) |
 | `4_wip_outputs/N_Jegyzet.md` draft | 🤖 | [06_excerpt_block_maker](skills/06_excerpt_block_maker.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (blockquote-ok) |
-| `4_wip_outputs/N_Jegyzet.md` | 🐍 | `scripts/06_table_caption_injector.py` -- táblázat feliratok felülre | 🐍 | `4_wip_outputs/N_Jegyzet.md` (táblázat captionök) |
+| `4_wip_outputs/N_Jegyzet.md` | 🐍 | [06b_table_caption_injector](skills/06b_table_caption_injector.md) -- táblázat feliratok felülre | 🐍 | `4_wip_outputs/N_Jegyzet.md` (táblázat captionök) |
 | `citations_seed.json` + `3_raw_outputs/` | 🤖 | [07_citations_maker](skills/07_citations_maker.md) | 🤖 🚦 | `4_wip_outputs/N_Szozedet.md` + `3_raw_outputs/citations.json` |
 | `3_raw_outputs/figure_catalog.json` + `3_raw_outputs/` | 🐍 | [09_figure_mapper](skills/09_figure_mapper.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (FIG blokkok) |
 | `4_wip_outputs/N_Jegyzet.md` | 🤖 | [10_notes_collector](skills/10_notes_collector.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (Tartalomjegyzék) |
@@ -62,6 +62,9 @@ python scripts/04_nlm_dfs_queries.py `
 **Prompt B interakció az assembler-rel (kritikus):**
 - A Prompt B `## kötelező első sor` szabály miatt az NLM minden válasz elejére `##`-t ír.
 - Az assembler L1/L2 node-oknál saját `## {node_name}`-t szúr be ÉS eltávolítja az NLM vezető `##`-jét (kettős fejléc elkerülése). Ha a Prompt B formátumot változtat, mindig ellenőrizd az assembler fejléc-logikájával való interakciót.
+
+**Utility modulok (nem önálló pipeline-lépések):**
+- `scripts/_encoding_fix.py` — UTF-8 stdout wrapper; több script importálja (`05_assemble`, `10_notes_collector`, `11_typesetter`, `06_table_caption_injector`). Nem szükséges külön futtatni.
 
 **Raw fájlnév-konvenció:**
 - DFS query outputok: `nlm_q{N}_raw.txt` (N=1,2,3,... -- padding nélkül)

@@ -35,7 +35,11 @@ Az NLM Studio által generált tartalmak (Data Tables, Gondolattérkép, Tanuló
 3. Másold be az alábbi promptot, szükség szerint adaptálva
 4. Generate → Export-Tool gomb → Markdown/CSV letöltés → `3_raw_outputs/`
 
-**Megjegyzés (automatizálhatóság):** A prompt MCP-n keresztül is elküldhető, de ismeretlen okokból angol kimenetet ad. A mindmap generálása és exportálása emberi feladat (hard-coded szabály).
+**Mentési lehetőségek (MCP nélkül):**
+1. **Export-Tool bővítmény** (https://github.com/cced3000/NotebookLM-Export-Tool) — automatikus letöltés
+2. **Kézi másolás** — a Studio chat-ablakban megjelenő táblázat szövegét közvetlenül be lehet másolni `3_raw_outputs/`-ba
+
+Az MCP automatizálás ismeretlen okokból angol kimenetet ad — ez a mindmapre és a Data Tables generálásra egyaránt vonatkozik. A **generálás** tehát emberi lépés, de a **mentés** mindig elvégezhető manuálisan, Export-Tool nélkül is.
 
 ---
 
