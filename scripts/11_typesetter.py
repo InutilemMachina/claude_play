@@ -132,7 +132,10 @@ def rule_h_dash_cleanup(text: str) -> tuple[str, int]:
     for line in lines:
         if line.strip().startswith("```"):
             in_fence = not in_fence
-        if in_fence or line.strip().startswith("#"):
+        # Skip code fences, headings, and HTML comments (e.g. <!-- Q:N -->).
+        # The <!-- --> comment syntax legitimately contains "--", so Rule H
+        # must NOT touch it (otherwise <!-- Q:1 --> becomes <!, Q:1, >).
+        if in_fence or line.strip().startswith("#") or line.strip().startswith("<!--"):
             result.append(line)
         else:
             result.append(pattern.sub(replacer, line))
@@ -205,11 +208,16 @@ def rule_j_terminology(text: str) -> tuple[str, int]:
     lines = text.splitlines()
     result = []
     in_fence = False
+    # ToC link-line pattern: "- [text](#anchor)" -- terminology swap here would
+    # break the anchor (e.g. #a-hőkamerák → #a-IR kamerák, space + case mismatch).
+    toc_link_re = re.compile(r'^\s*-\s+\[.*\]\(#.*\)\s*$')
     for line in lines:
         if line.strip().startswith('```'):
             in_fence = not in_fence
-        # Skip code fences, headings, YAML, HTML comments
-        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+        # Skip code fences, headings, YAML, HTML comments, and ToC link lines
+        if (in_fence or line.strip().startswith('#')
+                or line.strip().startswith('<!--')
+                or toc_link_re.match(line)):
             result.append(line)
             continue
         new_line = line

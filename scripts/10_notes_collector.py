@@ -226,11 +226,46 @@ def build_toc(text):
     return "\n".join(toc_lines)
 
 
+def strip_existing_toc(text):
+    """
+    Remove any existing '## Tartalomjegyzék' block(s) so insert_toc stays
+    idempotent. A ToC block runs from the '## Tartalomjegyzék' heading until
+    the next heading (## / #) or HTML comment marker (<!--).
+    """
+    lines = text.splitlines(keepends=False)
+    result = []
+    i = 0
+    removed = 0
+    while i < len(lines):
+        s = lines[i].strip()
+        if re.match(r'^##\s+Tartalomjegyz[ée]k\s*$', s):
+            removed += 1
+            i += 1
+            # Skip until next heading or HTML comment (the ToC body)
+            while i < len(lines):
+                nxt = lines[i].strip()
+                if nxt.startswith('## ') or nxt.startswith('# ') or nxt.startswith('<!--'):
+                    break
+                i += 1
+            # Drop a trailing blank line left before the next block
+            while result and result[-1].strip() == '':
+                result.pop()
+            continue
+        result.append(lines[i])
+        i += 1
+    return "\n".join(result), removed
+
+
 def insert_toc(text, toc):
     """
     Insert ToC after YAML frontmatter and document title heading.
     Position: after the first # heading line.
+    Idempotent: removes any existing ToC block(s) first.
     """
+    text, removed = strip_existing_toc(text)
+    if removed:
+        print(f"  (idempotencia: {removed} meglévő ToC blokk eltávolítva)")
+
     lines = text.splitlines(keepends=False)
     in_yaml = False
     yaml_done = False
