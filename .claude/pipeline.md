@@ -13,6 +13,7 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 
 | Input | Input/<br>felelős | Lépés | Automatizáltság/<br>Checkpoint | Output |
 |:------|:--------------|:------|:-----------------------------|:-------|
+| Tantárgynév + hetek | 😎 | `scripts/00_init_course.py --subject <név> --weeks N` -- struktúra + context.md a sablonból | 🐍 | `test_outputs/<Tantargy>/context.md` + `N_het/{1..5}_*/` |
 | User PDF-ek, URL-ek | 😎 | [01_references_collector](skills/01_references_collector.md) | 🤖+😎 | `1_raw_inputs/` + `citations_seed.json` |
 | `1_raw_inputs/` | 🤖+😎 | [02_nlm_notebook_setup](skills/02_nlm_notebook_setup.md) | 🔌 🚦 | NLM notebook + [Prompt B](nlm_prompts.md#2-prompt-b--notebooklm-custom-instructions) + UUID-k |
 | `1_raw_inputs/*.pdf` | 😎 | [03_mineru_extractor](skills/03_mineru_extractor.md) | 🐍 | `2_clean_inputs/<forrasnev>/auto/` + `3_raw_outputs/figure_catalog.json` |

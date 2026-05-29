@@ -35,10 +35,11 @@ Forrás: az egyes fájlok `## Nyitott pontok` / skill `§8` szekciói. Ez az agg
 ## P2 — meta bázis (folyamatban lévő audit hátraléka)
 | # | Feladat | Hol | Státusz |
 |---|---------|-----|---------|
-| B-05 | M5: `project_status_sablon.md` + `context_sablon.md` → `course_development_template.md` | templates/ | 🔲 |
-| B-06 | M6: `15_backlog_index.py` -- aggregátor-regeneráló script | scripts/ | 🔲 opcionális |
-| B-07 | Relatív linkek a pipeline.md + skillek hivatkozásaiban | meta-fájlok | 🔲 |
-| B-08 | YAML `tag` séma (`meta`/`skill`/`test`/`prod`) bevezetése minden fájlra | Instructions §13 | 🔲 |
+| B-05 | M5: templates egyesítés → `course_development_template.md` | templates/ | ✅ 2026-05-29 |
+| B-06 | M6: `15_backlog_index.py` aggregátor | scripts/ | ✅ 2026-05-29 |
+| B-07 | Relatív linkek: elv (Instructions §8) + belépő fájlok kész; skillek auditja hátra | meta-fájlok | ⚙️ részben |
+| B-08 | YAML `tags` scope-séma: definíció (Instructions §5.3) kész; meglévő fájlok átállítása hátra | minden `.md` | ⚙️ részben |
+| B-15 | `00_init_course.py`: tantárgy-struktúra + context.md auto-copy a sablonból | scripts/ | ✅ 2026-05-29 |
 
 ## P3 — végtermék-minőség (alacsonyabb prioritás)
 | # | Feladat | Hol | Státusz |

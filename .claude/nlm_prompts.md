@@ -18,6 +18,8 @@ description: Index. Minden prompt kanonikus helye .claude/prompts/. Ne szerkeszd
 | D — Szószedet CLI query | [prompt_d_szozedet.md](prompts/prompt_d_szozedet.md) | 07 | `nlm query ... --json` |
 | E — Kérdésbank CLI query | [prompt_e_kerdesbank.md](prompts/prompt_e_kerdesbank.md) | 13 | `nlm query ... --json` |
 
+**Új prompt készítése:** másold a [prompt_template.md](prompts/prompt_template.md)-t, és töltsd ki. A `## Nyitott pontok` szekció a prompt-specifikus visszajelzéseké (Instructions §11.1).
+
 # Változásjegyzék
 
 | Dátum | Leírás |

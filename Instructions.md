@@ -2,7 +2,7 @@
 title: Instructions
 type: project_constitution
 tag: [meta]
-version: 2.1
+version: 2.2
 updated: 2026-05-29
 description: Projekt-szintű elvek, jelölések és dokumentációs szabványok.
 ---
@@ -28,12 +28,12 @@ Ez a mappa egy NLM-alapú tananyagfejlesztési pipeline prototípusának fejlesz
 
 A kanonikus sorrend:
 
-1. `CLAUDE.md` -- belépési pont és index
-2. `Instructions.md` -- stabil projekt-alkotmány
-3. `.claude/pipeline.md` -- futási gráf és lépések
-4. `.claude/project_status.md` -- aktuális iterációs állapot
-5. `.claude/skills/*.md` -- egy-egy lokális skill (§6: hibakezelés, §8: visszajelzések)
-6. `scripts/*.py` -- végrehajtó automatizmusok
+1. [CLAUDE.md](CLAUDE.md) -- belépési pont és index
+2. [Instructions.md](Instructions.md) -- stabil projekt-alkotmány
+3. [.claude/pipeline.md](.claude/pipeline.md) -- futási gráf és lépések
+4. [.claude/project_status.md](.claude/project_status.md) -- aktuális iterációs állapot + Backlog
+5. [.claude/skills/](.claude/skills/) -- egy-egy lokális skill (§6: hibakezelés, §8: visszajelzések)
+6. [scripts/](scripts/) -- végrehajtó automatizmusok
 
 ## 4. Jelöléstan
 
@@ -86,6 +86,19 @@ Ezeket az emoji státuszokat mindig a szöveggel is ki kell egészíteni, pl.: `
 - A végrehajtó script-ek száma és neve feleljen meg a pipeline logikájának.
 - Egy script kiegészítése a sorszámozásban kötőjellel írható, pl. 03b_substep.py helyett 03-1_substep.py
 
+### 5.3. YAML fejléc -- `tags` séma
+
+Minden `.md` fájl YAML fejléce tartalmazzon egy **scope-tag-et** a `tags` mező első elemeként. Ez a fájl hatókörét jelöli (ortogonális a `type:` műfaj-mezőre):
+
+| Scope-tag | Jelentés | Hol |
+|---|---|---|
+| `meta` | Projekt-infrastruktúra (alkotmány, pipeline, prompt, sablon) | `.claude/`, gyökér |
+| `skill` | Pipeline-lépés működési protokollja | `.claude/skills/` |
+| `test` | Teszt-tananyag (eldobható kísérlet) | `test_outputs/` |
+| `prod` | Éles tantárgyi tananyag | éles tantárgy-mappa |
+
+Példa: `tags: [meta, prompt]` -- scope `meta`, műfaj `prompt`.
+
 ## 6. Mappastruktúra
 
 ### 6.1. Kánon
@@ -127,6 +140,7 @@ claude_play/
 - A futási sorrendre mindig a `.claude/pipeline.md` az elsődleges hivatkozás.
 - Az adott működés részleteire mindig az adott skill a hivatkozási pont.
 - **A hibákra az adott lépés skill-jének `§6 Hibakezelés` szekciója az elsődleges hivatkozás.** Minden felfedezett hibát ott kell dokumentálni, nem külön fájlban.
+- **Fájlhivatkozás formátuma:** relatív markdown link (`[név](relatív/út)`), nem csupasz backtick-path. Így a hivatkozás kattintható és a fájlmozgatás követhető.
 
 ## 9. Token-takarékosság
 
@@ -177,5 +191,5 @@ Architektúrális döntések, amelyek meghatározzák a projekt irányát, de m�
 
 ## 13. Nyitott pontok
 
-- 🔲 TODO: Relatív linkek következetes alkalmazása a meta-fájlok közti hivatkozásokban (CLAUDE.md, Instructions.md).
-- 🔲 TODO: YAML header `tag` séma rögzítése: minden fájl `tag` értéke `meta` / `skill` / `test` / `prod` egyike legyen.
+- 💬 NOTE: Relatív-link elv rögzítve (§8) + belépési fájlok (CLAUDE.md, Instructions.md §3) kész. Hátra: a skillek közti hivatkozások teljes auditja (B-07).
+- 💬 NOTE: YAML `tags` scope-séma rögzítve (§5.3). Hátra: a meglévő fájlok `tags` mezőinek átállítása a sémára (B-08).
