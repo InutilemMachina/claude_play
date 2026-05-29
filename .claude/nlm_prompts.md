@@ -85,6 +85,8 @@ TODO: nem egyértelmű, hogy ez az NLM MCP-n keresztül is működik-e. a 3.1, 3
 
 **Mikor:** Minden Data Table generáláskor — az alapértelmezett generálás helyett mindig adjuk meg.
 
+**Képpipeline fallback (09_figure_mapper előkészítése):** Ha a `--vlm` (API kulcs) és a `--qfig` CLI (NLM kvóta) nem elérhető, a Studio Data Tables manuálisan generál ábra-listát keywords-szel. Kimenet → Export-Tool → `3_raw_outputs/nlm_qfig_raw.txt` → `03-1_qfig_parser.py`. Ez az **elsődleges ajánlott fallback** VLM/Qfig nélkül. Részletek: `09_figure_mapper.md §6`.
+
 **Elérhetőség:** ✅ minden felhasználónak elérhető (2026 elejétől minden tier-re kirolloutra)
 
 **Export workflow (Studio outputok → projektmappa):**
