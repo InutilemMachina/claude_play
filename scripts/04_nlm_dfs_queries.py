@@ -146,11 +146,15 @@ def run_qfig_query(nb_id: str, out_path: Path) -> bool:
 # ---------------------------------------------------------------------------
 
 def build_query(node: str, parent: str | None) -> str:
-    # ASCII version to avoid PowerShell encoding issues
-    node_a   = node.encode("ascii", "ignore").decode()   # fallback
     # Keep original -- nlm handles UTF-8 on Windows if invoked directly
     if parent is None:
-        return f"Beszeljen az ezekben a forrasokban targyalt {node} temakorrol."
+        # J3: Root node = pure intro, not a full overview (avoids massive repetition)
+        return (
+            f"Irjon rovid, 2-3 bekezdesbol allo, osszefuggo bevezeto szoveget a(z) {node} "
+            f"teruleterol BSc hallgatoknak. Csak az alapelvet es a teruletet hatarozza meg -- "
+            f"a reszleteket (torvenyek, kameraepites, alkalmazasok) NE targyalja, "
+            f"azok kesobb kiemelten kerulnek kifejtesre."
+        )
     else:
         return (
             f"Beszeljen az ezekben a forrasokban targyalt, "

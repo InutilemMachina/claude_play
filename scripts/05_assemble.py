@@ -256,11 +256,12 @@ def assemble(week_dir: Path, args) -> str:
         body.append(f"<!-- Q:{qi} -->")
         if node_level in (1, 2) and node_name:
             # L1 és L2 nodes always get a ## section with the mindmap node name.
-            # L1 = fő ágak (Alapelvek, Fizikai Törvények, stb.)
-            # L2 = al-ágak (Sugárzási törvények, Emisszivitás stb.) — RC-2 teljes fix.
+            # Strip any leading ## from the NLM answer to avoid duplication
+            # (J1 Prompt B now makes NLM start with ##, so we must remove it here).
+            _, text_body = extract_section_title(text)
             body.append(f"## {node_name}")
             body.append("")
-            body.append(text)
+            body.append(text_body)
         else:
             # L3+ nodes: try to extract title from NLM answer heading
             section_title, text_body = extract_section_title(text)

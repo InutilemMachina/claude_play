@@ -185,6 +185,41 @@ def rule_i_table_separator(text: str) -> tuple[str, int]:
     return text, count
 
 
+def rule_j_terminology(text: str) -> tuple[str, int]:
+    """
+    Rule J: Normalize Hungarian IR thermography terminology inconsistencies.
+    Applied only to body text (not code blocks, YAML, headings).
+    """
+    # Term pairs: (pattern, canonical_replacement)
+    TERM_MAP = [
+        (r'\bemissziós tényező\b',         'emisszivitás'),
+        (r'\bemittancia\b',                 'emisszivitás'),
+        (r'\bsugárzási tényező\b',          'emisszivitás'),
+        (r'\blégköri ablak\b',              'atmoszferikus ablak'),
+        (r'\blégköri ablakok\b',            'atmoszferikus ablakok'),
+        (r'\bszürke test\b',               'szürketest'),
+        (r'\bhőkamera\b',                  'IR kamera'),
+        (r'\bhőkamerák\b',                 'IR kamerák'),
+    ]
+    count = 0
+    lines = text.splitlines()
+    result = []
+    in_fence = False
+    for line in lines:
+        if line.strip().startswith('```'):
+            in_fence = not in_fence
+        # Skip code fences, headings, YAML, HTML comments
+        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+            result.append(line)
+            continue
+        new_line = line
+        for pattern, replacement in TERM_MAP:
+            new_line, n = re.subn(pattern, replacement, new_line)
+            count += n
+        result.append(new_line)
+    return '\n'.join(result), count
+
+
 def phase2_linting(text: str) -> str:
     """Apply rules A–I. Rule G (heading numbering) uses a separate util."""
     print("[Phase 2] Linting...")
@@ -217,6 +252,9 @@ def phase2_linting(text: str) -> str:
 
     text, n_i = rule_i_table_separator(text)
     print(f"  Rule I (table separator):      {n_i} fix(es)")
+
+    text, n_j = rule_j_terminology(text)
+    print(f"  Rule J (terminology):          {n_j} fix(es)")
 
     print("[Phase 2] Done.")
     return text
