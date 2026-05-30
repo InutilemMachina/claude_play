@@ -15,19 +15,12 @@ Usage:
 """
 
 import argparse
-import json
 import re
 import shutil
 import sys
 from pathlib import Path
 
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def load_seed(seed_path: Path) -> dict:
-    return json.loads(seed_path.read_bytes().decode("utf-8-sig"))
+from _citations_util import load_seed
 
 
 def convert_plain_citations(text: str) -> tuple[str, int]:

@@ -25,6 +25,8 @@ import sys
 import time
 from pathlib import Path
 
+from _citations_util import build_citations_json, load_seed as _load_seed
+
 # NLM CLI path resolution (priority: env var > .claude/config.json > default)
 _DEFAULT_NLM_PATH = r"C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\nlm.exe"
 
@@ -237,7 +239,7 @@ def main():
 
     # Load notebook ID from citations_seed.json
     seed_path = week_dir / "1_raw_inputs" / "citations_seed.json"
-    seed = json.loads(seed_path.read_bytes().decode("utf-8-sig"))
+    seed = _load_seed(seed_path)
     nb_id = seed.get("_notebook", {}).get("id")
     if not nb_id:
         sys.exit("HIBA: _notebook.id hiányzik a citations_seed.json-ből")
@@ -312,6 +314,12 @@ def main():
             time.sleep(args.sleep)
 
     print(f"\nKész: {ok_count}/{len(filtered)} sikeres. Log: {log_path}")
+
+    # Build citations.json from seed + discovered UUIDs in raw outputs
+    citations = build_citations_json(seed, raw_out)
+    citations_path = raw_out / "citations.json"
+    citations_path.write_text(json.dumps(citations, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"citations.json irva: {len(citations)} forras -> {citations_path.name}")
 
 
 if __name__ == "__main__":
