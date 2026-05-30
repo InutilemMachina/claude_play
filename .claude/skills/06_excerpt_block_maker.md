@@ -89,12 +89,12 @@ Minden `###` szintű alfejezet tartalma után, közvetlenül a következő fejl�
 - 💬 NOTE: Heading hierarchia: Q1 kimenetben `###` közvetlenül `#` alatt (nincs `##`). Következmény: VSCode vázlatban és ToC-ban inkonzisztens szintek. Megoldandó: `05_assemble.py` Q1-hez `## Bevezetés` szülőt generáljon, vagy Prompt B módosítás.
 - 💬 NOTE: Formázási alternatíva: a blockquote-ok helyett `<div style="background-color: rgba(120,120,120,0.08); border-radius: 6px; padding: 15px;">` alapú doboz (Obsidian/VSCode preview-ban lekerekített szürke háttér). Archiválva: `.claude/archive/markdown_textboxes.md`.
 - 💬 NOTE: A `06. lépés az egyetlen hely, ahol a pedagógiai minőség számottevően javul -- a 💡 és 🗺️ blokkok valóban hozzáadnak értéket. Ha a pipeline-t le kell csökkenteni, ez az egyik lépés, amelyet mindenképpen meg kell tartani.
-- 🔲 TODO: Ingyenes alternatívák vizsgálandók: (1) Ollama helyi LLM; (2) szabály-alapú kivonat (első/utolsó mondat); (3) NLM query.
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-31 | 2.2 | 3. hét cleanup: ingyenes alternatívák §9 (jövőbeli research, abstractive mód marad nyitott) |
 | 2026-05-30 | 2.1 | K0 cleanup: ✅ → §9; skálázhatóság TODO tömörítve (abstractive mód marad nyitott) |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; cím 03→06 javítva; §8 Visszajelzések |
 | 2026-05-25 | 1.1 | NOTE-ok: lista whitespace, heading hierarchia, formázási alternatíva |

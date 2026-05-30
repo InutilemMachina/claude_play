@@ -144,18 +144,15 @@ Minden query-forrású blokk elé `<!-- Q:N -->` kerül a Jegyzet-összeállít�
 
 ## 8. Visszajelzések
 
-- 🔲 TODO: **NLM Studio mentés automatizálása nem lehetséges CLI-n (tesztelve 2026-05-30).** `nlm studio` CLI csak `status`, `delete`, `rename` parancsot ismer. Egyetlen automatizálási út: Claude in Chrome MCP. Jelenlegi állapot: 😎 manuális lépés.
 - 💬 NOTE: `nlm chat configure $NB --response-length longer` (nem `long`). A `nlm query notebook` timeout növelhető: `--timeout 180` (default: 120s).
 - 🔲 TODO: Formátum-eltérés a Qfig NLM output és a `03-1_qfig_parser.py` között (tesztelve 2026-05-27). A parser per-soros `FORRAS: érték` formátumot vár, de az NLM Markdown táblázatot ad vissza → 0 entry parse-olva. Megoldás: Qfig prompt módosítása per-soros listára, VAGY a parser Markdown-tábla támogatással bővítve. Prioritás: magas (03-1 jelenleg teljesen inaktív).
-- 🔲 TODO: Az NLM absztrakt szövegét (középső panel) Q1 helyett vagy Q1 előtt kellene lekérdezni: `nlm query <id> "Adj egy absztraktot a témakörben."`. Ez reprodukálhatóbb bevezető, mint a generált Q1.
 - 💬 NOTE: Napi kvóta: Google-fiók szintű (nem per-notebook). ~50 lekérdezésnél merül ki. `--resume --sleep 5` másnap folytatja; RESOURCE_EXHAUSTED esetén Q_N manuálisan pótolható.
-- 🔲 TODO: **DFS állapot-perzisztencia (tesztelve 2026-05-27).** A `--resume` flag a meglévő `nlm_q*_raw.txt` fájlok alapján ugrik, de tantárgy-szintű állapotot (hány hét van hátra, melyik hétnél tart) nem tárol. Javasolt: `<tantargy>/dfs_state.json` perzisztens állapotfájl.
-- 🔲 TODO: **Raw fájlnév-konvenció nem hordoz mindmap-pozíció-információt (user feedback, 2026-05-28).** `nlm_q{i}_raw.txt` csak DFS traversal sorrendet jelöl, nem ág/szint/node adatot. Alternatíva: `dfs_node_list.json`-ban a sorszám↔node-path leképezés (jelenleg is benne van a `level` és `parent` mező).
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-31 | 2.2 | 3. hét cleanup: 4 tétel §9 (Studio mentés ✅ elfogadott CLI korlát; absztrakt Q0 ✅ jövőbeli; DFS perzisztencia ✅ jövőbeli; raw fájlnév ✅ dfs_node_list.json fedezi) |
 | 2026-05-30 | 2.1 | K0 cleanup: 5 ✅ → §9; Qfig eredete + mentési hely + függőségi sorrend + vizuális progress lezárva; §8 tömörítve |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; DFS logika §3.2-ben; §8 Visszajelzések; archív szekció és inline script eltávolítva |
 | 2026-05-25 | 1.3 | Qfig §4; citations.json builder; Q1 redesign (bevezető szerepkör); DFS sorrend dokumentálva |

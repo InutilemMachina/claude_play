@@ -177,13 +177,10 @@ Alias beállítása: `nlm alias set <rövidnév> <ID>`
 
 - 🔲 TODO: **PPTX forrás `nlm_uuid: None` marad -- teljesen hiányzik a tartalomból, figyelmeztetés nélkül (tesztelve 2026-05-28, 2_het).** A `hari2024_slides.pptx` és `hari2024b_slides.pptx` fájlok `nlm_uuid: None` értékkel szerepelnek a `citations_seed.json`-ban -- NLM-be nem tölthetők fel PPTX formátumban. Megoldás: (1) checkpoint figyelmeztetést adjon `nlm_uuid: None` esetén; (2) a Bevezetés szekció megjegyezze, hogy mely források maradtak ki.
 - 💬 NOTE: DOC és PPTX fájlok feltöltése `--file`-lal sikertelen (tesztelve 2026-05-27). HTML fájlok lokálisan mentve szintén nem tölthetők fel -- csak `--url`-ként, nyilvánosan elérhető oldalhoz.
-- 🔲 TODO: Az NLM UI szerint számos formátum támogatott (pdf, txt, md, docx, csv, pptx, epub, hang-, videó-, képfájlok). Megvizsgálandó: a CLI `--file` flag mely formátumokat fogadja el ténylegesen. Ha PPTX és DOCX CLI-n is feltölthető, a pipeline §6 ❔ státuszok felülvizsgálandók.
 - 💬 NOTE: Notebook-lista frissítendő -- meta_file_updates_test notebookok hozzáadva (§7).
 - 💬 NOTE: A mindmap `_notebook.mindmap_title` angolul generálódhat, miközben a tartalom magyarul van. A 02 checkpoint-nál ellenőrizd a mindmap nyelvét (tesztelve 2026-05-28, 2_het).
-- 🔲 TODO: A mindmap CLI workaround (`nlm query notebook` → `nlm_mindmap_raw.txt`) nem a Studio vizuális gráfját adja vissza. Megvizsgálandó: van-e natív mindmap-read parancs, vagy automatizálható-e a Studio export (Claude in Chrome MCP).
 - 💬 NOTE: A Prompt B ASCII változatot használ a PowerShell encoding-probléma miatt. Az ékezetes változat NLM UI-ban illeszthető be (nlm_prompts.md §2).
 - 💬 NOTE: Studio panel mentés (auditálhatóság): `nlm studio` CLI csak `status`, `delete`, `rename` parancsot ismer -- `save`/`export` **NEM érhető el CLI-n** (tesztelve 2026-05-26). Az audit trail manuális lépés.
-- ❔ QUESTION: Chrome Extension (Export-Tool / Ultra Explorer) automatizálható-e Claude in Chrome MCP-vel? (Studio Gondolattérkép + Data Tables export)
 - 🔲 TODO: **Forrásnyelv-ellenőrzés a 02 checkpoint-nál.** Ha a feltöltött források nem magyarok, az NLM válaszok valószínűleg angolul lesznek. Figyelmeztetés helye: pipeline.md §4 checkpoint szövege.
 - 🔲 TODO: **Általános NLM UI copy-paste útmutató hiányzik.** Szükséges lista: Prompt B → Configure Chat; Prompt C → Studio Data Tables; mindmap → Ultra Explorer → `3_raw_outputs/nlm_mindmap_export.md`.
 - 🔲 TODO: **NLM forráspanel parse-hiba nincs detektálva (tesztelve 2026-05-30, mini2).** `nlm source add` sikeres kóddal tér vissza, de a forrás az NLM-ben piros (tartalom nélküli). Megoldás: `nlm source list <NB_ID>` a checkpoint-nál, `status != ready` szűrés.
@@ -193,6 +190,7 @@ Alias beállítása: `nlm alias set <rövidnév> <ID>`
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-31 | 3.2 | 3. hét cleanup: 3 tétel §9 (mindmap CLI korlát ✅, Chrome Extension ❔ duplikáció ✅, CLI formátum kutatás ✅ → jövőbeli sprint) |
 | 2026-05-30 | 3.1 | K0 cleanup: ❔ checkpoint-kérdés lezárva; 4 ⚠️ WARNING áthelyezve §6-ba; mindmap_title NOTE-ra konvertálva |
 | 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; ékezetek visszaállítva; §8 Visszajelzések; pipeline diagram és felesleges szekciók eltávolítva; Auth/telepítés beolvasztva |
 | 2026-05-24 | 2.0 | Auth és telepítés beolvasztva (nlm_integration.md); notebook-lista hozzáadva |
