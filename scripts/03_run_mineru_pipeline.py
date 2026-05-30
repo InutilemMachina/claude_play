@@ -136,10 +136,12 @@ def run_mineru(pdf: Path, out_dir: Path, pages: int, backend: str = "pipeline") 
     """
     Futtatja a mineru-t, valosi idejU progress-barral.
     Visszateres: True = siker, False = hiba.
-    Log: mineru_run.log a pdf szulo mappajaban (Start-Process UX fix).
+    Log: mineru_run.log a 3_raw_outputs/ mappaban.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
-    log_path = pdf.parent.parent / "mineru_run.log"
+    raw_out = pdf.parent.parent / "3_raw_outputs"
+    raw_out.mkdir(parents=True, exist_ok=True)
+    log_path = raw_out / "mineru_run.log"
     cmd = [
         c.replace("{pdf}", str(pdf)).replace("{out}", str(out_dir))
         for c in build_cmd(backend)

@@ -25,6 +25,10 @@ A Jegyzetben szereplő per-query lokális citáció-számokat globálisan atsors
 
 ## 3. Eljárás
 
+### 3.0. Szószedet generálása (Claude feladata)
+
+A Prompt D futtatása NLM CLI-n keresztül **Claude feladata**, nem a useré. Claude futtatja a `nlm query notebook` parancsot, menti a raw outputot, majd buildeli a `N_Szozedet.md`-t.
+
 ### 3.1. citations.json karbantartása
 
 **Ha nem létezik:** 04_nlm_query_runner inicializálja (lásd ott).

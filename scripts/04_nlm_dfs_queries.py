@@ -50,9 +50,11 @@ NLM_PATH = _resolve_nlm_path()
 # ---------------------------------------------------------------------------
 
 def strip_meta(name: str) -> str:
-    """Remove ', N gyermek' suffix from node names."""
+    """Remove ', N gyermek' suffix and vision-bypass '(?)' markers from node names."""
     import re
-    return re.sub(r",\s*\d+\s+gyermek", "", name).strip()
+    name = re.sub(r",\s*\d+\s+gyermek", "", name)
+    name = re.sub(r"\s*\(\?\)", "", name)
+    return name.strip()
 
 
 def parse_mindmap(path: Path) -> list[tuple[str, str | None]]:
@@ -198,6 +200,10 @@ def nlm_query(nb_id: str, query: str, out_path: Path, log_fh) -> bool:
             if result.stderr:
                 log_fh.write(f"  stderr: {result.stderr[:200]}\n")
             return False
+    except subprocess.TimeoutExpired:
+        print(f"  [TIMEOUT] {out_path.name} -- 300s lejárt, kihagyva")
+        log_fh.write(f"  -> TIMEOUT (300s) -- skipping\n")
+        return False
     except subprocess.TimeoutExpired:
         log_fh.write(f"  -> TIMEOUT\n")
         return False

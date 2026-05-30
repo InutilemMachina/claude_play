@@ -28,10 +28,14 @@ A forrás-PDF-ekből képek, táblázatok és egyenletek kinyerése MinerU-val, 
 
 ```powershell
 # Teljes tantárgy (minden N_*/1_raw_inputs/*.pdf)
-conda run -n mineru python scripts/03_run_mineru_pipeline.py --root <tantargy_mappa>
+# --root = test_outputs/<TantargyNeve>  (a tantárgy mappája, NEM a heti mappa!)
+# --no-capture-output: kötelező, különben a terminal nem mutat semmit!
+# chcp 65001: kötelező a box-drawing karakterek helyes megjelenítéséhez (UTF-8 konzol)
+chcp 65001
+conda run -n mineru --no-capture-output python scripts/03_run_mineru_pipeline.py --root test_outputs/<TantargyNeve>
 
 # Nagy fájl figyelmeztetési határ módosítása (alap: 20 MB)
-conda run -n mineru python scripts/03_run_mineru_pipeline.py --root <tantargy_mappa> --warn-mb 50
+conda run -n mineru --no-capture-output python scripts/03_run_mineru_pipeline.py --root test_outputs/<TantargyNeve> --warn-mb 50
 ```
 
 **Manuális (egy PDF):**
@@ -40,7 +44,7 @@ conda run -n mineru python scripts/03_util_mineru_pdf.py 1_raw_inputs/ --output 
 conda run -n mineru python scripts/03_util_figure_catalog.py 2_clean_inputs/kepek/
 ```
 
-MinerU futása lassú: **1-5 perc/PDF**. A feldolgozás 😎 manuális lépésként kezelendő (külön terminálból), mivel az MCP timeout ~30s.
+⚠️ **MinerU futása lassú: 1-5 perc/PDF.** Két eset: (1) Ha **Claude futtatja** a Bash tool-lal: ~30s után timeout-ol, visszajelzés nem jelenik meg — ilyenkor külön PowerShell / Windows Terminal ablakot kell nyitni. (2) Ha a **user manuálisan futtatja** a Claude Code beépített termináljában: rendben lefut, csak türelem kell (a prompt visszatéréséig). Befejezéskor a `2_clean_inputs/<forrasnev>/` almappák megjelennek.
 
 ### 3.2. figure_catalog.json séma
 
@@ -109,10 +113,13 @@ A `03_util_mineru_pdf.py` `SKIP_FILES` listával kihagyja a már kész PDF-eket.
 - ✅ MinerU futás sikeres (tesztelve 2026-05-27, meta_file_updates_test): 1_het 4/4 mappa, 2_het 4/4 mappa. Minden forráshoz: `.md` szöveg + `content_list.json` + képek keletkeztek. Részletek: 1_het: ahrens(20 kép), bekele(35), mit(1), oppenheim(38). 2_het: chattopadhyay(3), grundfos(5), nagyi(24), tavakoli(6). Kimenet struktúra: `2_clean_inputs/<forrasnev>/auto/` (MinerU `auto/` aldirektóriát hoz létre).
 - 🔲 TODO: MinerU automatikusan induljon, miután a user a forrásokat jóváhagyta és auditálta
 - 💬 NOTE: A `03_run_mineru_pipeline.py --root` argumentuma a **tantárgy gyökerét** várja (pl. `test_outputs/meta_file_updates_test`), nem a heti mappát. A `discover_notebooks()` `root/N_*/1_raw_inputs/*.pdf` mintát keres -- ha heti mappa kerül `--root`-ba, a script "nincs PDF" hibával leáll.
-- 🔲 TODO: A user nem kap vizuális visszajelzést a futásról: hány hét / hány forrás / MinerU feldolgozási %-os állapot. Megoldás: a script indítson egy látható terminálablakot (`Start-Process cmd` vagy Windows Terminal), amelyben a rich progress bar megjelenik. Jelenlegi állapot: a PowerShell háttérprocessz stdout-ja nem látszik.
+- ✅ **Nincs terminál-visszajelzés -- javítva (2026-05-30).** Gyökérok: `conda run` alapból elnyeli a subprocess stdout-ját. Fix: `--no-capture-output` flag a conda run hívásban. A §3 parancsok frissítve.
 - 🔲 TODO: Nem egyértelmű, hogy a MinerU CPU-t vagy GPU-t használ-e, és hány magot. A pipeline elve: nagyobb teljesítménytől induljon (GPU ha elérhető, CPU fallback). A terminálkimenetnek tájékoztatni kell: backend típusa (pipeline/vlm-sglang), GPU/CPU detektálás eredménye, magszám. Jelenleg ez hiányzik a script outputból. (input_audit_trail.md kész + citations_seed.json UUID-ek kitöltve). Jelenleg manuális lépés -- a 02 checkpoint után automatikusan triggerelendő.
 - 🔲 TODO: Nem-PDF forrástípusok (HTML, PPTX, DOCX) feldolgozása nincs meghatározva. Minden forrástípushoz definiálni kell egy determinisztikus extraktort -- részletek a pipeline.md §6-ban.
+- 💬 NOTE: **HTML extrakció navigációs zaj (tesztelve 2026-05-30, mini2).** A `03_util_source_extractor.py` BeautifulSoup-alapú HTML extrakció a `<nav>`, menü és fejléc elemeket nem szűri ki -- ezek listaként bekerülnek a `.md` kimenetbe (pl. `- Főoldal`, `- Kapcsolat`). Érdemi szöveges tartalom helyes, de a navigációs elemek zaj. Hatás: ha az NLM-be URL-ként töltöttük fel a forrást (nem fájlként), ez a `.md` csak helyi szöveges feldolgozáshoz használatos -- a zaj minimális hatású. Ha fájlként kerülne NLM-be, a navigációs listák félrevezethetnék a lekérdezéseket. Fix: `<nav>`, `<header>`, `<footer>`, `<aside>` tagek szűrése a BeautifulSoup feldolgozás előtt.
+- ⚡ **`03_util_figure_catalog.py` nem halmoz — ha a catalog fájl már létezik, csak betölti, nem bővíti (tesztelve 2026-05-30, mini2).** Ha egymás után hívják különböző `kepek_dir`-rel, a második hívás nem adja hozzá az új forrásokat. Helyes hívás: a `2_clean_inputs/` gyökeret add meg, ne az egyes `SOURCE/auto/` almappákat — az `rglob` megtalál minden `*_content_list.json`-t. Ha újra kell buildelni: töröld a meglévő catalog fájlt, majd: `python scripts/03_util_figure_catalog.py <week_dir>/2_clean_inputs --output <week_dir>/3_raw_outputs/figure_catalog.json`
 - 🔲 TODO: GPU-használat ellenőrizendő: a `03_run_mineru_pipeline.py` `-b pipeline` backend CPU-t vagy GPU-t használ-e alapértelmezetten? Ha CPU, explicit GPU-flag szükséges a gyorsabb futáshoz.
+- 🔲 TODO: **Kettős script UX probléma -- egységes belépési pont hiányzik (tesztelve 2026-05-30, mini2).** A 03. lépéshez jelenleg két különálló parancs kell: (1) `python scripts/03_util_source_extractor.py --week-dir ...` a nem-PDF forrásokhoz; (2) `conda run -n mineru python scripts/03_run_mineru_pipeline.py --root ...` a PDF-ekhez. A user jogosan várja, hogy a `--week-dir` parancs MINDEN forrást feldolgoz. A szétválasztás oka: MinerU külön conda környezetet igényel. Megoldási irányok: (a) wrapper script (`03_all.py`), amely mindkettőt hívja sorban; (b) `03_util_source_extractor.py` detektálja a PDF-eket és figyelmeztet hogy MinerU-val kell futtatni őket; (c) dokumentáció egyértelműsítése a pipeline.md §1 IO táblájában.
 - ✅ Oldalszám-alapú figyelmeztetés kész: `--warn-pages 50` (default), `--yes` flag az automatizált futtatáshoz, `--backend` GPU-választáshoz (`vlm-sglang`). `03_run_mineru_pipeline.py` v2 (2026-05-26).
 - 💬 NOTE: MinerU a kimenetet `2_clean_inputs/<forrasnev>/auto/` alá írja, nem közvetlenül `<forrasnev>/` alá. Esztétikailag nem ideális, de a pipeline downstream lépései (03_util_figure_catalog.py, 05_assemble.py stb.) valószínűleg kezelik -- ellenőrzendő.
 - 💬 NOTE: Kéthasábos akadémiai PDF-nél a caption és a kép párosítása nem mindig pontos.

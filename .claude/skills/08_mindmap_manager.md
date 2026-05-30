@@ -104,9 +104,12 @@ status: DRAFT
 
 ## 5. Ellenőrzés
 
+- [ ] `nlm_mindmap_export.md` létezik és csomópontjai ellenőrzöttek (vision bypass esetén `(?)` jelölések javítva)
+- [ ] 😎 **MSc jelölés:** az MSc-szintű ágak `[MSc]` előtaggal megjelölve az `nlm_mindmap_export.md`-ben (pl. `- [MSc] Kvantum-szintű megközelítés`). Szülő-öröklés manuális: ha egy L1 ág `[MSc]`, minden gyereke is az.
+- [ ] **`(?)` markerek:** vision bypass esetén a bizonytalan csomópontok `(?)` jelölésüket a `04_nlm_dfs_queries.py` `strip_meta()` automatikusan eltávolítja — de ajánlott manuálisan is javítani/törölni a valóban ismeretlen node-okat.
+- [ ] 😎 **Mindmap módosítás (opcionális):** ágak átnevezhetők, törölhetők, hozzáadhatók — a 04 DFS ezt a fájlt olvassa, tehát a módosítás a query-struktúrát is befolyásolja.
 - [ ] `N_Mindmap.md` létezik, `flowchart LR` szintaxis helyes
 - [ ] Gyökér-csomópont megfelel a heti témának
-- [ ] MSc ágak `[MSc]` előtaggal jelölve
 - [ ] Mermaid renderelhető (VSCode előnézet)
 
 ## 6. Hibakezelés
@@ -122,9 +125,10 @@ status: DRAFT
 
 ## 8. Visszajelzések
 
-- ✅ **Vision bypass implementálva (mini teszt, 2026-05-28).** Ha az Ultra Explorer bővítmény nem elérhető, fallback: Claude vision olvassa be a NLM Studio PNG exportját (`NotebookLM Mind Map (4).png`) és manuálisan rekonstruálja a `nlm_mindmap_export.md`-t. Korlátok: (1) apró szövegnél alacsony olvasási megbízhatóság -- a legkisebb szövegű csomópontok tartalma kérdéses; (2) a rekonstrukció manuális, hibás csomópont-nevek lehetségesek; (3) az Ultra Explorer export `, N gyermek` suffix-ét nem tartalmazza, ezért a `strip_meta()` nem változtat rajta. Érintett fájl: `3_raw_outputs/nlm_mindmap_export.md`. Ajánlás: ha a bővítmény újra működik, cserélni kell az export-fájlt és újrafuttatni a DFS-t.
-- 🔲 TODO: **MSc jelölés -- szülő-öröklés szükséges (tesztelve 2026-05-27).** A user csak a szülő node-okat jelöli `[MSc]` előtaggal; a `04_nlm_dfs_queries.py` jelenleg nem örökölteti a flagjet a gyerekekre. Implementálandó: ha egy node `[MSc]` előtaggal rendelkezik, minden leszármazottját is `[MSc]`-ként kell kezelni a DFS query-generálásban és a 14_bsc_filter szűrésben. Jelenlegi workaround: a user manuálisan jelöl minden csomópontot.
-- 🔲 TODO: **MSc jelölés hiányzik a workflow-ból (tesztelve 2026-05-27).** A mindmap exportja után -- de a 04_nlm_query_runner indítása ELŐTT -- a usernek meg kell jelölnie az MSc szintű csomópontokat `[MSc]` előtaggal az `nlm_mindmap_export.md`-ben. Ez a 14_bsc_filter szintszűrés alapja, és befolyásolja, hogy a 04 DFS query-k milyen mélységig futnak le MSc ágakon. Jelenleg ez a lépés nincs dokumentálva, nincs checkpoint, és a Claude sem figyelmezteti a usert. A 08. lépés §5 ellenőrzési listájába felveendő: "MSc ágak `[MSc]` előtaggal jelölve". A 04 DFS indítása CSAK ez után engedélyezett.
+- ⚠️ **Vision bypass fájl NE tartalmazzon `#` fejléc-kommenteket (tesztelve 2026-05-30, mini2).** A `04_nlm_dfs_queries.py` parser minden `#`-os sort L0 root-node-ként értelmez -- ha a fájl metaadat-fejléccel kezdődik (pl. `# NLM Mindmap Export...`, `# Forrás:...`), ezek bekerülnek a DFS query-kbe. Fix: a `nlm_mindmap_export.md` **közvetlenül** a `## <Témacím>` sorral kezdődjön, semmi más előtte.
+- ⚠️ **Vision bypass = erős LLM-hallucináció-gyanú (tesztelve 2026-05-30, mini2).** A Claude a PNG-ből rekonstruált csomópontokat részben kitalálta -- a kisebb szövegű node-ok tartalma nem olvasható megbízhatóan, és az LLM az ismerős témából pótolta a hiányzó részeket. Következmény: a rekonstruált `nlm_mindmap_export.md` akár teljesen fiktív ágakat is tartalmazhat. **A vision bypass csak végsős fallback** -- az Ultra Explorer `.md` export az egyetlen megbízható forrás. Ha PNG az egyetlen elérhető export, a user köteles manuálisan felülvizsgálni minden csomópontot a NLM Studio vizuális gráfjával összevetve. (Korábbi dokumentáció: mini teszt 2026-05-28 -- ott is ez a korlát érvényes volt.)
+- 🔲 TODO: **MSc jelölés -- szülő-öröklés tesztelendő (mini2, 2026-05-30).** A user szándékosan vegyes jelölést alkalmazott: szülő, gyerek és unoka node-okon is van `[MSc]` előtag (nem csak szülőkön). Tesztelendő a 04 DFS futása után: (1) örökli-e a `04_nlm_dfs_queries.py` a flagjet a leszármazottakra ha csak a szülő jelölt? (2) mi történik ha csak a gyerek/unoka jelölt, a szülő nem? Elvárt viselkedés: szülő `[MSc]` → minden leszármazott automatikusan MSc. Jelenlegi workaround: a user manuálisan jelöl minden érintett csomópontot.
+- ✅ **MSc jelölés és mindmap-módosítás beépítve a §5 ellenőrzőlistába és a pipeline.md §4 checkpoint szövegébe.** (2026-05-30)
 - 🔲 TODO: A mindmap export fájlneve NLM-generált (pl. `"A Diszkrét Fourier-transzformáció és az FFT Algori.md"`), nem a várt `nlm_mindmap_export.md`. A `04_nlm_dfs_queries.py` sor 171 hardcode-olt `nlm_mindmap_export.md` nevet vár. A 08. lépés skill §3.1 nem tartalmaz explicit instrukciókat arra, hogy a user hogyan nevezze át a letöltött fájlt. Szükséges: 😎 manuális átnevezés a mentés után, vagy a 04 script kezelje a tényleges fájlnevet.
 - 💬 NOTE: `, N gyermek` suffix cleanup: az Ultra Explorer export minden szülő-node után `, N gyermek` szöveget illeszt be. Ezt eltávolítani kell a Mermaid konverzió előtt.
 - 💬 NOTE: Az NLM Studio Gondolattérkép angol nyelvű (az NLM az angol forrásszövegek alapján generálja), holott a tananyag magyar. Ez nyelvi inkonzisztenciát okoz: a mindmap csomópontok angol terminológiával épülnek fel. Megvizsgálandó: van-e mód a mindmap generálás nyelvének befolyásolására Prompt B-n keresztül.

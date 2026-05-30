@@ -139,8 +139,8 @@ A 🚦 jelölések az IO táblázatban (§1) mutatják a checkpoint lépéseket.
 
 | Checkpoint | Feltétel | Következő lépés |
 |:-----------|:---------|:----------------|
-| 02 után 🚦 | NLM notebook + Prompt B aktív + forrás-UUID-ek rögzítve | 03 MinerU + 08 mindmap export |
-| 08 után 🚦 | Mindmap exportálva + MSc jelölés kész | 04 DFS query runner |
+| 02 után 🚦 | NLM notebook + Prompt B aktív + forrás-UUID-ek rögzítve. ⚠️ Ha a sources nem magyarul vannak: ellenőrizd a mindmap nyelvét a Studio-ban -- ha angol, fontold meg magyar forrás hozzáadását (vagy fogadd el: a DFS fut) | 03 MinerU + 08 mindmap export |
+| 08 után 🚦 | Mindmap exportálva + MSc jelölés kész. 😎 **Kötelező user-lépések:** (1) Ellenőrizd/javítsd a `nlm_mindmap_export.md` csomópontjait; (2) Jelöld `[MSc]` előtaggal az MSc-szintű ágakat (pl. `- [MSc] Kvantum-szintű megközelítés`) — ez a 14_bsc_filter alapja; (3) Opcionálisan módosíthatod a mindmap struktúráját (ágak átnevezése, törlése, hozzáadása) — a 04 DFS ezt a fájlt olvassa | 04 DFS query runner |
 | 05b után 🚦 | NLM outputok minőségellenőrzése OK, 😎 jóváhagyás | 05_assemble.py |
 | 07 után 🚦 | 😎 szószedet jóváhagyva | 09-11 sorban |
 | 12 után 🚦 | pptx generált, 😎 ellenőrzés | 13-14 |

@@ -49,7 +49,12 @@ FIELD_RE = re.compile(
     r'|FELIRAT'
     r'|AL[AÁ][IÍ]R[AÁ]S'
     r'|LE[IÍ]R[AÁ]S'
-    r'|T[EÉ]MAK[OÖ]R)'
+    r'|T[EÉ]MAK[OÖ]R'
+    r'|CAPTION'                # NLM sometimes uses English field names
+    r'|KEYWORDS'
+    r'|DESCRIPTION'
+    r'|LEIRAS'                 # without accent
+    r'|TEMAKÖR)'
     r'\s*:\*{0,2}\s*(.*)$',    # colon, optional closing **, then value
     re.IGNORECASE
 )
@@ -61,8 +66,11 @@ FIELD_MAP = {
     'abra szam':  'num',      'ábra szám':  'num',
     'felirat':    'caption',
     'alairas':    'caption',  'aláírás':    'caption',
+    'caption':    'caption',
     'leiras':     'desc',     'leírás':     'desc',
+    'description': 'desc',
     'temakör':    'keywords', 'témakör':    'keywords',
+    'keywords':   'keywords',
 }
 
 HU_STOPWORDS = {
