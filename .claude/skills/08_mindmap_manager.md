@@ -87,6 +87,7 @@ title: N_MINDMAP.MD -- <Téma>
 type: output
 het: N
 status: DRAFT
+mindmap_source: ultra_explorer   # vagy: vision_bypass (ha az Ultra Explorer nem volt elérhető)
 ---
 
 # N. Mindmap -- <Téma>
@@ -105,7 +106,11 @@ status: DRAFT
 ## 5. Ellenőrzés
 
 - [ ] `nlm_mindmap_export.md` létezik, közvetlenül `## <Témacím>` sorral kezdődik (NEM `#` fejléc-kommenttel — a parser L0 root-ként értelmezi!)
-- [ ] Csomópontok ellenőrzöttek (vision bypass esetén `(?)` jelölések javítva; ⚠️ vision bypass erős hallucináció-gyanút von maga után — minden node-ot manuálisan vess össze a Studio vizuális gráfjával)
+- [ ] **Vision bypass esetén (Ultra Explorer nem elérhető):**
+  - [ ] `N_Mindmap.md` frontmatterben `mindmap_source: vision_bypass` mező beállítva
+  - [ ] Az `nlm_mindmap_export.md` elején ⚠️ `<!-- vision_bypass: minden csomópontot manuálisan ellenőrizz! -->` blokk elhelyezve
+  - [ ] 😎 User manuálisan egyeztette az összes node-ot a Studio vizuális gráfjával (hallucináció-kockázat!)
+- [ ] Csomópontok ellenőrzöttek — `(?)` jelölések javítva (`04_nlm_dfs_queries.py strip_meta()` automatikusan eltávolítja, de ajánlott manuálisan is javítani)
 - [ ] 😎 **MSc jelölés:** az MSc-szintű ágak `[MSc]` előtaggal megjelölve az `nlm_mindmap_export.md`-ben (pl. `- [MSc] Kvantum-szintű megközelítés`). Szülő-öröklés manuális: ha egy L1 ág `[MSc]`, minden gyereke is az.
 - [ ] **`(?)` markerek:** vision bypass esetén a bizonytalan csomópontok `(?)` jelölésüket a `04_nlm_dfs_queries.py` `strip_meta()` automatikusan eltávolítja — de ajánlott manuálisan is javítani/törölni a valóban ismeretlen node-okat.
 - [ ] 😎 **Mindmap módosítás (opcionális):** ágak átnevezhetők, törölhetők, hozzáadhatók — a 04 DFS ezt a fájlt olvassa, tehát a módosítás a query-struktúrát is befolyásolja.
@@ -135,6 +140,7 @@ status: DRAFT
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-31 | 2.2 | D rész: vision bypass kötelező frontmatter (mindmap_source) + §5 ellenőrzőlista bővítve |
 | 2026-05-30 | 2.1 | K0 cleanup: 2 ⚠️ (vision bypass) → §5 ellenőrzőlista; mindmap fájlnév + elhelyezés lezárva; ✅ → §9 |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; duplikált szekciók eltávolítva; §8 Visszajelzések |
 | 2026-05-26 | 1.2 | §2 prioritás megfordítva: Ultra Explorer elsődleges; mappanév konvenció |
