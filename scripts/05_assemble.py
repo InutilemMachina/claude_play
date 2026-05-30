@@ -223,12 +223,10 @@ def assemble(week_dir: Path, args) -> str:
 
     body = [frontmatter, "", f"# {title}", ""]
 
-    # Intro (Q1) -- unnumbered Bevezetes section (heading_numberer leaves it unnumbered)
+    # Intro (Q1) -- no separate ## Bevezetes header; content directly under # title (K4)
     if 1 in answers and 1 in q_order:
         text, _ = answers[1]
         body.append("<!-- Q:1 -->")
-        body.append("## Bevezetes")
-        body.append("")
         body.append(text)
         body.append("")
 
