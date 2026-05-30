@@ -177,6 +177,7 @@ Tesztelve (2026-05-29): 2 PPTX (6 kép kinyerve), 2 HTML (~83K/60K kar tiszta sz
 - 🔲 TODO: A heti tematika nevét a `templates/course_development_template.md` §2 táblája tárolja (pl. `1_het: "<témacím>"`). Eldöntendő: ki tölti ki (😎 manuálisan), és melyik lépésnél (01 vagy 02 checkpoint).
 - 🔲 TODO: Mindmap export hard-code szabály -- a user mentse ki a mindmap-et a `3_raw_outputs/nlm_mindmap_export.md`-be (08. lépés). A fájlnév-konvenció rögzítendő a 08 skillben.
 - 💬 NOTE: `nlm chat configure --response-length longer` (nem `long`); `nlm query notebook --timeout N` (default 120s) -- tesztelve 2026-05-26.
+- 💬 NOTE: **`templates/due_jegyzet_template.docx` valódi DUE arculati elemeket tartalmaz (tesztelve 2026-05-30).** Tényleges DUE stílusok: Heading 1-3 (`#0F4761` navy, 20/16/14pt), fejléc (Garamond, `#002060`, "Tantárgy neve | Dunaújvárosi Egyetem | Fejezet / téma"), lábléc (dátum, oldalszám, verzió), List Bullet/Number (Garamond 11pt), margók (L=3/R=2/T-B=2.5cm). A 413 stílusból a többség Word-alapértelmezett zaj. A Pandoc `--reference-doc` a Heading + List stílusokat alkalmazza → DUE-s megjelenés a generált DOCX-ben.
 - 💬 NOTE: `nlm chat configure --response-length` maradkon default
 
 # Változásjegyzék
