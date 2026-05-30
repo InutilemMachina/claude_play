@@ -391,28 +391,74 @@ def build_presentation(slides_data: list[dict], template_path: str | None,
     return prs
 
 
+def _detect_week_number(week_dir: Path) -> int:
+    """'1_het' → 1, '12_het' → 12"""
+    import re
+    m = re.match(r'^(\d+)_het$', week_dir.name)
+    if m:
+        return int(m.group(1))
+    raise ValueError(f"Nem tudja meghatározni a hét számát: {week_dir.name!r}. "
+                     "Elvárt formátum: N_het (pl. 1_het, 12_het).")
+
+
 def main():
-    parser = argparse.ArgumentParser(description='Marp MD → PPTX converter')
-    parser.add_argument('input', help='Marp Markdown fájl (.md)')
-    parser.add_argument('--template', default=None, help='du_template.pptx elérési útja')
-    parser.add_argument('--output', default=None, help='Kimeneti .pptx fájl neve')
+    parser = argparse.ArgumentParser(
+        description='Marp MD → DUE PPTX (pipeline 12. lépés)',
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=(
+            "Pipeline-módban:\n"
+            "  python 12_pptx_gyarto.py --week-dir test_outputs/meta_file_updates_test/1_het\n"
+            "  Input:  4_wip_outputs/N_Prezentacio.md\n"
+            "  Output: 5_clean_outputs/N_Prezentacio.pptx\n\n"
+            "Közvetlen módban:\n"
+            "  python 12_pptx_gyarto.py 1_Prezentacio.md --output out.pptx"
+        )
+    )
+    parser.add_argument('input', nargs='?', default=None,
+                        help='Marp Markdown fájl (.md) — elhagyható ha --week-dir megadva')
+    parser.add_argument('--week-dir', default=None,
+                        help='Pipeline hét-mappa (pl. test_outputs/<Tantargy>/N_het)')
+    parser.add_argument('--template', default=None,
+                        help='PPTX template elérési útja (default: templates/due_refactored.pptx)')
+    parser.add_argument('--output', default=None,
+                        help='Kimeneti .pptx fájl (elhagyható ha --week-dir megadva)')
     args = parser.parse_args()
 
-    md_path = Path(args.input)
+    # -- Útvonalak meghatározása --
+    default_template = Path('templates/due_refactored.pptx')
+
+    if args.week_dir:
+        week_dir = Path(args.week_dir)
+        if not week_dir.is_dir():
+            sys.exit(f"Nem található hét-mappa: {week_dir}")
+        n = _detect_week_number(week_dir)
+        md_path  = week_dir / '4_wip_outputs' / f'{n}_Prezentacio.md'
+        out_path = week_dir / '5_clean_outputs' / f'{n}_Prezentacio.pptx'
+        if args.input:
+            md_path = Path(args.input)
+        if args.output:
+            out_path = Path(args.output)
+    elif args.input:
+        md_path  = Path(args.input)
+        out_path = Path(args.output) if args.output else md_path.with_suffix('.pptx')
+    else:
+        parser.error("Kötelező: --week-dir VAGY positional input (md fájl)")
+
     if not md_path.exists():
         sys.exit(f"Nem található: {md_path}")
 
-    out_path = Path(args.output) if args.output else md_path.with_suffix('.pptx')
+    template_path = args.template or str(default_template)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(md_path, encoding='utf-8') as f:
         md_text = f.read()
 
     slides_data = parse_marp(md_text)
-    print(f"Parsed {len(slides_data)} slides from {md_path.name}")
+    print(f"Feldolgozva: {len(slides_data)} dia <- {md_path}")
 
-    prs = build_presentation(slides_data, args.template, md_dir=str(md_path.parent))
+    prs = build_presentation(slides_data, template_path, md_dir=str(md_path.parent))
     prs.save(out_path)
-    print(f"✅ Mentve: {out_path}")
+    print(f"Mentve: {out_path}")
 
 
 if __name__ == '__main__':

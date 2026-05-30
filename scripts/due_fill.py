@@ -569,59 +569,61 @@ class DUEPresentation:
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import sys
+    import argparse, re, sys
 
-    template = sys.argv[1] if len(sys.argv) > 1 else "templates/due_refactored.pptx"
-    output   = sys.argv[2] if len(sys.argv) > 2 else "output/due_test_output.pptx"
+    def _detect_week_number(week_dir):
+        m = re.match(r'^(\d+)_het$', Path(week_dir).name)
+        if m:
+            return int(m.group(1))
+        raise ValueError(f"Nem tudja meghatározni a hét számát: {Path(week_dir).name!r}")
 
-    prs = DUEPresentation(template)
+    parser = argparse.ArgumentParser(
+        description="DUEPresentation fill-script (pipeline 12. lépés — strukturált mód)",
+        epilog=(
+            "Pipeline-módban:\n"
+            "  python due_fill.py --week-dir test_outputs/<Tantargy>/N_het\n"
+            "  Output: 5_clean_outputs/N_Prezentacio.pptx\n\n"
+            "Közvetlen módban:\n"
+            "  python due_fill.py --output out.pptx"
+        )
+    )
+    parser.add_argument("--week-dir", default=None,
+                        help="Pipeline hét-mappa (pl. test_outputs/<Tantargy>/N_het)")
+    parser.add_argument("--template", default="templates/due_refactored.pptx",
+                        help="PPTX template (default: templates/due_refactored.pptx)")
+    parser.add_argument("--output", default=None,
+                        help="Kimeneti .pptx (elhagyható ha --week-dir megadva)")
+    args = parser.parse_args()
+
+    if args.week_dir:
+        week_dir = Path(args.week_dir)
+        n = _detect_week_number(week_dir)
+        out = args.output or str(week_dir / "5_clean_outputs" / f"{n}_Prezentacio.pptx")
+    else:
+        out = args.output or "output/due_test_output.pptx"
+
+    # --- DEMO tartalom (valós futáskor Claude tölti ki ezt a részt) ---
+    prs = DUEPresentation(args.template)
     prs.set_global_footer("Dr. Hári László", "2026.09.01.")
 
     prs.set_title(
         "Bevezetés a biofizikába",
         "Fizioterápiás BSc • Biofizika • DE GYKK"
     )
-
     prs.add_toc("Tartalom", [
         ("1. Fizikai alapok", "h1"),
         ("1.1. Mechanika", "h2"),
         ("1.2. Termodinamika", "h2"),
-        ("2. Hullámtan", "h1"),
-        ("2.1. Hullámok típusai", "h2"),
     ])
-
     prs.add_section("01", "Fizikai alapok",
                     "A mechanika és termodinamika rövid összefoglalója.")
-
     prs.add_content_slide("Mechanika alapjai", [
         ("Newton I. törvénye: tehetetlenség", "h1"),
         ("Newton II. törvénye: F = ma", "h1"),
-        ("Newton III. törvénye: hatás-ellenhatás", "h1"),
     ], level="h1")
-
-    prs.add_content_slide("Kinematika", [
-        ("Egyenes vonalú egyenletes mozgás", "h2"),
-        ("Egyenletesen változó mozgás", "h2"),
-        ("Körmozgás és szögsebesség", "h2"),
-    ], level="h2")
-
-    prs.add_table_slide(
-        title="Fizikai mennyiségek",
-        table_title="1. táblázat: Alapvető SI mennyiségek",
-        headers=["Mennyiség", "Jel", "Mértékegység"],
-        rows=[
-            ["Tömeg", "m", "kg"],
-            ["Erő", "F", "N (Newton)"],
-            ["Energia", "E", "J (Joule)"],
-            ["Nyomás", "p", "Pa (Pascal)"],
-        ]
-    )
-
     prs.add_refs_slide([
         "[1] Atkins, P. (2014). Physical Chemistry. Oxford University Press.",
-        "[2] Halliday, D. et al. (2013). Fundamentals of Physics. Wiley.",
-        "[3] Nelson, P. (2008). Biological Physics. Freeman.",
     ])
 
-    prs.save(output)
-    print(f"Kész: {output}")
+    prs.save(out)
+    print(f"Kész: {out}")
