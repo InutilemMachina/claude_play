@@ -41,6 +41,20 @@ Forrás: az egyes fájlok `## Nyitott pontok` / skill `§8` szekciói. Ez az agg
 | B-08 | YAML `tags` scope-séma: definíció (Instructions §5.3) kész; meglévő fájlok átállítása hátra | minden `.md` | ⚙️ részben |
 | B-15 | `00_init_course.py`: tantárgy-struktúra + context.md auto-copy a sablonból | scripts/ | ✅ 2026-05-29 |
 
+## P1b — mini2 audit kritikusok (2026-05-30)
+| # | Feladat | Hol | Státusz |
+|---|---------|-----|---------|
+| B-16 | `citations.json` nem generálódik a 04 DFS-ben → 07 üres inputot kap | 04 skill §8 / 04_nlm_dfs_queries.py | 🔲 |
+| B-17 | DOCX export: `cwd` hiány → relatív képútvonalak nem oldódnak fel | 14_util_pandoc_export.py | ✅ javítva 2026-05-30 |
+| B-18 | PDF emoji regex görög betűket törölhetett | 14_util_pandoc_export.py | ✅ javítva 2026-05-30 |
+| B-19 | `[MSc]` marker nincs propagálva a szövegbe az assembler-től | 05_assemble.py | 🔲 |
+| B-20 | Képsorszámozás nem globális (`10_notes_collector.py`) | 10_notes_collector.py | 🔲 |
+| B-21 | Typesetter Rule K hiányzik: numerikus intervallum cleanup | 11_typesetter.py | 🔲 |
+| B-22 | `05_assemble.py` üres "Bevezetes" fejléc root-query elé kerül | 05_assemble.py | 🔲 |
+| B-23 | WIP prezentáció (`4_wip_outputs/N_Prezentacio.md`) nem keletkezik | 12 skill | 🔲 |
+| B-24 | `06b` script neve `06_table_caption_injector.py` + direkt arg API | pipeline.md §1, 06b skill | ⚙️ doc javítva |
+| B-25 | YAML `tags` hiányzik CLAUDE.md és Instructions.md fejlécéből | CLAUDE.md, Instructions.md | 🔲 |
+
 ## P3 — végtermék-minőség (alacsonyabb prioritás)
 | # | Feladat | Hol | Státusz |
 |---|---------|-----|---------|
@@ -66,12 +80,23 @@ Részletek a skillek `§8`-ban és a git history-ban.
 - **NLM mindmap = sarokkő:** a Studio-export adja a query-struktúrát (04), a BSc/MSc-határt (13-14), a pedagógiai szerkezetet (05-06). Vision-bypass létezik, ha az Ultra Explorer nem elérhető (08 §8).
 - **Prompt B = `##` kötelező első sor + próza + ismétlés-tilalom:** e nélkül a DFS-kimenet flat/redundáns (RC-1/RC-2 tanulság, mini teszt).
 - **Mappastruktúra-váltás pipeline KÖZBEN tilos** — minden érintett scriptet egyszerre kell frissíteni.
+- **Prompt B mini-verzió: `VALASZOLJ KIZAROLAG MAGYARUL` az első sor** — PS 5.1 multiline bypass esetén kötelező, különben az NLM angolul válaszol.
+- **`conda run --no-capture-output` + `chcp 65001`** — MinerU terminál visszajelzéshez kötelező; a `cd` Bash tool-ban megváltoztatja a working directory-t (veszélyes: mindig abszolút útvonallal dolgozz).
+- **Vision bypass = LLM-hallucináció kockázat** — mindmap PNG-ből rekonstruált export megbízhatatlan; Ultra Explorer `.md` az egyetlen megbízható forrás.
+- **Weblapok mentéséhez SingleFile > PDF-print > egyszerű HTML** — képek nélküli mentéssel a Qfig 0 ábra-katalógus-bejegyzést generál, és a figure_mapper üres marad.
 
 ---
 
 # 3. Napló (legutóbbi sessionök)
 
 Csak a legutóbbi munkamenetek tömör összefoglalója. A teljes történet: `git log`.
+
+## 2026-05-30 — mini2 end-to-end teszt + audit (meta_file_updates)
+- **mini2 pipeline végigfutott** 01-12-ig (13-14 nincs futtatva): 4 forrás (2 PDF, 2 HTML + 1 URL), 19 DFS query, 5 ábra, szószedet, DOCX+PDF camera-ready output.
+- **Script bugok javítva:** `03-1_qfig_parser` CAPTION/KEYWORDS mezők, `04` TimeoutExpired handler, `14_util_pandoc_export` cwd+emoji-regex, `03_run_mineru_pipeline` log path.
+- **Új feature:** `14_util_pandoc_export --pdf` flag (xelatex, emoji-szűréssel).
+- **Kvalitatív review:** 13 megjegyzés (3 blokkoló, 6 javítandó) → `4_wip_outputs/1_Review.md`.
+- **Meta audit:** 20 találat (4 kritikus ellenőrizve: 2 false alarm, 2 valós → backlog B-16..B-25).
 
 ## 2026-05-29 — meta bázis audit + 4 offline csomag (meta_file_updates)
 - **Meta audit (M1-M4):** Instructions §11.1 TODO-szabály; CLAUDE.md relatív linkek; 2 self-attention napló → archive; pipeline.md §5/§7 tisztítás. (M5-M6 backlogban.)

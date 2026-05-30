@@ -82,6 +82,8 @@ def main():
                         help="A 5_clean_outputs/N_Jegyzet_bsc.md-t konvertálja")
     parser.add_argument("--no-template", action="store_true",
                         help="Reference template nélkül (Pandoc alapstílus)")
+    parser.add_argument("--pdf", action="store_true",
+                        help="PDF exportálás is (xelatex, 5_clean_outputs/-ba)")
     args = parser.parse_args()
 
     week_dir = args.week_dir.resolve()
@@ -127,9 +129,10 @@ def main():
         if not args.no_template:
             print("  WARN  nincs jegyzet template a templates/-ben -- alapstílus")
 
-    # 5. Run
+    # 5. Run (cwd=src.parent so relative image paths resolve correctly)
     print(f"  Konvertálás: {src.name} -> {out.name}")
-    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                            errors="replace", cwd=str(src.parent))
     if result.returncode != 0:
         print(f"[HIBA] pandoc rc={result.returncode}", file=sys.stderr)
         if result.stderr:
@@ -139,6 +142,50 @@ def main():
     size_kb = out.stat().st_size // 1024 if out.exists() else 0
     print(f"OK: {out} ({size_kb} KB)")
 
+    # 6. Optional PDF export
+    if args.pdf:
+        _generate_pdf(pandoc, src, clean_dir, week, args.bsc)
+
+
+def _generate_pdf(pandoc: str, src: Path, clean_dir: Path, week: int, bsc: bool):
+    """Generate PDF via xelatex. Runs pandoc from src.parent for relative image paths."""
+    import re
+    suffix = "_bsc" if bsc else ""
+    out_pdf = clean_dir / f"{week}_Jegyzet{suffix}.pdf"
+
+    # Strip emoji only -- keep Greek/math/accented chars, xelatex can't render emoji
+    text = src.read_text(encoding="utf-8")
+    text_clean = re.sub(
+        r'[\U0001F000-\U0001FFFF\U00002600-\U000027BF️]',
+        '', text)
+    tmp = src.parent / f"_pdf_tmp_{src.name}"
+    tmp.write_text(text_clean, encoding="utf-8")
+
+    cmd = [pandoc, str(tmp.name), "-o", str(out_pdf.resolve()),
+           "--from", "gfm+tex_math_dollars",
+           "--standalone", "--pdf-engine=xelatex",
+           "-V", "geometry:margin=2cm", "-V", "lang=hu"]
+
+    print(f"  PDF: {tmp.name} -> {out_pdf.name}")
+    result = subprocess.run(cmd, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace",
+                            cwd=str(src.parent))   # relative image paths
+    tmp.unlink(missing_ok=True)
+
+    if result.returncode != 0:
+        print(f"  WARN  PDF generálás sikertelen (rc={result.returncode})", file=sys.stderr)
+        if result.stderr:
+            # Filter out font warnings (too verbose)
+            errs = [l for l in result.stderr.splitlines() if "Missing character" not in l]
+            if errs:
+                print('\n'.join(errs[:10]), file=sys.stderr)
+    elif out_pdf.exists():
+        size_kb = out_pdf.stat().st_size // 1024
+        print(f"OK: {out_pdf} ({size_kb} KB)")
+    else:
+        print("  WARN  PDF fájl nem keletkezett", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()
+
