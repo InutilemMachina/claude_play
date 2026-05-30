@@ -156,6 +156,20 @@ claude_play/
 - A skill-ek kis lépésekben frissülnek.
 - A hibákból tanulság lesz, nem dokumentum duzzasztás.
 
+### 10.1. Hard-cap szabály -- ne nőjön a komplexitás (2026-05-30)
+
+**Minden commit net-flat vagy csökkenjen.** Új hozzáadáshoz ekvivalens komplexitás-csökkentés tartozik. Mérce: `python scripts/15_backlog_index.py` output (összesítő szám) a commit előtt és után -- **nem nőhet**.
+
+Konkrét szabályok:
+
+- **Új TODO a `§8 Visszajelzések`-be → zárj le egy régit ugyanott.** Lezárás = törlés (✅-jelölés + áthelyezés a Változásjegyzékbe), nem maradás.
+- **Új script → vagy törölj egyet, vagy mergelj kettőt.** Új feature-flag → érvelj miért nem opció a meglévő flag-ek redukciójával.
+- **Új skill / új meta-fájl → indokold miért nem fér el meglévőben.**
+- **Számozott névadás (`03-1`, `06b`, `07-2`) konzerválja az inkonzisztenciát.** Új script ne kapjon "ragozott" sorszámot -- vagy beszúrod a fő sorrendbe, vagy átnevezed a környezetet is.
+- **Backward-compat flag nem tartós megoldás.** Ha új API-t vezetsz be (pl. `--week-dir`), a régi (direkt arg) deprecation warning + 2 commit múlva eltávolításra kerül.
+
+**Miért:** A `mini2` end-to-end teszt utáni audit kimutatta, hogy 61 nyitott TODO valójában 3 visszatérő gyökérokra vezethető vissza, nem 61 különálló bugra. Ennek ellenére a fejlesztés mégis tünet-orvosló (+ flag, + script, + TODO), nem strukturális (gyökérok-fix). A hard-cap kényszeríti a strukturális gondolkodást.
+
 ## 11. Visszajelzések protokoll
 
 A tesztelés során felmerülő bejegyzések jelölése egységes:
