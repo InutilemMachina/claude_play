@@ -114,7 +114,7 @@ A `03_util_mineru_pdf.py` `SKIP_FILES` listával kihagyja a már kész PDF-eket.
 - 💬 NOTE: A `03_run_mineru_pipeline.py --root` argumentuma a **tantárgy gyökerét** várja (pl. `test_outputs/meta_file_updates_test`), nem a heti mappát. A `discover_notebooks()` `root/N_*/1_raw_inputs/*.pdf` mintát keres -- ha heti mappa kerül `--root`-ba, a script "nincs PDF" hibával leáll.
 - 💬 NOTE: **HTML extrakció navigációs zaj (tesztelve 2026-05-30, mini2).** A `03_util_source_extractor.py` BeautifulSoup-alapú HTML extrakció a `<nav>`, menü és fejléc elemeket nem szűri ki. Ha az NLM-be URL-ként van feltöltve a forrás, ez csak helyi feldolgozásnál okoz zavart. Fix: `<nav>`, `<header>`, `<footer>`, `<aside>` tagek szűrése.
 - ⚡ **`03_util_figure_catalog.py` nem halmoz** (tesztelve 2026-05-30, mini2). Ha a catalog már létezik, csak betölti, nem bővíti. Helyes hívás: `2_clean_inputs/` gyökér megadása (nem egyes `SOURCE/auto/` almappa); ha újra kell buildelni, töröld a meglévő catalog fájlt.
-- 🔲 TODO: **Kettős script UX probléma -- egységes belépési pont hiányzik (tesztelve 2026-05-30, mini2).** A 03. lépéshez két parancs kell: `03_util_source_extractor.py --week-dir` + `conda run -n mineru 03_run_mineru_pipeline.py --root`. Megoldási irányok: (a) wrapper `03_all.py`; (b) dokumentáció a pipeline.md §1 IO táblájában.
+- 💬 NOTE: **Egységes belépési pont: `03_all.py`.** A `03_all.py --week-dir <N_het>` sorban futtatja: (1) `03_util_source_extractor.py` (nem-PDF), (2) `03_run_mineru_pipeline.py` (MinerU). A tantárgy gyökerét automatikusan számolja ki (`week_dir.parent.parent`).
 - 💬 NOTE: MinerU a kimenetet `2_clean_inputs/<forrasnev>/auto/` alá írja. Downstream lépések (03_util_figure_catalog.py, 05_assemble.py) kezelik.
 - 💬 NOTE: Kéthasábos akadémiai PDF-nél a caption és a kép párosítása nem mindig pontos.
 - 💬 NOTE: Egyenlet-képek (`equation_N_pP.jpg`) általában nem kerülnek a Jegyzetbe (LaTeX-képletként szerepelnek).
@@ -124,6 +124,7 @@ A `03_util_mineru_pdf.py` `SKIP_FILES` listával kihagyja a már kész PDF-eket.
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-31 | 3.3 | U3: 03_all.py wrapper lezárja a kettős-script UX problémát |
 | 2026-05-31 | 3.2 | 3. hét cleanup: backend típus TODO §9 (cosmetic, alacsony prioritás) |
 | 2026-05-30 | 3.1 | K0 cleanup: 3 ✅ → §9; Nem-PDF + GPU + syntax hiba lezárva (kód igazolja); maradék §8 tömörítve |
 | 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; kepek_workflow.md tartalom konszolidálva; pipeline diagram eltávolítva |

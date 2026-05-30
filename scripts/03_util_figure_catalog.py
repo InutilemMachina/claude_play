@@ -252,20 +252,30 @@ def main() -> None:
     # Default output: <week_dir>/3_raw_outputs/figure_catalog.json
     out_path = Path(args.output) if args.output else kepek_dir.parent / "3_raw_outputs" / "figure_catalog.json"
 
-    # --- Step 1: Build catalog from MinerU content_list files ---
+    # --- Step 1: Build catalog (merge-mód ha catalog már létezik) ---
+    fresh = build_catalog(kepek_dir)
     if out_path.exists():
-        print(f"Loading existing catalog: {out_path}")
-        catalog = json.loads(out_path.read_text(encoding="utf-8"))
-        print(f"  {len(catalog)} entries loaded.")
+        existing = json.loads(out_path.read_text(encoding="utf-8"))
+        # Merge: fresh struktúra + existing gazdagítások (vlm_done, keywords, caption)
+        catalog = dict(fresh)
+        for k, old_entry in existing.items():
+            if k in catalog:
+                for field in ("keywords", "caption", "vlm_done"):
+                    if old_entry.get(field):
+                        catalog[k][field] = old_entry[field]
+            else:
+                catalog[k] = old_entry  # árva bejegyzés (forrás eltávolítva)
+        new_keys = set(fresh) - set(existing)
+        print(f"Merge mód: {len(catalog)} bejegyzés ({len(new_keys)} új, {len(existing)} korábban).")
     else:
-        print(f"Building figure catalog from: {kepek_dir}")
-        catalog = build_catalog(kepek_dir)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(
-            json.dumps(catalog, ensure_ascii=False, indent=2),
-            encoding="utf-8"
-        )
-        print(f"Wrote {len(catalog)} entries -> {out_path}")
+        catalog = fresh
+        print(f"Új catalog: {len(catalog)} bejegyzés.")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        json.dumps(catalog, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+    print(f"Írva: {out_path}")
 
     # --- Step 2a (optional): Caption-based keywords (free, no API) ---
     if args.from_caption:

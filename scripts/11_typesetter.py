@@ -188,6 +188,41 @@ def rule_i_table_separator(text: str) -> tuple[str, int]:
     return text, count
 
 
+def rule_c3_pdf_inline_noise(text: str) -> tuple[str, int]:
+    """
+    Rule C3: Távolítsd el a prózából az inline (fájlnév.pdf/html/docx/pptx) zajt.
+    Ezek régi NLM outputokban keletkeztek, ahol a citáció fájlnévként jelent meg.
+    Csak egyértelműen fájlnévszerű mintákat töröl (szóköz nélkül, kiterjesztéssel).
+    """
+    # Pattern: whitespace + (filename.ext) -- no spaces inside, common doc extensions
+    pattern = re.compile(r'\s*\([A-Za-z0-9_\-\.]+\.(?:pdf|html|docx|pptx|txt)\)', re.IGNORECASE)
+    count = 0
+    lines = text.splitlines()
+    result = []
+    in_fence = False
+    for line in lines:
+        if line.strip().startswith('```'):
+            in_fence = not in_fence
+        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+            result.append(line)
+        else:
+            new_line, n = pattern.subn('', line)
+            count += n
+            result.append(new_line)
+    return '\n'.join(result), count
+
+
+def rule_c4_citation_dedup(text: str) -> tuple[str, int]:
+    """
+    Rule C4: Duplikált <sup>[N]</sup>,<sup>[N]</sup> → <sup>[N]</sup> (safety net).
+    A 07_citations_renumber.py már végez dedup-ot; ez a typesetter-szintű biztosíték.
+    """
+    pattern = re.compile(r'(<sup>\[(\d+)\]</sup>)(?:,\s*<sup>\[\2\]</sup>)+')
+    orig_count = len(pattern.findall(text))
+    new_text = pattern.sub(r'\1', text)
+    return new_text, orig_count
+
+
 def rule_j_terminology(text: str) -> tuple[str, int]:
     """
     Rule J: Normalize Hungarian IR thermography terminology inconsistencies.
@@ -228,8 +263,47 @@ def rule_j_terminology(text: str) -> tuple[str, int]:
     return '\n'.join(result), count
 
 
+def rule_k_numeric_interval(text: str) -> tuple[str, int]:
+    """
+    Rule K: Numerikus intervallum normalizálás.
+    Az NLM output néha tizedes értékeket listává bont (angolból fordítva):
+      '1, 5 µm'    -> '1,5 µm'        (tizedes)
+      '0, 1, 3 µm' -> '0,1–3 µm'      (intervallum)
+    Csak kód-fencen kívül, nem fejléc-sorokban alkalmazva.
+    """
+    UNITS = (r'(?:µm|nm|mm|cm|km|µs|ns|ms|kHz|MHz|GHz|mV|kV|mW|kW|MW|kPa|MPa'
+             r'|m|s|V|W|K|Hz|Pa|%|°C)')
+    # Háromtagú sorozat: "0, 1, 3 µm" -> "0,1–3 µm"  (hosszabb minta először)
+    pat3 = re.compile(r'\b(\d+),\s+(\d+),\s+(\d+)\s+(' + UNITS + r')\b')
+    # Kéttagú tizedes: "1, 5 µm" -> "1,5 µm"
+    pat2 = re.compile(r'\b(\d+),\s+(\d+)\s+(' + UNITS + r')\b')
+
+    count = 0
+    lines = text.splitlines()
+    result = []
+    in_fence = False
+    for line in lines:
+        if line.strip().startswith('```'):
+            in_fence = not in_fence
+        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+            result.append(line)
+            continue
+        new_line = pat3.sub(lambda m: (
+            f"{m.group(1)},{m.group(2)}–{m.group(3)} {m.group(4)}"
+        ), line)
+        # Számol az eredetihez képest
+        if new_line != line:
+            count += line.count(',') - new_line.count(',') + 1
+        line = new_line
+        new_line = pat2.sub(lambda m: f"{m.group(1)},{m.group(2)} {m.group(3)}", line)
+        if new_line != line:
+            count += 1
+        result.append(new_line)
+    return '\n'.join(result), count
+
+
 def phase2_linting(text: str) -> str:
-    """Apply rules A–I. Rule G (heading numbering) uses a separate util."""
+    """Apply rules A–K. Rule G (heading numbering) uses a separate util."""
     print("[Phase 2] Linting...")
 
     text, n_a = rule_a_sup_paragraph_break(text)
@@ -264,21 +338,60 @@ def phase2_linting(text: str) -> str:
     text, n_j = rule_j_terminology(text)
     print(f"  Rule J (terminology):          {n_j} fix(es)")
 
+    text, n_c3 = rule_c3_pdf_inline_noise(text)
+    print(f"  Rule C3 (pdf inline noise):    {n_c3} fix(es)")
+
+    text, n_c4 = rule_c4_citation_dedup(text)
+    print(f"  Rule C4 (citation dedup):      {n_c4} fix(es)")
+
+    text, n_k = rule_k_numeric_interval(text)
+    print(f"  Rule K (numeric interval):     {n_k} fix(es)")
+
     print("[Phase 2] Done.")
     return text
 
 
 # ---- Main ----
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python 11_typesetter.py <path_to_N_Jegyzet.md>")
-        sys.exit(1)
+def _resolve_md_path(args) -> Path:
+    """Resolve the input Markdown path from --week-dir or positional arg."""
+    if hasattr(args, 'week_dir') and args.week_dir:
+        week_dir = Path(args.week_dir).resolve()
+        wip_dir = week_dir / "4_wip_outputs"
+        notes = sorted(wip_dir.glob("*_Jegyzet.md"))
+        if not notes:
+            print(f"ERROR: nincs *_Jegyzet.md a {wip_dir}-ban")
+            sys.exit(1)
+        return notes[-1]
+    if hasattr(args, 'md_path') and args.md_path:
+        p = Path(args.md_path)
+        if not p.exists():
+            print(f"ERROR: File not found: {p}")
+            sys.exit(1)
+        return p
+    print("ERROR: add meg a --week-dir <mappa> paramétert vagy a fájl elérési útját.")
+    sys.exit(1)
 
-    md_path = Path(sys.argv[1])
-    if not md_path.exists():
-        print(f"ERROR: File not found: {md_path}")
-        sys.exit(1)
+
+def main():
+    import argparse as _ap
+    parser = _ap.ArgumentParser(
+        description="Markdown linter for NLM pipeline output (Phase 2)",
+        add_help=True
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--week-dir", metavar="DIR",
+                       help="Heti mappa (pl. test_outputs/mini3/1_het); "
+                            "automatikusan megkeresi a *_Jegyzet.md fájlt")
+    group.add_argument("md_path", nargs="?", default=None,
+                       help="[DEPRECATED] Direkt fájl elérési út. "
+                            "Használd a --week-dir paramétert helyette.")
+    args = parser.parse_args()
+
+    if args.md_path:
+        print("FIGYELEM: Direkt fájl-arg elavult. Használd: --week-dir <heti_mappa>")
+
+    md_path = _resolve_md_path(args)
 
     print(f"[11_typesetter] Input: {md_path}")
     text = load_md(md_path)
