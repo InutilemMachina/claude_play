@@ -122,8 +122,6 @@ Forrásjegyzék:
 
 ## 8. Visszajelzések
 
-- 🔲 TODO: **`scripts/07_citations_renumber.py` elavult mappakonvenció (tesztelve 2026-05-27).** A script `base / 'forrasok'` útvonalat keres (`forrasok/citations.json`, `forrasok/nlm_q*_raw.txt`), de az aktuális pipeline struktúra `3_raw_outputs/`-t használ. Következmény: `Hianyzik: .../forrasok/citations.json` hibával leáll. Frissítendő: `forrasok` → `3_raw_outputs`. Megjegyzés: a `05_assemble.py` már elvégzi a local→global citáció-mapping-et az összeállítás során, így ez a script részben redundáns lehet.
-- 🔲 TODO: **`citations.json` nem generálódik automatikusan (tesztelve 2026-05-27).** A `04_nlm_dfs_queries.py` csak a `nlm_q*.txt` fájlokat írja -- `citations.json`-t nem inicializál. A skill §3.1 szerint a 04 feladata lenne, de nincs script rá. A `07_citations_renumber.py` inputjaként szükséges. Megoldás: a `citations_seed.json` UUID-mappingből + a `nlm_q*.txt` fájlok `references` mezőiből kell összeépíteni; ezt a logikát vagy a `04_nlm_dfs_queries.py`-ba kell integrálni, vagy önálló `04_util_build_citations.py` scriptbe.
 - 🔲 TODO: **Öt különböző hivatkozás-stílus egyszerre egy dokumentumban (külső szemlélő, 2026-05-28).** Az NLM per-szekciónként más formátumban adja vissza a citációkat, és az assembler mindet változtatás nélkül illeszti be: (1) `[1-3]` szám-only; (2) `[5] **Wikipedia**` inline vastag szöveg; (3) `**FORRÁS: Wikipedia, MIT...**` záróblokk-formátum; (4) `Forrás: \`fajlnev.pdf\`` backtick-es sor; (5) `[84, \`Discrete Fourier transform - Wikipedia\`]` szám+backtick+fájlnév. Következmény: az összefűzött dokumentum hivatkozásai kaotikusak. Megoldás: Prompt B egységesítése (`[N]` szám-only inline, külön FORRÁSJEGYZÉK-szekció per-query), vagy post-process normalizálás a 07_citations_renumber.py-ban.
 - 🔲 TODO: **Forrás megjelenítési neve eltér a fájlnévtől (tesztelve 2026-05-28, 2_het).** A `citations_seed.json`-ban: `nagyi_NA_slides.pdf`, de az NLM válaszokban `Aramlasi rendellenessegek (Nagy).pdf` (ékezet nélkül, NLM-belső megjelenítési névként). Ugyanerre a forrásra 3 névvariáns jelenik meg a Jegyzetben: `Aramlasi rendellenessegek (Nagy).pdf`, `Aramlasi rendellenessegek (Nagy)` (.pdf nélkül), `nagyi_NA_slides.pdf`. Megoldás: `citations_seed.json`-ban egy `display_name` mező bevezetése, amely az NLM-beli megjelenítési nevet tárolja; a `07_citations_renumber.py` ezt használja egységesítésre.
 - 🔲 TODO: **Per-szekciós forrásblokkok elnevezése inkonzisztens (tesztelve 2026-05-28, 2_het).** Különböző szekciókban: `**Hivatkozott források:**`, `**Felhasznált források:**`, `**Hivatkozott/Felhasznált források:**`, vagy semmi. Az NLM Prompt B nem írja elő, milyen névvel zárja a szekciót. Egységesítendő: Prompt B-be beépíteni az elvárt szöveget, pl. "A válasz végén mindig `**Felhasznált források:**` blokkot írj."
@@ -135,6 +133,7 @@ Forrásjegyzék:
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 2.2 | K1: 07_citations_renumber.py + citations.json auto-gen lezárva (_citations_util.py + 04 integráció) |
 | 2026-05-30 | 2.1 | K0 cleanup: Prompt D ✅ → §9; Duplikált citációk lezárva (05_assemble.py sorted(set(...)) igazolja) |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; csonkított NOTE-ok pótolva |
 | 2026-05-25 | 1.1 | NOTE: szószedet NLM-alapra teendő |

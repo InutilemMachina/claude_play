@@ -126,7 +126,7 @@ status: DRAFT
 
 ## 8. Visszajelzések
 
-- 🔲 TODO: **MSc jelölés -- szülő-öröklés tesztelendő (mini2, 2026-05-30).** Ha csak a szülő jelölt `[MSc]`, automatikusan öröklik-e a leszármazottak? Elvárt: szülő `[MSc]` → minden leszármazott MSc. Jelenlegi workaround: a user manuálisan jelöl minden érintett csomópontot.
+- 💬 NOTE: MSc jelölés (K3 után): `04_nlm_dfs_queries.py` az `[MSc]` prefixet leveszi a query-szövegből, de `dfs_node_list.json`-ban `is_msc: true` mezőt tárolja. Az `05_assemble.py` `<!-- MSc -->` blokkba csomagolja az MSc szekciókat. Szülő-öröklés: ha csak a szülő jelölt, a gyerekek NEM automatikusan MSc -- a user manuálisan jelöli az összes érintett node-ot.
 - 💬 NOTE: `, N gyermek` suffix cleanup: az Ultra Explorer export minden szülő-node után `, N gyermek` szöveget illeszt be. `04_nlm_dfs_queries.py strip_meta()` automatikusan eltávolítja.
 - 💬 NOTE: Az NLM Studio Gondolattérkép angolul generálódhat, ha a forrásszövegek angolok. Megvizsgálandó: van-e mód a mindmap generálás nyelvének befolyásolására Prompt B-n keresztül.
 - ❔ QUESTION: Az Ultra Explorer bővítmény export automatizálható-e Claude in Chrome MCP-vel? (navigate → Export gomb → click → Markdown).

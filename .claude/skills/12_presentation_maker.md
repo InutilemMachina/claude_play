@@ -124,7 +124,7 @@ fill_mindmap("templates/due_prenetation_template_mindmap.pptx", out,
 
 ## 8. Visszajelzések
 
-- ⚠️ WARNING: **`due_fill.py` CLI-módja DEMO tartalmat generál** (Biofizika placeholder) — NEM alkalmas pipeline-futtatásra. A `12_pptx_gyarto.py --week-dir` a helyes CLI pipeline-parancs.
+- 💬 NOTE: `due_fill.py --week-dir` deprecated (K2): sys.exit + redirect `12_pptx_gyarto.py --week-dir`-ra. Python API (`DUEPresentation`) programmatikus hívásra marad elérhető.
 - 🔲 TODO: **WIP prezentáció `4_wip_outputs/`-ban hiányzik (tesztelve 2026-05-30, mini2).** A pipeline direktben `5_clean_outputs/N_Prezentacio.pptx`-et generál, de nincs szerkeszthető WIP verzió a `4_wip_outputs/`-ban. A mappastruktúra-elvvel összhangban: `4_wip_outputs/N_Prezentacio.md` (Marp forrás, szerkeszthető) és/vagy `4_wip_outputs/N_Prezentacio.pptx` (PPTX draft) is keletkezzen, és csak a jóváhagyott verzió kerüljön `5_clean_outputs/`-ba. A `12_pptx_gyarto.py` már ezt a logikát feltételezi (`N_Prezentacio.md` bemenetet vár `4_wip_outputs/`-ból), de `due_fill.py` a wip lépést kihagyja.
 - 💬 NOTE: A `12_pptx_gyarto.py` a Marp slide-struktúrát olvassa és a `due_refactored.pptx` blank layoutját használja — nem a named shape placeholder-eket. A named shape-eket a `due_fill.py` (strukturált mód) kezeli.
 - 💬 NOTE: Ha a DUE template módosul, `python templates/build_due_potx.py` regenerálja a `due_presentation_master.potx`-ot és `due_refactored.pptx`-et.
