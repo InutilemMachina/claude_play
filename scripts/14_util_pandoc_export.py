@@ -118,7 +118,7 @@ def main():
 
     # 4. Build pandoc command
     cmd = [pandoc, str(src), "-o", str(out),
-           "--from", "gfm+tex_math_dollars",  # GFM + $...$ LaTeX math
+           "--from", "markdown+tex_math_dollars",  # Pandoc markdown: GFM superset, supports {width=} attrs
            "--standalone"]
 
     template = None if args.no_template else find_template(project_root)
@@ -162,7 +162,7 @@ def _generate_pdf(pandoc: str, src: Path, clean_dir: Path, week: int, bsc: bool)
     tmp.write_text(text_clean, encoding="utf-8")
 
     cmd = [pandoc, str(tmp.name), "-o", str(out_pdf.resolve()),
-           "--from", "gfm+tex_math_dollars",
+           "--from", "markdown+tex_math_dollars",
            "--standalone", "--pdf-engine=xelatex",
            "-V", "geometry:margin=2cm", "-V", "lang=hu"]
 

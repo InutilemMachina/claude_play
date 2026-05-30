@@ -120,7 +120,7 @@ def build_figure_block(entry, fig_num, week_dir):
 
     lines = [
         "",
-        f"![{caption}]({rel_path})",
+        f"![{caption}]({rel_path}){{width=12cm}}",
         f"*{fig_num}. ábra -- {caption}*",
         "",
     ]

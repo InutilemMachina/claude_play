@@ -86,7 +86,7 @@ def replace_local_citations(text: str, local_map: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def build_reference_section(seed: dict) -> list[str]:
-    """Build a ## Hivatkozásjegyzék section from seed numeric keys."""
+    """Build a ## Hivatkozásjegyzék section from seed numeric keys (numbered list)."""
     lines = ["## Hivatkozásjegyzék", ""]
     for k in sorted((k for k in seed if k.isdigit()), key=int):
         v = seed[k]
@@ -95,15 +95,10 @@ def build_reference_section(seed: dict) -> list[str]:
         year   = v.get("year", "?")
         fname  = v.get("filename") or v.get("file")
         url    = v.get("url")
-        if fname:
-            loc = f"Fájl: `{fname}`"
-        elif url:
-            loc = f"URL: {url}"
-        else:
-            loc = "Forrás: ?"
-        lines.append(
-            f'<sup>[{k}]</sup> {author}. "{title}," {year}. {loc}'
-        )
+        loc = f"[{fname}]({url})" if (fname and url) else \
+              (fname or (url and f"<{url}>") or "?")
+        lines.append(f"{k}. {author}. *{title}* ({year}). {loc}")
+        lines.append("")  # blank line between entries for readability
     return lines
 
 
