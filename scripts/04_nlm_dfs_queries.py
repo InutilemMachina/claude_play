@@ -51,22 +51,27 @@ NLM_PATH = _resolve_nlm_path()
 # Mindmap parser
 # ---------------------------------------------------------------------------
 
+import re as _re
+
+_MSC_PREFIX = _re.compile(r'^\s*\[MSc\]\s*', _re.IGNORECASE)
+
+
 def strip_meta(name: str) -> str:
-    """Remove ', N gyermek' suffix and vision-bypass '(?)' markers from node names."""
-    import re
-    name = re.sub(r",\s*\d+\s+gyermek", "", name)
-    name = re.sub(r"\s*\(\?\)", "", name)
+    """Remove ', N gyermek' suffix, vision-bypass '(?)' markers, and [MSc] prefix."""
+    name = _re.sub(r",\s*\d+\s+gyermek", "", name)
+    name = _re.sub(r"\s*\(\?\)", "", name)
+    name = _MSC_PREFIX.sub("", name)
     return name.strip()
 
 
-def parse_mindmap(path: Path) -> list[tuple[str, str | None]]:
+def parse_mindmap(path: Path) -> list[tuple[str, str | None, bool]]:
     """
-    Returns list of (node_name, parent_name) in DFS order.
+    Returns list of (node_name, parent_name, is_msc) in DFS order.
     parent_name is None for the root.
+    [MSc] prefix is stripped from node_name; is_msc=True if prefix was present.
     """
     lines = path.read_text(encoding="utf-8").splitlines()
-    nodes: list[tuple[str, str | None]] = []
-    # Stack: list of (indent_level, node_name)
+    nodes: list[tuple[str, str | None, bool]] = []
     stack: list[tuple[int, str]] = []
 
     for line in lines:
@@ -74,28 +79,27 @@ def parse_mindmap(path: Path) -> list[tuple[str, str | None]]:
         if not stripped:
             continue
 
-        # Determine indent level and node type
         if line.startswith("# "):
             level = 0
-            name = strip_meta(line[2:].strip())
+            raw = line[2:].strip()
         elif line.startswith("## "):
             level = 1
-            name = strip_meta(line[3:].strip())
+            raw = line[3:].strip()
         elif stripped.startswith("- "):
-            # Count leading spaces to determine indent
             spaces = len(line) - len(line.lstrip(" "))
-            # Each 2 spaces = 1 level; base dash level starts at 2
             level = 2 + spaces // 2
-            name = strip_meta(stripped[2:].strip())
+            raw = stripped[2:].strip()
         else:
             continue
 
-        # Find parent: last stack entry with level < current
+        is_msc = bool(_MSC_PREFIX.match(raw))
+        name = strip_meta(raw)
+
         while stack and stack[-1][0] >= level:
             stack.pop()
 
         parent = stack[-1][1] if stack else None
-        nodes.append((name, parent))
+        nodes.append((name, parent, is_msc))
         stack.append((level, name))
 
     return nodes
@@ -260,33 +264,37 @@ def main():
     print(f"Mindmap: {len(nodes)} csomópont | Notebook: {nb_id}")
 
     # Filter by max level (approximate: count parent chain length)
-    # Build parent->level map
+    # Build parent->level map; track is_msc per node name
     level_map: dict[str, int] = {}
-    for name, parent in nodes:
+    msc_map: dict[str, bool] = {}
+    for name, parent, is_msc in nodes:
         if parent is None:
             level_map[name] = 0
         else:
             level_map[name] = level_map.get(parent, 0) + 1
+        msc_map[name] = is_msc
 
-    filtered = [(n, p) for n, p in nodes if level_map.get(n, 0) <= args.max_level]
+    filtered = [(n, p, m) for n, p, m in nodes if level_map.get(n, 0) <= args.max_level]
     print(f"Futtatandó (max-level={args.max_level}): {len(filtered)} query")
 
-    # Write dfs_node_list.json for 05_assemble.py (L1 sectioning)
+    # Write dfs_node_list.json for 05_assemble.py (L1 sectioning + MSc marking)
     node_list = {}
-    for i, (node, parent) in enumerate(filtered, 1):
+    for i, (node, parent, is_msc) in enumerate(filtered, 1):
         node_list[str(i)] = {
             "name": node,
             "level": level_map.get(node, 0),
             "parent": parent,
+            "is_msc": is_msc,
         }
     node_list_path = raw_out / "dfs_node_list.json"
     node_list_path.write_text(json.dumps(node_list, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"dfs_node_list.json írva: {len(node_list)} bejegyzés")
+    print(f"dfs_node_list.json irva: {len(node_list)} bejegyzes")
 
     if args.dry_run:
-        for i, (node, parent) in enumerate(filtered, 1):
+        for i, (node, parent, is_msc) in enumerate(filtered, 1):
             q = build_query(node, parent)
-            print(f"Q{i:02d} [L{level_map.get(node,0)}] {node}")
+            msc_tag = " [MSc]" if is_msc else ""
+            print(f"Q{i:02d} [L{level_map.get(node,0)}]{msc_tag} {node}")
             print(f"     -> {q[:100]}")
         return
 
@@ -294,7 +302,7 @@ def main():
     ok_count = 0
     with open(log_path, "w", encoding="utf-8") as log_fh:
         log_fh.write(f"DFS NLM queries -- {len(filtered)} csomópont\n\n")
-        for i, (node, parent) in enumerate(filtered, 1):
+        for i, (node, parent, is_msc) in enumerate(filtered, 1):
             q = build_query(node, parent)
             out_file = raw_out / f"nlm_q{i}_raw.txt"
             ts = time.strftime("%H:%M:%S")

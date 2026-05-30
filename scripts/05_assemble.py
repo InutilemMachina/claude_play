@@ -248,23 +248,30 @@ def assemble(week_dir: Path, args) -> str:
         node_level = node_info.get("level", -1)
         node_name  = node_info.get("name", "")
 
+        is_msc = node_info.get("is_msc", False)
         body.append(f"<!-- Q:{qi} -->")
+        if is_msc:
+            body.append("<!-- MSc -->")
         if node_level in (1, 2) and node_name:
             # L1 és L2 nodes always get a ## section with the mindmap node name.
             # Strip any leading ## from the NLM answer to avoid duplication
             # (J1 Prompt B now makes NLM start with ##, so we must remove it here).
             _, text_body = extract_section_title(text)
-            body.append(f"## {node_name}")
+            msc_label = "[MSc] " if is_msc else ""
+            body.append(f"## {msc_label}{node_name}")
             body.append("")
             body.append(text_body)
         else:
             # L3+ nodes: try to extract title from NLM answer heading
             section_title, text_body = extract_section_title(text)
             if section_title:
-                body.append(f"## {section_title}")
+                msc_label = "[MSc] " if is_msc else ""
+                body.append(f"## {msc_label}{section_title}")
             # If no ## extracted: answer's own headings become the section structure
             body.append("")
             body.append(text_body)
+        if is_msc:
+            body.append("<!-- /MSc -->")
         body.append("")
 
     # Reference list
