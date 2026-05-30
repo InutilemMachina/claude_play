@@ -1,7 +1,7 @@
 ---
 title: CLAUDE.md -- master index
 type: meta
-tag: [meta]
+tags: [meta]
 version: 1.1
 updated: 2026-05-29
 description: Belépési pont, olvasási sorrend és fájlindex.

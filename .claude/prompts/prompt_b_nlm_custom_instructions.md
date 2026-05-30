@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt B -- NotebookLM Custom Instructions
 type: prompt
+tags: [meta, prompt]
 pipeline_step: 02_nlm_notebook_setup
 updated: 2026-05-29
 ---

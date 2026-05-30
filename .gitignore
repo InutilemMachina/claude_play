@@ -34,6 +34,7 @@ nlm_experiments/
 # Backup fájlok
 *.bak
 *.pyc
+__pycache__/
 .fuse*
 
 
@@ -41,10 +42,10 @@ nlm_experiments/
 *.log
 mineru_err.txt
 mineru_log.txt
+mineru_run.log
 !self-attention.log
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
-pycache

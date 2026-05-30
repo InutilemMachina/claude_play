@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt C -- NLM Data Tables Studio (index)
 type: prompt-index
+tags: [meta, prompt]
 pipeline_step: 01 / 07 / 09 / 13
 updated: 2026-05-29
 ---

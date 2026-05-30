@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt C.3 -- Ábrajegyzék kulcsszavakkal
 type: prompt
+tags: [meta, prompt]
 pipeline_step: 09_figure_mapper
 updated: 2026-05-29
 ---

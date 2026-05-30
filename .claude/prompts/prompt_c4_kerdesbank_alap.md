@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt C.4 -- Kérdésbank-alap táblázat
 type: prompt
+tags: [meta, prompt]
 pipeline_step: 13_question_bank_collector
 updated: 2026-05-29
 ---

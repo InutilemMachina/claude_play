@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt C.2 -- Fogalomtérkép táblázat
 type: prompt
+tags: [meta, prompt]
 pipeline_step: 07_citations_maker
 updated: 2026-05-29
 ---

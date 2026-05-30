@@ -1,7 +1,7 @@
 ---
 title: Instructions
 type: project_constitution
-tag: [meta]
+tags: [meta]
 version: 2.3
 updated: 2026-05-29
 description: Projekt-szintű elvek, jelölések és dokumentációs szabványok.

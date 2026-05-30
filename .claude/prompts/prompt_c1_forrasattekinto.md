@@ -1,6 +1,7 @@
----
+﻿---
 title: Prompt C.1 -- Forrásáttekintő táblázat
 type: prompt
+tags: [meta, prompt]
 pipeline_step: 01_references_collector
 updated: 2026-05-29
 ---
