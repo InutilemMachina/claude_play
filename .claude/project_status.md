@@ -2,8 +2,8 @@
 title: Project Status -- Playground állapot + Backlog
 type: log
 status: active
-version: 4.0
-updated: 2026-05-29
+version: 4.1
+updated: 2026-05-31
 description: Playground (claude_play) állapot és aggregált backlog. Session elején Claude olvassa be. NEM tantárgy-specifikus. A részletes történeti napló a git history-ban.
 ---
 
@@ -15,8 +15,8 @@ tételek a Változásjegyzékbe / git history-ba kerülnek, nem itt halmozódnak
 ## Aktuális állapot
 
 - **Branch:** `meta_file_updates` (a session összes eredménye itt; `main` érintetlen, user-döntésre vár a merge).
-- **Pipeline:** 01-14 + 03-1/03-2/05/06/11b lépések definiálva; a mini teszt (`test_outputs/mini/1_het`) Q1-Q13-on end-to-end fut.
-- **Utolsó nagy munka:** meta bázis audit + rendrakás (M1-M6); 4 offline munkacsomag (06 excerpt, 11b check, forrás-extraktor, camera-ready Pandoc).
+- **Pipeline:** 01-14 + 03-1/03-2/05/06/11b lépések definiálva; 03_all.py wrapper hozzáadva (03. lépés egységes belépési pont).
+- **Utolsó nagy munka:** 3. hét sprint (graceful-sprout) — backlog 30→19, script API javítások (U3/U4/U5), YAML tags séma, vision bypass doc.
 
 ---
 
@@ -38,22 +38,22 @@ Forrás: az egyes fájlok `## Nyitott pontok` / skill `§8` szekciói. Ez az agg
 | B-05 | M5: templates egyesítés → `course_development_template.md` | templates/ | ✅ 2026-05-29 |
 | B-06 | M6: `15_backlog_index.py` aggregátor | scripts/ | ✅ 2026-05-29 |
 | B-07 | Relatív linkek: elv (Instructions §8) + belépő fájlok kész; skillek auditja hátra | meta-fájlok | ⚙️ részben |
-| B-08 | YAML `tags` scope-séma: definíció (Instructions §5.3) kész; meglévő fájlok átállítása hátra | minden `.md` | ⚙️ részben |
+| B-08 | YAML `tags` scope-séma: definíció (Instructions §5.3) + prompts/*.md + CLAUDE.md + Instructions.md kész | minden `.md` | ✅ 2026-05-31 |
 | B-15 | `00_init_course.py`: tantárgy-struktúra + context.md auto-copy a sablonból | scripts/ | ✅ 2026-05-29 |
 
 ## P1b — mini2 audit kritikusok (2026-05-30)
 | # | Feladat | Hol | Státusz |
 |---|---------|-----|---------|
-| B-16 | `citations.json` nem generálódik a 04 DFS-ben → 07 üres inputot kap | 04 skill §8 / 04_nlm_dfs_queries.py | 🔲 |
+| B-16 | `citations.json` nem generálódik a 04 DFS-ben → 07 üres inputot kap | 04 skill §8 / 04_nlm_dfs_queries.py | ✅ javítva 2. hét |
 | B-17 | DOCX export: `cwd` hiány → relatív képútvonalak nem oldódnak fel | 14_util_pandoc_export.py | ✅ javítva 2026-05-30 |
 | B-18 | PDF emoji regex görög betűket törölhetett | 14_util_pandoc_export.py | ✅ javítva 2026-05-30 |
 | B-19 | `[MSc]` marker nincs propagálva a szövegbe az assembler-től | 05_assemble.py | 🔲 |
 | B-20 | Képsorszámozás nem globális (`10_notes_collector.py`) | 10_notes_collector.py | 🔲 |
-| B-21 | Typesetter Rule K hiányzik: numerikus intervallum cleanup | 11_typesetter.py | 🔲 |
+| B-21 | Typesetter Rule K hiányzik: numerikus intervallum cleanup | 11_typesetter.py | ✅ implementálva 2026-05-31 |
 | B-22 | `05_assemble.py` üres "Bevezetes" fejléc root-query elé kerül | 05_assemble.py | 🔲 |
 | B-23 | WIP prezentáció (`4_wip_outputs/N_Prezentacio.md`) nem keletkezik | 12 skill | 🔲 |
 | B-24 | `06b` script neve `06_table_caption_injector.py` + direkt arg API | pipeline.md §1, 06b skill | ⚙️ doc javítva |
-| B-25 | YAML `tags` hiányzik CLAUDE.md és Instructions.md fejlécéből | CLAUDE.md, Instructions.md | 🔲 |
+| B-25 | YAML `tags` hiányzik CLAUDE.md és Instructions.md fejlécéből | CLAUDE.md, Instructions.md | ✅ javítva 2026-05-31 |
 
 ## P3 — végtermék-minőség (alacsonyabb prioritás)
 | # | Feladat | Hol | Státusz |
@@ -90,6 +90,15 @@ Részletek a skillek `§8`-ban és a git history-ban.
 # 3. Napló (legutóbbi sessionök)
 
 Csak a legutóbbi munkamenetek tömör összefoglalója. A teljes történet: `git log`.
+
+## 2026-05-31 — 3. hét sprint: cleanup + script API + docs (meta_file_updates)
+- **Backlog:** 30→19 (cél: <20 ✓). 11 tétel lezárva: elfogadott korlátok + duplikációk §9-be, U3/U4/U5 implementáció.
+- **U3:** `03_all.py` wrapper (03_util_source_extractor + 03_run_mineru egységes belépési pont).
+- **U4:** `03_util_figure_catalog.py` merge-mód (ha catalog létezik, újraépít + megtartja vlm_done/keywords).
+- **U5:** `11_typesetter.py` Rule K — numerikus intervallum: `1, 5 µm` → `1,5 µm`; `0, 1, 3 µm` → `0,1–3 µm`.
+- **YAML tags:** prompts/*.md `tags: [meta, prompt]`; CLAUDE.md + Instructions.md `tag:` → `tags:`.
+- **Vision bypass doc:** `08_mindmap_manager §4` frontmatter `mindmap_source:` mező + `§5` ellenőrzőlista kibővítve.
+- **Döntés:** `main` merge user kezében (B-14).
 
 ## 2026-05-30 — mini2 end-to-end teszt + audit (meta_file_updates)
 - **mini2 pipeline végigfutott** 01-12-ig (13-14 nincs futtatva): 4 forrás (2 PDF, 2 HTML + 1 URL), 19 DFS query, 5 ábra, szószedet, DOCX+PDF camera-ready output.
