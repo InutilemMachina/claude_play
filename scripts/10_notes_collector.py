@@ -130,26 +130,28 @@ def build_figure_block(entry, fig_num, week_dir):
 def insert_figures(text, catalog, week_dir):
     """
     Insert figure blocks after the appropriate paragraphs.
-    Returns new text.
+    Numbers figures globally in document order (sorted by inserted_after_paragraph).
+    Returns (new_text, fig_count).
     """
     lines = text.splitlines(keepends=False)
     para_positions = extract_paragraphs_with_positions(text)
 
-    # Collect insertions: {after_line_idx: [figure_block_str, ...]}
+    # Collect valid entries and sort by document position for correct global numbering
+    entries_seq = catalog.values() if isinstance(catalog, dict) else catalog
+    valid_entries = [
+        e for e in entries_seq
+        if not e.get("duplicate")
+        and e.get("inserted_after_paragraph") is not None
+        and e.get("inserted_after_paragraph") < len(para_positions)
+    ]
+    valid_entries.sort(key=lambda e: e["inserted_after_paragraph"])
+
     from collections import defaultdict
     insertions = defaultdict(list)
 
-    fig_num = 0
-    for entry in catalog.values() if isinstance(catalog, dict) else catalog:
-        if entry.get("duplicate"):
-            continue
-        para_idx = entry.get("inserted_after_paragraph")
-        if para_idx is None:
-            continue
-        if para_idx >= len(para_positions):
-            continue
-
-        fig_num += 1
+    for fig_num, entry in enumerate(valid_entries, 1):
+        entry["global_num"] = fig_num  # write back for catalog persistence
+        para_idx = entry["inserted_after_paragraph"]
         _, end_line = para_positions[para_idx]
         block = build_figure_block(entry, fig_num, week_dir)
         insertions[end_line].append(block)
@@ -157,7 +159,6 @@ def insert_figures(text, catalog, week_dir):
     if not insertions:
         return text, 0
 
-    # Rebuild with insertions
     result = []
     for i, line in enumerate(lines):
         result.append(line)
@@ -165,7 +166,7 @@ def insert_figures(text, catalog, week_dir):
             for block in insertions[i]:
                 result.extend(block.splitlines())
 
-    return "\n".join(result), fig_num
+    return "\n".join(result), len(valid_entries)
 
 
 # ---------------------------------------------------------------------------
@@ -342,6 +343,11 @@ def main():
             catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
             text, n_figs = insert_figures(text, catalog, week_dir)
             print(f"Ábra beillesztve: {n_figs}")
+            # Persist global_num back to figure_catalog.json (K5)
+            if not args.dry_run and n_figs > 0:
+                catalog_path.write_text(
+                    json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
 
     # ToC generation
     if not args.no_toc:
