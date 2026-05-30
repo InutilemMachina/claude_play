@@ -596,16 +596,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.week_dir:
-        week_dir = Path(args.week_dir)
-        n = _detect_week_number(week_dir)
-        out = args.output or str(week_dir / "5_clean_outputs" / f"{n}_Prezentacio.pptx")
+        sys.exit(
+            "HIBA: due_fill.py --week-dir nem tamogatott.\n"
+            "Hasznald helyette: python scripts/12_pptx_gyarto.py --week-dir " + args.week_dir
+        )
     else:
         out = args.output or "output/due_test_output.pptx"
 
     # --- DEMO tartalom ---
-    # ⚠️ Ez csak demo/teszt stub. Valós pipeline-futáskor Claude olvassa a
-    # 4_wip_outputs/N_Jegyzet.md-t és programmatikusan tölti ki a DUEPresentation-t.
-    # Lásd: 12_presentation_maker skill §3.3
+    # ⚠️ Ez csak demo/teszt stub. DUEPresentation API-t demonstralja.
+    # Pipeline-futashoz lasd: 12_pptx_gyarto.py
     prs = DUEPresentation(args.template)
     prs.set_global_footer("Dr. Hári László", "2026.09.01.")
 

@@ -76,11 +76,7 @@ prs.add_refs_slide(["[1] Szerző (2024). Cím. Kiadó."])
 prs.save("output/prezentacio.pptx")
 ```
 
-CLI pipeline-módban:
-```powershell
-python scripts/due_fill.py --week-dir test_outputs/<Tantargy>/N_het
-# Output: 5_clean_outputs/N_Prezentacio.pptx
-```
+⚠️ `due_fill.py --week-dir` **deprecated** — a `12_pptx_gyarto.py` az egyetlen kanonikus CLI (átirányítja a hívást).
 
 ### 3.4. Mindmap variáns (due_mindmap_fill.py)
 
