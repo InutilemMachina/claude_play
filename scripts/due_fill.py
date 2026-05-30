@@ -602,7 +602,10 @@ if __name__ == "__main__":
     else:
         out = args.output or "output/due_test_output.pptx"
 
-    # --- DEMO tartalom (valós futáskor Claude tölti ki ezt a részt) ---
+    # --- DEMO tartalom ---
+    # ⚠️ Ez csak demo/teszt stub. Valós pipeline-futáskor Claude olvassa a
+    # 4_wip_outputs/N_Jegyzet.md-t és programmatikusan tölti ki a DUEPresentation-t.
+    # Lásd: 12_presentation_maker skill §3.3
     prs = DUEPresentation(args.template)
     prs.set_global_footer("Dr. Hári László", "2026.09.01.")
 

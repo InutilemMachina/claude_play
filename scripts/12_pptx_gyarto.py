@@ -422,6 +422,8 @@ def main():
                         help='PPTX template elérési útja (default: templates/due_refactored.pptx)')
     parser.add_argument('--output', default=None,
                         help='Kimeneti .pptx fájl (elhagyható ha --week-dir megadva)')
+    parser.add_argument('--pdf', action='store_true',
+                        help='PDF másolat is generálódjon (PowerPoint COM, Windows only)')
     args = parser.parse_args()
 
     # -- Útvonalak meghatározása --
@@ -459,6 +461,26 @@ def main():
     prs = build_presentation(slides_data, template_path, md_dir=str(md_path.parent))
     prs.save(out_path)
     print(f"Mentve: {out_path}")
+
+    if args.pdf:
+        _pptx_to_pdf(out_path)
+
+
+def _pptx_to_pdf(pptx_path: Path):
+    """PPTX → PDF via PowerPoint COM (Windows only)."""
+    pdf_path = pptx_path.with_suffix('.pdf')
+    try:
+        import win32com.client
+        ppt = win32com.client.Dispatch("PowerPoint.Application")
+        prs = ppt.Presentations.Open(str(pptx_path.resolve()), True, False, False)
+        prs.SaveAs(str(pdf_path.resolve()), 32)  # 32 = ppSaveAsPDF
+        prs.Close()
+        ppt.Quit()
+        print(f"PDF: {pdf_path}")
+    except ImportError:
+        print("  WARN  pywin32 nem elérhető -- PDF kihagyva (pip install pywin32)")
+    except Exception as e:
+        print(f"  WARN  PDF generálás sikertelen: {e}")
 
 
 if __name__ == '__main__':
