@@ -80,7 +80,6 @@ BSc fájlok `_bsc` suffixszel a `5_clean_outputs/`-ban (lapos struktúra, nem al
 
 ## 8. Visszajelzések
 
-- ✅ `14_bsc_filter.py` script elkészült (2026-05-26): `<!-- MSc -->` blokkok, Mermaid `[MSc]` node-ok, `SZINT:4-5` kérdések szűrése.
 - 💬 NOTE: `_bsc` suffix döntés: laposabb `5_clean_outputs/` struktúra, kevesebb mappanavigáció. A `bsc/` almappa elhagyva (2026-05-26 döntés). Az összes érintett script egyszerre frissítendő, ha ez változik.
 - 💬 NOTE: Camera-ready scope: a `5_clean_outputs/` nemcsak a Prezentációt tartalmazza, hanem minden végterméket (Jegyzet, Szószedet, Mindmap, Kérdések BSc verziói).
 - 💬 NOTE: A Mindmap camera-ready hiányzik: `N_Mindmap.md` DRAFT státuszban marad -- a pipeline-nak `5_clean_outputs/`-ba is kell egy renderelt vagy exportált verziót előállítani (12. vagy 14. lépés felelőssége definiálandó).
@@ -89,6 +88,7 @@ BSc fájlok `_bsc` suffixszel a `5_clean_outputs/`-ban (lapos struktúra, nem al
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 2.1 | K0 cleanup: ✅ (script elkészült) → §9 |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; lépésszám javítva (10→14) |
 | 2026-05-26 | 1.1 | Camera-ready scope: minden végtermék `5_clean_outputs/`-ba |
 | 2026-05-25 | 1.0 | Létrehozva; `_bsc` suffix konvenció rögzítve |

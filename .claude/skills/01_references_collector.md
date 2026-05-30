@@ -119,8 +119,7 @@ Claude listát ad a feltöltendő fájlokról:
 
 ## 8. Visszajelzések
 
-- 🔲 TODO: A user nem kell hogy manuálisan töltse fel a forrásokat az NLM-be. Az elképzelés: `1_raw_inputs/` feltöltés után a skill/automatizmus egyben feltölti az NLM-be. A jelenlegi "NLM feltöltési útmutató" rész ezért átdolgozandó, ha a 02_nlm_notebook_setup CLI-automatizmusa megbízhatóan működik.
-- ❔ QUESTION: A pipeline belépési pontja ("01. lépésnél Claude visszakérdezett") nem elég önálló. Kell-e strukturáltabb indítási kontextus a skillben, vagy a pipeline.md elé kerüljön egy "hogyan indítsuk el" leírás?
+- 🔲 TODO: A user nem kell hogy manuálisan töltse fel a forrásokat az NLM-be. Ha a 02_nlm_notebook_setup CLI-automatizmusa megbízhatóan működik, ez a lépés automatizálható.
 - 💬 NOTE: Ha a user saját forrásokat hoz és az 01. lépés kihagyódik, a `citations_seed.json` nem jön létre automatikusan -- a 02_nlm_notebook_setup manuális seed-et igényel. Ez elfogadott workaround.
 - 🔲 TODO: Claude a fájlneveket elemzi és a naming convention kérdéseket ebből vezeti le -- de a struktúrát (szerző, év, típus) a saját elemzéséből kell kitöltenie, nem a user-rel kérdeztetni. A visszakérdezés csak akkor indokolt, ha az elemzés egyértelműen nem elegendő.
 - 🔲 TODO: Minden begyűjtött forrás eredetét rögzíteni kell: ki szerezte (user/Claude), honnan (URL/feltöltés), átnevezés előtti és utáni név. Tároló fájl: `1_raw_inputs/input_audit_trail.md`. Ez a skill §4 kimenetéhez tartozik -- a `citations_seed.json` mellé kötelező output.
@@ -132,6 +131,7 @@ Claude listát ad a feltöltendő fájlokról:
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 2.1 | K0 cleanup: ❔ belépési pont lezárva (pipeline.md a kanonikus indítási dokumentum) |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; pipeline diagram eltávolítva; TODO/NOTE/QUESTION konszolidálva |
 | 2026-05-26 | 1.1 | NOTE: 01-02 seed függőség workaround dokumentálva |
 | 2026-05-24 | 1.0 | Létrehozva (01-14 átszámozás) |

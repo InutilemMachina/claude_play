@@ -20,7 +20,7 @@ A `figure_catalog.json` kulcsszavait a `N_Jegyzet.md` bekezdéseivel veti össze
 - `3_raw_outputs/figure_catalog.json` -- 03_mineru_extractor + 03-1_qfig_parser kimenet
 - `4_wip_outputs/N_Jegyzet.md` -- 06-08 kimenet (összefüggő próza + szekciók)
 
-**Előfeltétel:** `figure_catalog.json` `keywords` mezői NEM üresek (03-1_qfig_parser lefutott). Ha `keywords == []` minden entrynél, a mapper figyelmeztet és kilép.
+**Előfeltétel:** `figure_catalog.json` legalább egy entrynél `keywords != []` (03-1_qfig_parser, VLM, vagy `--from-caption` lefutott). Ha minden entry keywords üres, a mapper figyelmeztet és kilép. (`vlm_done=True` NEM szükséges feltétel -- tesztelve 2026-05-29.)
 
 ## 3. Eljárás
 
@@ -128,20 +128,13 @@ Ez a legmegbízhatóbb útvonal VLM és CLI kvóta nélkül. **Mindig ezt kell j
 ## 8. Visszajelzések
 
 - 💬 NOTE: Ha több kép ugyanarra a bekezdésre illeszkedik (`inserted_after_paragraph` azonos), a beillesztési sorrend `match_score` szerint csökkenő -- a 10_notes_collector kezeli.
-- ✅ A 03-1_qfig_parser BOM + Markdown-bold formátum hiba javítva (2026-05-26, B1 fix). A képpipeline (09, 10) újra teljes -- Termografia_teszt_v3-on verifikálandó.
-- ✅ **Blokkoló feltétel lazítva (2026-05-29).** `vlm_done=True` feltétel helyett `keywords != []` elegendő. A `09_figure_mapper.py` most fut Qfig- és caption-alapú keywords-szel is. A §2 és §6 frissítve.
-- ✅ **ToC kizárva a paragraph matchingből (2026-05-29).** `is_preserved_block()` mostantól kizárja a `- [...]` link-listából álló blokkokat (>50% link-sor). Korábban a ToC kapta a legtöbb keywordhitett és minden kép oda kerülhetett.
-- ✅ **`--from-caption` fallback (2026-05-29).** `03_util_figure_catalog.py --from-caption`: caption tokenizálás EN→HU szinoníma-bővítéssel, API kulcs és NLM kvóta nélkül.
-- 💬 **TANULSÁG: NLM Studio Data Tables ([Prompt C.3](../prompts/prompt_c3_abrajegyzek.md)) mint elsődleges manuális fallback** — nem volt dokumentálva ebben a skillben, holott ez a legmegbízhatóbb út ha VLM és Qfig CLI nem elérhető. Felvéve a §6 Hibakezelés táblába A-prioritással.
-- 🔲 TODO: **Előfeltétel pontatlan a skill §2-ban (tesztelve 2026-05-28).** A §2 szerint a blokkoló feltétel `keywords == []`, de a script (line 133-136) `vlm_done=True` hiányát ellenőrzi és kilép. Ha `vlm_done=False` (pl. VLM nem futott), a script "No entries with vlm_done=True. Run 03_util_figure_catalog.py --vlm first." üzenettel exitál -- a `keywords`-t meg sem nézi. A §2 szövegét frissíteni kell: "Előfeltétel: `vlm_done=True` legalább egy entrynél (03_util_figure_catalog.py --vlm lefutott)."
-- 🔲 TODO: **Nincsenek képek a wip Jegyzetben (user feedback, 2026-05-28, 1_het).** A `4_wip_outputs/1_Jegyzet.md` nem tartalmaz egyetlen képet sem. Gyökérok: (1) `09_figure_mapper` blokkolt (`vlm_done=False`), így `inserted_after_paragraph` mezők üresek; (2) `10_notes_collector --no-figures` opcióval futott (képbeillesztés szándékosan kihagyva). A teljes kép-pipeline (03-1 Qfig → 09 mapper → 10 inserter) blokkolt a `vlm_done` és a Qfig formátum-eltérés miatt. Következmény: a Jegyzet szöveg-only -- a forrás PDF-ek vizuális tartalma (ábrák, táblázatok) elvész.
-- ✅ **VLM lépés pipeline-ban dokumentálva (javítva 2026-05-28).** `pipeline.md §1` IO táblájába felvéve: `03_util_figure_catalog.py --vlm` a 03-1_qfig_parser után, 03-2_dedup előtt.
-- ✅ **03_util_figure_catalog.py syntax hiba javítva (2026-05-28).** `2_clean_inputs_dir` → `clean_inputs_dir` (line 119 + 128). A `--vlm` flag most futtatható.
+- 💬 **TANULSÁG: NLM Studio Data Tables ([Prompt C.3](../prompts/prompt_c3_abrajegyzek.md)) mint elsődleges manuális fallback** — ha VLM és Qfig CLI nem elérhető, ez a legmegbízhatóbb út. Felvéve a §6 Hibakezelés táblába.
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 3.1 | K0 cleanup: 6 ✅ → §9; §2 előfeltétel javítva (keywords != [] vs vlm_done); képbeillesztési pipeline működik (mini2/mini3 igazolja) |
 | 2026-05-26 | 3.0 | Overhaul: template-alapú átírás; §8 Visszajelzések; archív Q5-szekció eltávolítva |
 | 2026-05-25 | 2.0 | Teljes újraírás: VLM keywords → inserted_after_paragraph; script 09_figure_mapper.py |
 | 2026-05-22 | 1.0 | Létrehozva (figure pipeline design) |

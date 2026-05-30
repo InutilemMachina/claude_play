@@ -70,6 +70,7 @@ Min. 4 BSc kérdés + min. 2 MSc kérdés hetente.
 - [ ] Minden kérdéshez forrás-hivatkozás
 - [ ] MSc kérdések `<!-- MSc -->` blokkban
 - [ ] Kérdések szintjei egyenletesen elosztva (2-3-4-5)
+- [ ] 😎 **MSc/BSc határ manuális review:** a `<!-- MSc -->` blokkokat és `SZINT` mezőket manuálisan kell kitölteni; a pipeline nem dönt automatikusan
 
 ## 6. Hibakezelés
 
@@ -86,7 +87,6 @@ Min. 4 BSc kérdés + min. 2 MSc kérdés hetente.
 ## 8. Visszajelzések
 
 - 💬 NOTE: Az eddigi teszten a kérdésbank Claude-feladatként (`N_Jegyzet.md` alapján) lett generálva -- nem NLM-queryből. Ez nem reprodukálható és nem auditálható. A §3.1-ben leírt NLM-alapú módszer a következő iterációban tesztelendő.
-- ⚠️ WARNING: Az MSc/BSc határ embert döntés -- a pipeline nem dönt automatikusan a pedagógiai szintről. A `<!-- MSc -->` blokkokat és a kérdések `SZINT` mezőjét manuális review után kell kitölteni.
 
 ## 9. Változásjegyzék
 

@@ -84,8 +84,7 @@ Minden `###` szintű alfejezet tartalma után, közvetlenül a következő fejl�
 
 ## 8. Visszajelzések
 
-- ✅ **`06_excerpt_block_maker.py` scriptesítve (2026-05-29, extractive mód).** A korábbi 🤖 Claude-feladat (API-blokkolt) helyett szabály-alapú Python script. `--mode extractive` (default): minden `###` alszakasz első érdemi prózai mondatát emeli ki `💡 Lényeg` blokként; minden `##` fejezet végére `🗺️ Fejezet összegzés` blokkot szúr az alszakasz-címekből. API/kvóta nélkül fut, idempotens (meglévő blokkot nem duplikál), a `<!-- Q:N -->` markereket/képeket/táblákat kihagyja. Mini teszt: 27 💡 + 11 🗺️ blokk. Korlát: az extractive mód az első mondatot veszi -- nem absztrakt összefoglaló. Jövőbeli `--mode abstractive` (LLM) opció a docstringben jelölve.
-- 🔲 TODO (eredeti, részben megoldva): **Skálázhatósági probléma DFS pipeline-nál.** Az extractive script megoldja a skálázást (227 blokk gond nélkül), de a minőség alacsonyabb mint egy LLM-é. Ha API elérhető, az `abstractive` mód implementálandó.
+- 🔲 TODO: **`abstractive` mód implementálandó.** Az extractive script (06_excerpt_block_maker.py) megoldja a skálázást (227 blokk, gond nélkül), de a minőség alacsonyabb mint egy LLM-é. Ha API elérhető, `--mode abstractive` LLM-összefoglalóval.
 - 💬 NOTE: Lista whitespace: a generált szövegben `*   **...**` forma (több szóköz) helyett `* **...**` legyen. Megoldandó: 11_typesetter.py lint-szabályba felvenni (`*{3,}` → `* `).
 - 💬 NOTE: Heading hierarchia: Q1 kimenetben `###` közvetlenül `#` alatt (nincs `##`). Következmény: VSCode vázlatban és ToC-ban inkonzisztens szintek. Megoldandó: `05_assemble.py` Q1-hez `## Bevezetés` szülőt generáljon, vagy Prompt B módosítás.
 - 💬 NOTE: Formázási alternatíva: a blockquote-ok helyett `<div style="background-color: rgba(120,120,120,0.08); border-radius: 6px; padding: 15px;">` alapú doboz (Obsidian/VSCode preview-ban lekerekített szürke háttér). Archiválva: `.claude/archive/markdown_textboxes.md`.
@@ -96,6 +95,7 @@ Minden `###` szintű alfejezet tartalma után, közvetlenül a következő fejl�
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 2.1 | K0 cleanup: ✅ → §9; skálázhatóság TODO tömörítve (abstractive mód marad nyitott) |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; cím 03→06 javítva; §8 Visszajelzések |
 | 2026-05-25 | 1.1 | NOTE-ok: lista whitespace, heading hierarchia, formázási alternatíva |
 | 2026-05-22 | 1.0 | Létrehozva; `\n\n` kötelező blockquote előtt/után |

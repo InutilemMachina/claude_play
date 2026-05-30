@@ -96,20 +96,15 @@ Ha a felhasználó kulcsszó-listát ad meg, a skill `<a id="idx-kulcsszó"></a>
 
 ## 8. Visszajelzések
 
-- ✅ **ToC idempotencia javítva (2026-05-29, KRITIKUS).** Az `insert_toc()` korábban mindig beszúrt egy új `## Tartalomjegyzék` blokkot a meglévő eltávolítása nélkül → kétszeri/háromszori futás 2-3 ToC blokkot eredményezett (mini teszt: 3 ToC). Fix: új `strip_existing_toc()` függvény eltávolítja az összes meglévő ToC blokkot a beszúrás előtt. A futás mostantól idempotens.
-- ✅ **`--dry-run` UnicodeEncodeError javítva (2026-05-28).** `scripts/_encoding_fix.py` modul bevezetve; `10_notes_collector.py` importálja és alkalmazza induláskor.
-- ✅ **Bevezetés és Tartalomjegyzék unnumbered (2026-05-28).** `11_util_heading_numberer.py` UNNUMBERED listába felvéve: `bevezetes`, `tartalomjegyzek`, `hivatkozasjegyzek`.
-- ✅ **ToC dupla sorszámozás + (QN) suffix javítva (2026-05-28).** `05_assemble.py` átírva: nem generál `## N. szekció (QN)` fejlécet, hanem az NLM válasz első `##`-jét használja cím gyanánt. Heading_numberer az egyetlen sorszámozó.
-- ✅ **`generate_index.py` archiválva (2026-05-28).** `scripts/archive/generate_index.py`. Kanonikus ToC script: `10_notes_collector.py`.
-- ✅ **`util_regen_outputs.py` archiválva (2026-05-28).** `scripts/archive/util_regen_outputs.py`.
-- 💬 NOTE: ToC hierarchikus számozás: a ToC linkek nem tartalmazzák a sorszámokat (pl. `1. Matematikai...` helyett `Matematikai...`), mert a `##` fejlécek sem voltak egységesen számozva. Megoldandó: `11_util_heading_numberer.py` futtatása a `05_assemble.py` után, a ToC generálása előtt.
-- 💬 NOTE: A `§3.3` NLM mindmap-alapú lekérdezési stratégia (korábban itteni tartalomként) a 04_nlm_query_runner skillbe lett áthelyezve -- ott a kanonikus hely.
+- 💬 NOTE: ToC hierarchikus számozás: a ToC linkek nem tartalmazzák a sorszámokat, mert a `##` fejlécek sem voltak egységesen számozva. `11_util_heading_numberer.py` futtatása a ToC generálása előtt megoldja.
+- 💬 NOTE: A `§3.3` NLM mindmap-alapú lekérdezési stratégia a 04_nlm_query_runner skillbe lett áthelyezve.
 - ❔ QUESTION: A pedagógiai output kötelező elemei: tanulási célok, főszöveg, kulcsfogalmak, összefoglaló, kérdések -- mennyi és milyen formátumban? (Összefoglaló blokk: `> [!NOTE]` GFM callout megoldás?)
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 2.1 | K0 cleanup: 5 ✅ → §9 (ToC idempotencia, encoding fix, unnumbered, dupla sorszámozás, archivált scriptek) |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; NLM mindmap szekció áthelyezve 04-be; §8 Visszajelzések |
 | 2026-05-24 | 1.1 | §3.4 NLM mindmap-alapú lekérdezési stratégia hozzáadva |
 | 2026-05-21 | 1.0 | Létrehozva |

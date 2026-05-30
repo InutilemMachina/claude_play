@@ -27,8 +27,7 @@ Ha NLM UI-ba (Configure Chat / Studio): ékezetes magyar megengedett.]
 
 ## Nyitott pontok
 
-- [🔲 TODO / ❔ QUESTION / ⚠️ WARNING / 💬 NOTE bejegyzések ehhez a prompthoz.
-  Inline TODO a fenti törzsben TILOS -- minden ide kerül. (Instructions §11.1)]
+<!-- Ide kerülnek a 🔲 TODO / ❔ QUESTION / ⚠️ WARNING / 💬 NOTE bejegyzések. (Instructions §11.1) -->
 
 ## Változásjegyzék
 

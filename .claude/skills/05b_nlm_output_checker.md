@@ -71,24 +71,14 @@ NLM Output Check összefoglaló:
 
 ## 8. Visszajelzések
 
-- ✅ **D2 (átszámozás, 2026-05-28):** Átnevezve `05_source_controller` → `05b_nlm_output_checker`. A `05` szám az `05_assemble.py` szkripthez tartozik; ez a checkpoint skill a `05b` szufixet kapja.
-- ✅ **D5 (leíróbb név, 2026-05-28):** `source_controller` → `nlm_output_checker`. Az eredeti név nem jelezte egyértelműen, hogy ez az NLM DFS outputok checkpoint-ja (és nem forráskezelés).
-- ✅ **Hibás HTML kommentformátum javítva (2026-05-28):** Az `05_assemble.py` `<!, Q:1, >` helyett már `<!-- Q:N -->` formátumot generált (korábbi fix). Ellenőrizve.
-- ✅ **Szekciónevekben tartalom (2026-05-28):** Az `05_assemble.py` átírva -- `## N. szekció (QN)` helyett az NLM válasz első `##` fejlécét használja szekcióként (D6: csak a heading_numberer számoz).
-- ✅ **YAML cím fallback (2026-05-28):** Az `05_assemble.py` `--title` hiányában a `nlm_mindmap_export.md` H1 fejlécét olvassa be automatikusan.
-- ✅ **`05_assemble.py` hiányzó `main()` hívás javítva (mini teszt, 2026-05-28).** A script csendesen futott (exit 0, no file) mert `if __name__ == "__main__": main()` hiányzott a fájl végéről. Hozzáadva + `print("Írva: ...", file=sys.stderr)` visszajelzéssel.
-- ✅ **`extract_section_title()` `###` heading kezelés javítva (mini teszt, 2026-05-28).** Az NLM CLI válaszok **minden esetben `###` szintű headinggel** kezdenek (37/37 query), nem `##`-vel. Az eredeti `r'^##\s+(.+)$'` regex sosem illeszkedett. Fix: `r'^#{2,3}\s+(.+)$'` -- mind `##`, mind `###` elfogadott szekciófeliratként, `##` szintre emelve.
-- ✅ **J1 Prompt B + assembler `##` duplikáció javítva (2026-05-29, iteráció 2).** Miután a Prompt B `## kötelező első sor` szabályt kapott, az NLM minden válasz elejére `##` headinget ír. Az assembler viszont L1/L2 node-oknál saját `## {node_name}` fejlécet is beilleszt → kettős fejléc. Fix: `extract_section_title()` most L1/L2-nél is eltávolítja a vezető `##`-t a szövegből, mielőtt a node_name-et fejlécként beilleszti. Tanulság: ha a Prompt B formátumot változtat, mindig ellenőrizni kell az assembler fejléc-logikájával való interakciót.
-- ✅ **NLM válaszok prózával kezdtek (2026-05-28 TODO) — J1 Prompt B-vel megoldva (2026-05-29).** A `## kötelező első sor` szabály garantálja, hogy az NLM soha nem kezd prose-zal. Lezárt TODO. Q17, Q24, Q32 esetén az NLM rövid bevezető mondattal kezd, és csak utána jön a `###` heading. Ezek nem kapnak `##` wrappert (az assembler csak az 1. nem-üres sort vizsgálja). Eredmény: a dokumentumban 37 queryből csak 6 kap `##` szekciót; a többi tartalom az előző szekció alá esik. Megoldás: Prompt B frissítése (explicit instrukció: `###` heading legyen az ELSŐ sor, prose bevezető TILOS) -- vagy az assembler lookahead kibővítése (első 3 sor vizsgálata).
-- 🔲 TODO: **`citations_seed.json` hiányzó `_meta` szekció (tesztelve 2026-05-27).** Az `05_assemble.py` fallback logikát kapott (`nlm_mindmap_export.md` H1 + `_notebook` mezők), de a `_meta` szekció explicit kitöltése az `01_references_collector` lépésben még nem megoldott. Következő lépés: `01_references_collector` generálja a `_meta` szekciót automatikusan.
-- 💬 NOTE: **Üres `citations` mező L3-L4 nodeknél (tesztelve 2026-05-27, 1_het, 40 query).** Q14, Q20, Q25, Q31, Q32-nél `citations: {}`, de `references` UUID-eket tartalmaz -- forráslefedetség teljes. Elfogadott viselkedés mély nodeknél.
-- ✅ **Extrém tartalmi ismétlődés részben megoldva (2026-05-29, iteráció 2).** Gyökérok: minden DFS csomópont teljes kontextuális választ kap → szülő+gyerek azonos tartalmat hoz. Megoldás: (1) `--max-level 2` (37→23 query, L3+ kihagyva); (2) J3 Q1 bevezető-prompt (5269→1213 kar, -77%); (3) Prompt B `ismétlés tilalma` szabály. Eredmény iteráció 2-ben: bullet 85%→40%, prose 15%→59%. Részben nyitott: szomszéd L2-csomópontok közt még van átfedés.
-- ✅ **Robotikus bevezető mondatok megoldva (2026-05-29).** Prompt B `## kötelező első sor` + prose szabály megszüntette a "Az infravörös termográfia egy olyan módszer, amely..." sablon-nyitányokat. Lezárt.
+- 🔲 TODO: **`citations_seed.json` hiányzó `_meta` szekció.** Az `05_assemble.py` fallback logikát kapott (`nlm_mindmap_export.md` H1 + `_notebook` mezők), de a `_meta` szekció explicit kitöltése az `01_references_collector` lépésben még nem megoldott.
+- 💬 NOTE: **Üres `citations` mező L3-L4 nodeknél (tesztelve 2026-05-27, 1_het, 40 query).** `citations: {}`, de `references` UUID-eket tartalmaz -- forráslefedetség teljes. Elfogadott viselkedés mély nodeknél.
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 3.1 | K0 cleanup: 10 ✅ → §9 (D2/D5 rename, HTML komment, szekciónevekl, YAML fallback, main(), ###, duplikáció, ismétlés, robotikus mondatok) |
 | 2026-05-28 | 3.0 | D2+D5: átnevezés `05b_nlm_output_checker`-re; §8 frissítve (✅ + nyitott); tartalmi pontosítások |
 | 2026-05-26 | 2.0 | Overhaul: template-alapú átírás; státusz `review`; elavult tartalom eltávolítva |
 | 2026-05-26 | 1.1 | Státusz `active`; pipeline sorrend javítva |

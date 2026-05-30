@@ -105,19 +105,16 @@ python scripts\11_util_heading_numberer.py test_outputs\<Tantargy>\N_het\4_wip_o
 
 ## 8. Visszajelzések
 
-- 💬 NOTE: A Fázis 1 (bullet→próza, Claude API) újra aktív -- az NLM `--response-length longer` (helyes flag) beállítás nem mindig ad folyó prózát. Ha a Prompt B-vel kapott válaszok már prózában vannak, a Fázis 1 idempotens (nem küld API-hívást).
-- ✅ Rule B lista whitespace (`*   **...**` → `* **...**`): megvalósítva, `rule_b_bullet_whitespace()` regex `^(\s*[*-])\s{2,}` az összes bullet típusra. Tesztelve.
-- ✅ **Skill §3.1 Fázis 1 inkonzisztencia javítva (2026-05-28).** A §3.1 táblázat most helyesen mutatja: Fázis 1 eltávolítva.
-- 🔲 TODO: **Hibás Markdown táblázat-szeparátor az NLM kimenetben (külső szemlélő, 2026-05-28).** Több táblázatban `| :, - | :, - | :, - |` szeparátorsor jelenik meg, ami nem érvényes GFM szintaxis (helyes: `|:---|:---|:---|`). Következmény: a táblázatok Markdown-renderelőkben nem táblázatként, hanem szövegként jelennek meg. Az NLM Prompt B-t módosítani kell (explicit utasítás a helyes szeparátor-formátumra), vagy a `11_typesetter.py`-ba Rule I-ként bevezetni: `| :, - |` → `|:---|`.
-- 🔲 TODO: **Automatikus táblafeliratok placeholderként láthatók (külső szemlélő, 2026-05-28).** `*1. táblázat: (automatikus felirat)*` sorok megmaradtak a kész dokumentumban. Az "(automatikus felirat)" szöveg egy pipeline-placeholder, amelyet a `06_table_caption_injector.py` szúrt be, de a VLM/NLM nem töltötte ki valódi felirattal. Következmény: minden táblázat előtt egy értelmetlen sor áll. Megoldás: ha VLM nem fut, a placeholder távolítandó el, vagy valódi tartalommal kell kitölteni (pl. NLM query per-tábla).
-- ✅ **Rule H HTML-komment rombolás javítva (2026-05-29, KRITIKUS).** A Rule H (`--` → `,`) elrontotta a `<!-- Q:N -->` markereket → `<!, Q:N, >`, ami a Markdown preview-ban láthatóként maradt (user által kétszer jelzett hiba). Fix: a Rule H most kihagyja a `<!--` kezdetű sorokat. A `<!-- -->` komment szintaxis legitim módon tartalmaz `--`-t.
-- ✅ **Rule J anchor-rombolás javítva (2026-05-29).** A Rule J terminológia-csere (`hőkamera` → `IR kamera`) a ToC link-soraiban elrontotta az anchort (`#a-hőkamerák` → `#a-IR kamerák`, szóköz + nagybetű). Fix: a Rule J most kihagyja a ToC link-sorokat (`- [...](#...)` minta). A látható ToC-szöveg így a fejléchez igazodik, az anchor ép marad.
-- 💬 NOTE: **Futtatás eredménye 1_het teszten (2026-05-28).** Rule B: 366 fix (nagy szám -- az NLM sok `*   **...**` formátumot generál). Rule H: 218 fix (sok dash az NLM kimenetben). Rule G: 233 fejléc-számozás változás. Ez az eredmény normálisnak tekinthető 40 DFS query esetén (~190KB fájl).
+- 💬 NOTE: A Fázis 1 (bullet→próza, Claude API) újra aktív -- az NLM `--response-length longer` beállítás nem mindig ad folyó prózát. Ha Prompt B-vel kapott válaszok már prózában vannak, Fázis 1 idempotens (nem küld API-hívást).
+- 🔲 TODO: **Hibás Markdown táblázat-szeparátor az NLM kimenetben (külső szemlélő, 2026-05-28).** `| :, - | :, - |` szeparátorsor nem érvényes GFM szintaxis (helyes: `|:---|:---|`). Következmény: táblázatok nem renderelnek. Megoldás: Prompt B módosítása, vagy Rule I a typesetter-ben: `| :, - |` → `|:---|`.
+- 🔲 TODO: **Automatikus táblafeliratok placeholderként láthatók (külső szemlélő, 2026-05-28).** `*1. táblázat: (automatikus felirat)*` megmarad a kész dokumentumban. Ha VLM nem fut, a placeholder távolítandó, vagy valódi tartalommal kitöltendő (NLM query per-tábla).
+- 💬 NOTE: **Futtatás eredménye 1_het teszten (2026-05-28).** Rule B: 366 fix. Rule H: 218 fix. Rule G: 233 fejléc-változás. Normális 40 DFS query (~190KB fájl) esetén.
 
 ## 9. Változásjegyzék
 
 | Dátum | Verzió | Leírás |
 |-------|--------|--------|
+| 2026-05-30 | 4.1 | K0 cleanup: 4 ✅ → §9 (Rule B, §3.1 inkonzisztencia, Rule H HTML-komment, Rule J anchor) |
 | 2026-05-26 | 4.0 | Overhaul: template-alapú átírás; duplikált checklist eltávolítva; §8 Visszajelzések |
 | 2026-05-26 | 3.1 | Rule B hozzáadva (bullet whitespace); Rule H aktiválva |
 | 2026-05-25 | 3.0 | Fázis 1 (bullet→próza) eltávolítva (NOTE G); Rule H (dash cleanup) hozzáadva |
