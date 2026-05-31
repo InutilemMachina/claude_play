@@ -7,7 +7,9 @@
       "Bash(git checkout *)",
       "Bash(xargs -I{} basename {} .md)",
       "mcp__Desktop_Commander__read_file",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "mcp__a104732a-4e3a-4836-9cb0-8d12f3d7931d__search",
+      "mcp__a104732a-4e3a-4836-9cb0-8d12f3d7931d__exec"
     ]
   }
 }

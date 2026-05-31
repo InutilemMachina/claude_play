@@ -89,6 +89,91 @@ python scripts/04_nlm_dfs_queries.py `
 - `11_util_heading_numberer.py` az egyetlen sorszámozó (10_notes_collector UTÁN futtatandó)
 - Unnumbered fejlécek: `Bevezetés`, `Tartalomjegyzék`, `Hivatkozásjegyzék`
 
+# 1.1 Vizualizáció
+
+```mermaid
+flowchart TD
+    subgraph INIT["① Előkészítés"]
+        n00["00 init_course\n🐍"]
+        n01["01 references_collector\n🤖 😎"]
+        n02{{"02 nlm_notebook_setup\n🔌 🚦"}}
+        n00 --> n01 --> n02
+    end
+
+    subgraph EXT["② Forrás-extrakció"]
+        n03["03 mineru_extractor\n🐍 PDF"]
+        n03u["03 util_source_extractor\n🐍 PPTX · HTML · DOCX"]
+        n03_1["03-1 qfig_parser\n🐍 Qfig → keywords"]
+        n03c3["03 studio_parser --c3\n🐍 C.3 → keywords"]
+        n03vlm["03 figure_catalog --vlm\n🐍 VLM caption"]
+        n03fc["03 figure_catalog --from-caption\n🐍 offline"]
+        FC[("figure_catalog.json")]
+        n03_2["03-2 dedup_figures\n🐍 hash dedup"]
+        n03 --> FC
+        n03u --> FC
+        n03_1 --> FC
+        n03c3 --> FC
+        n03vlm --> FC
+        n03fc --> FC
+        FC --> n03_2 --> FC
+    end
+
+    subgraph NLM_Q["③ Mindmap & Lekérdezés"]
+        n08["08 mindmap_manager\n😎 Ultra Explorer 🚦"]
+        MF[("nlm_mindmap_export.md")]
+        n04["04 nlm_query_runner\n🔌 DFS"]
+        RAW[("nlm_q*_raw.txt")]
+        n05b{{"05b output_checker\n🤖 🚦"}}
+        n08 -->|"MSc jelölés"| MF --> n04 --> RAW --> n05b
+    end
+
+    subgraph ASM["④ Összerakás & Szerkesztés"]
+        n05["05 assemble\n🐍"]
+        NOTE[("N_Jegyzet.md")]
+        n06["06 excerpt_block_maker\n🐍"]
+        n06b["06b table_caption_injector\n🐍"]
+        n07{{"07 citations_maker\n🤖 🚦"}}
+        n07_2["07-2 ieee_renderer\n🐍"]
+        n09["09 figure_mapper\n🤖"]
+        n10["10 notes_collector\n🤖"]
+        n11u["11u heading_numberer\n🐍"]
+        n11["11 typesetter\n🤖"]
+        n11b{{"11b quality_reviewer\n🐍 🤖 🚦"}}
+        n05 --> NOTE --> n06 --> n06b --> n07
+        n07 -->|"🚦"| n07_2 --> n09 --> n10 --> n11u --> n11 --> n11b
+    end
+
+    subgraph STUDIO["Studio outputok\n😎 manuális"]
+        sc1["studio_parser --c1 🐍\n→ Forrasattekinto.md"]
+        sc4["studio_parser --c4 🐍\n→ Kerdesek.md"]
+    end
+
+    subgraph FINAL["⑤ Végtermékek"]
+        n12{{"12 presentation_maker\n🤖 🐍 🚦"}}
+        n13["13 question_bank_collector\n🔌 🤖"]
+        n14["14 bsc_filter\n🐍"]
+        n14p["14p pandoc_export\n🐍"]
+        PPTX[/"N_Prezentacio.pptx"/]
+        DOCX[/"N_Jegyzet.docx"/]
+        BSC[/"*_bsc.md"/]
+        n12 --> PPTX
+        n12 -->|"🚦"| n13 --> n14
+        n14 --> BSC
+        n14 --> n14p --> DOCX
+    end
+
+    INIT -->|"🚦 02 után"| EXT
+    n02 -->|"párhuzam 😎"| n08
+    EXT --> NLM_Q
+    n05b -->|"🚦 OK"| n05
+    FC --> n09
+    n11b -->|"🚦 OK"| FINAL
+    sc1 --> n12
+    sc4 --> n13
+```
+
+**Jelölések:** `[...]` = 🐍 script · `{{...}}` = 🤖/🔌 Claude/NLM lépés / 🚦 checkpoint · `[("...")]` = fájl/adat · `[/"..."/]` = végső output
+
 # 2. Mappastruktúra (heti mappa)
 
 ```
