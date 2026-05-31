@@ -371,21 +371,39 @@ A Google NotebookLM és az Anthropic Claude integrációja jelentősen növeli a
 
 # 9. Tesztelési státusz és nyitott kérdések
 
-## 9.1. Teszteletlen eszközök
+## 9.1. Eszközök státusza (tesztelve 2026-05-31, branch: test-mcp-research)
 
-| Eszköz | Forrás | Státusz |
-|--------|--------|---------|
-| notebooklm-cowork plugin (39 tool) | github.com/gfsaaser24/notebooklm-cowork | ❔ teszteletlen |
-| notebooklm-mcp (PleasePrompto) | github.com/PleasePrompto/notebooklm-mcp | ❔ teszteletlen |
-| notebooklm-skill (PleasePrompto) | github.com/PleasePrompto/notebooklm-skill | ❔ teszteletlen |
-| notebooklm-skill-claude-ai (mkll) | github.com/mkll/notebooklm-skill-claude-ai | ❔ teszteletlen |
-| Apify NotebookLM API Actor | apify.com | ❔ teszteletlen |
-| NLM Data Tables Studio prompt | minden tier | ✅ szabad tier-en is elérhető (2026 elején rolloutra); Studio → ceruza ikon; sablon: nlm_prompts.md C |
+| Eszköz | Forrás | Státusz | Megjegyzés |
+|--------|--------|---------|------------|
+| **jacob-bd/notebooklm-mcp-cli** (`nlm.exe`) | github.com/jacob-bd/notebooklm-mcp-cli | ✅ **MŰKÖDIK** | v0.6.10, auth OK, 6 notebook, mini2 DFS 19 query lefutott; friss query ~1,5s |
+| **04_nlm_dfs_queries.py** pipeline integráció | scripts/ | ✅ **STABIL** | nlm.exe subprocess-on fut, --resume, citations.json generálás; pipeline 04-es lépése scriptből futtatható |
+| **CLI mindmap workaround (08 §3.2)** | nlm query | ⛔ **NEM EGYENÉRTÉKŰ** | Tartalmi rekonstrukció, nem parse_mindmap()-kompatibilis; [MSc] jelölések hiányoznak; 08-as lépés manuális marad |
+| **notebooklm-mcp.exe MCP szerver** | Scripts/ mappában | ✅ **MŰKÖDIK** | Claude Desktopban aktív; helyes path: `AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\`; `notebook_list` + `notebook_query` tesztelve és citált válaszokat ad |
+| notebooklm-cowork plugin (39 tool) | github.com/gfsaaser24/notebooklm-cowork | ⛔ **ELVETHETŐ** | jacob-bd CLI kiváltja; Cowork Pro ($20/hó) + Hyper-V szükséges |
+| notebooklm-mcp (PleasePrompto) | github.com/PleasePrompto/notebooklm-mcp | ❔ backup | Node.js alapú; backup ha jacob-bd nem megy |
+| notebooklm-skill (PleasePrompto) | github.com/PleasePrompto/notebooklm-skill | ❔ alacsony prioritás | — |
+| notebooklm-skill-claude-ai (mkll) | github.com/mkll/notebooklm-skill-claude-ai | ❔ alacsony prioritás | — |
+| Apify NotebookLM API Actor | apify.com | ❔ alacsony prioritás | Fizetős; CLI elegendő |
+| NLM Data Tables Studio prompt | minden tier | ✅ elérhető | Studio → ceruza ikon; sablon: nlm_prompts.md C |
+| BibCit v2.5 | Chrome Web Store | ❌ **ELVETHETŐ** | Csak NLM válaszokat exportál Markdownba — hivatkozáskezelés nincs; a neve félrevezető |
+| NLM Mindmap Extractor (CWS, Corrected Hierarchy) | Chrome Web Store | ❌ **ELVETHETŐ** | Egyáltalán nem működik |
 
-## 9.2. Nyitott módszertani kérdések
+## 9.2. Nyitott módszertani kérdések (frissítve 2026-05-31)
+
+- **Claude Desktop MCP konfig tartósítása:** az app felülírja a `claude_desktop_config.json`-t UI mentéskor. Az `mcpServers` blokk csak lezárt app melletti szerkesztéssel tartós. MCP tool-ok elérhetősége Claude Desktop restart után ellenőrizendő.
+- **nlm.exe frissítése:** v0.6.10 → v0.6.13: `uv tool install --force notebooklm-mcp-cli`
+- **BibCit IEEE pontosság:** manuális tesztelés szükséges mini2-re (user)
+- **Mindmap Extractor OPML → parse_mindmap() kompatibilitás:** manuális tesztelés (user)
 - MinerU + NLM kétlépcsős feltöltés: tesztelendő A4 szintű forráson.
-- notebooklm-mcp cookie élettartama: 2-4 hét — megújítási folyamat tesztelendő.
-- Cross-notebook lekérdezés (notebooklm-cowork): hasznos lehet többhetes tematikánál.
+- notebooklm-mcp cookie élettartama: 2-4 hét — `nlm login` megújítás tesztelendő.
+
+## 9.3. Pipeline-döntések (kutatás + teszt alapján véglegesítve)
+
+- **Klaszter 2 (IEEE):** Opció A (07-2_ieee_renderer.py) helyes — BibCit nem CLI-automatizálható.
+- **A3 (Vision bypass):** 08-as lépés manuális marad; CLI workaround nem egyenértékű.
+- **Klaszter 3 (CLI↔UI):** ✅ **MEGOLDVA** — `04_nlm_dfs_queries.py` + `nlm.exe` stabil pipeline-integrációt biztosít. Ezen felül a `mcp__notebooklm__notebook_query` tool Claude Desktop-ból közvetlenül is elérhető.
+
+**Részletes elemzés + teszteredmények:** [.claude/research/nlm_tools_targeted_2026-05-30.md](../research/nlm_tools_targeted_2026-05-30.md)
 
 # 10. Linkgyűjtemény
 
@@ -419,4 +437,5 @@ A Google NotebookLM és az Anthropic Claude integrációja jelentősen növeli a
 - https://www.youtube.com/shorts/Lt0Zuyy2Ecw
 
 # Változásjegyzék
+- 2026-05-31 — §9 teszteredményekkel frissítve (branch: test-mcp-research): nlm.exe ✅, DFS script ✅, CLI mindmap ⛔, MCP config ⚠️
 - 2026-05-21 — YAML header és változásjegyzék hozzáadva; _claude/-ból .claude/-ba áthelyezve

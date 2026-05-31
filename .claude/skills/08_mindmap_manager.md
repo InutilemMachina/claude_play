@@ -47,6 +47,8 @@ A kimenet `answer` mezője → mentés `3_raw_outputs/nlm_mindmap_raw.txt`-be.
 
 ⚠️ **Korlát:** A CLI csak szöveges rekonstrukciót ad -- nem a Studio vizuális gráfját. Lekérdezési alapként kevésbé megbízható.
 
+⛔ **Tesztelve (2026-05-31, mini2):** A CLI workaround kimenete **NEM parse_mindmap()-kompatibilis**. A `nlm query "Listazd a gondolatterkep..."` tartalmi rekonstrukciót ad (5 főtéma, bekezdéses formátum), nem a Studio vizuális gráf-hierarchiáját. Az `[MSc]` jelölések hiányoznak, a csomópontok száma és struktúrája eltér. **A 08-as lépés manuális marad.**
+
 ### 3.3. Konverziós szabályok (raw → Mermaid)
 
 - Gyökér: heti téma neve (egy node)
