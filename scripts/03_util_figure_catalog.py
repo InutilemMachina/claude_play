@@ -254,6 +254,9 @@ def main() -> None:
 
     # --- Step 1: Build catalog (merge-mód ha catalog már létezik) ---
     fresh = build_catalog(kepek_dir)
+    if not fresh and not args.vlm and not args.from_caption:
+        sys.exit(f"[Error] Nem találtam content_list.json fájlt: {kepek_dir}")
+    week_root = kepek_dir.parent  # pl. test_outputs/mini3/1_het
     if out_path.exists():
         existing = json.loads(out_path.read_text(encoding="utf-8"))
         # Merge: fresh struktúra + existing gazdagítások (vlm_done, keywords, caption)
@@ -264,7 +267,11 @@ def main() -> None:
                     if old_entry.get(field):
                         catalog[k][field] = old_entry[field]
             else:
-                catalog[k] = old_entry  # árva bejegyzés (forrás eltávolítva)
+                img_file = week_root / old_entry.get("path", "")
+                if img_file.exists():
+                    catalog[k] = old_entry  # fájl még létezik, megtartjuk
+                else:
+                    print(f"  [Warning] Orphan entry kihagyva (fájl nem létezik): {k}")
         new_keys = set(fresh) - set(existing)
         print(f"Merge mód: {len(catalog)} bejegyzés ({len(new_keys)} új, {len(existing)} korábban).")
     else:

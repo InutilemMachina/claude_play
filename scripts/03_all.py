@@ -10,7 +10,7 @@ Felváltja a kétlépéses kézi hívást.
 Usage:
     python scripts/03_all.py --week-dir <path/to/N_het> [--backend pipeline] [--yes]
 
-A tantárgy gyökere automatikusan kiszámítódik: week_dir.parent.parent
+A tantárgy gyökere automatikusan kiszámítódik: week_dir.parent
 (pl. test_outputs/mini3/1_het → test_outputs/mini3)
 """
 
@@ -69,8 +69,8 @@ def main():
     if not week_dir.exists():
         sys.exit(f"[03_all] HIBA: week-dir nem található: {week_dir}")
 
-    # subject root: week_dir / .. / .. (pl. test_outputs/mini3)
-    subject_root = week_dir.parent.parent
+    # subject root: week_dir / .. (pl. test_outputs/mini3/1_het → test_outputs/mini3)
+    subject_root = week_dir.parent
 
     # --- Lépés 1: forrásextrakció (nem-PDF) ---
     extractor_cmd = [sys.executable, str(SCRIPTS_DIR / "03_util_source_extractor.py"),
@@ -78,6 +78,8 @@ def main():
     if args.types:
         extractor_cmd += ["--types"] + args.types
     rc1 = run(extractor_cmd, "03_util_source_extractor (nem-PDF extrakció)")
+    if rc1 != 0:
+        sys.exit(f"[03_all] Megszakítva: step 1 hibával zárult (rc={rc1})")
 
     # --- Lépés 2: MinerU (PDF) ---
     mineru_cmd = [sys.executable, str(SCRIPTS_DIR / "03_run_mineru_pipeline.py"),

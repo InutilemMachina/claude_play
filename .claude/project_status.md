@@ -64,6 +64,7 @@ Forrás: az egyes fájlok `## Nyitott pontok` / skill `§8` szekciói. Ez az agg
 | B-12 | `pip install python-docx` → DOCX forrás-extraktor élesítése | env | 🔲 |
 | B-13 | SingleFile CLI: képes HTML-archiválás (process-isolation korlát) | 03 skill | 🔲 alacsony |
 | B-14 | `main` merge döntés (mikor olvad a meta_file_updates a main-be) | git | 😎 döntés |
+| B-26 | `meta_file_updates` branch szinkronizálhatósága nem definiált: nincs rebase/merge protokoll, nincs sentinel a `main` divergenciára, long-lived branch | git, Instructions | 🔲 |
 
 ---
 
@@ -80,6 +81,7 @@ Részletek a skillek `§8`-ban és a git history-ban.
 - **NLM mindmap = sarokkő:** a Studio-export adja a query-struktúrát (04), a BSc/MSc-határt (13-14), a pedagógiai szerkezetet (05-06). Vision-bypass létezik, ha az Ultra Explorer nem elérhető (08 §8).
 - **Prompt B = `##` kötelező első sor + próza + ismétlés-tilalom:** e nélkül a DFS-kimenet flat/redundáns (RC-1/RC-2 tanulság, mini teszt).
 - **Mappastruktúra-váltás pipeline KÖZBEN tilos** — minden érintett scriptet egyszerre kell frissíteni.
+- **`meta_file_updates` long-lived branch kockázat:** a branch `main`-től való divergenciája nem ellenőrzött; nincs rebase-protokoll, nincs sentinel. A sprint-alapú workflow (3 hét, branch merge nélkül) felhalmozza a merge-konfliktus kockázatot. Javaslat: session-végi `git diff main...HEAD --stat` ellenőrzés, és az A4 döntés (B-14) előtt egyeztetni kell a rebase vs. merge stratégiát.
 - **Prompt B mini-verzió: `VALASZOLJ KIZAROLAG MAGYARUL` az első sor** — PS 5.1 multiline bypass esetén kötelező, különben az NLM angolul válaszol.
 - **`conda run --no-capture-output` + `chcp 65001`** — MinerU terminál visszajelzéshez kötelező; a `cd` Bash tool-ban megváltoztatja a working directory-t (veszélyes: mindig abszolút útvonallal dolgozz).
 - **Vision bypass = LLM-hallucináció kockázat** — mindmap PNG-ből rekonstruált export megbízhatatlan; Ultra Explorer `.md` az egyetlen megbízható forrás.

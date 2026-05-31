@@ -196,14 +196,16 @@ def rule_c3_pdf_inline_noise(text: str) -> tuple[str, int]:
     """
     # Pattern: whitespace + (filename.ext) -- no spaces inside, common doc extensions
     pattern = re.compile(r'\s*\([A-Za-z0-9_\-\.]+\.(?:pdf|html|docx|pptx|txt)\)', re.IGNORECASE)
+    toc_link_re = re.compile(r'^\s*-\s+\[.*\]\(#.*\)\s*$')
     count = 0
-    lines = text.splitlines()
+    lines = text.split('\n')
     result = []
     in_fence = False
     for line in lines:
         if line.strip().startswith('```'):
             in_fence = not in_fence
-        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+        if (in_fence or line.strip().startswith('#') or line.strip().startswith('<!--')
+                or toc_link_re.match(line)):
             result.append(line)
         else:
             new_line, n = pattern.subn('', line)
@@ -240,7 +242,7 @@ def rule_j_terminology(text: str) -> tuple[str, int]:
         (r'\bhőkamerák\b',                 'IR kamerák'),
     ]
     count = 0
-    lines = text.splitlines()
+    lines = text.split('\n')
     result = []
     in_fence = False
     # ToC link-line pattern: "- [text](#anchor)" -- terminology swap here would
@@ -278,22 +280,22 @@ def rule_k_numeric_interval(text: str) -> tuple[str, int]:
     # Kéttagú tizedes: "1, 5 µm" -> "1,5 µm"
     pat2 = re.compile(r'\b(\d+),\s+(\d+)\s+(' + UNITS + r')\b')
 
+    toc_link_re = re.compile(r'^\s*-\s+\[.*\]\(#.*\)\s*$')
     count = 0
-    lines = text.splitlines()
+    lines = text.split('\n')
     result = []
     in_fence = False
     for line in lines:
         if line.strip().startswith('```'):
             in_fence = not in_fence
-        if in_fence or line.strip().startswith('#') or line.strip().startswith('<!--'):
+        if (in_fence or line.strip().startswith('#') or line.strip().startswith('<!--')
+                or toc_link_re.match(line)):
             result.append(line)
             continue
-        new_line = pat3.sub(lambda m: (
+        new_line, n = pat3.subn(lambda m: (
             f"{m.group(1)},{m.group(2)}–{m.group(3)} {m.group(4)}"
         ), line)
-        # Számol az eredetihez képest
-        if new_line != line:
-            count += line.count(',') - new_line.count(',') + 1
+        count += n
         line = new_line
         new_line = pat2.sub(lambda m: f"{m.group(1)},{m.group(2)} {m.group(3)}", line)
         if new_line != line:
@@ -355,7 +357,7 @@ def phase2_linting(text: str) -> str:
 
 def _resolve_md_path(args) -> Path:
     """Resolve the input Markdown path from --week-dir or positional arg."""
-    if hasattr(args, 'week_dir') and args.week_dir:
+    if args.week_dir is not None:
         week_dir = Path(args.week_dir).resolve()
         wip_dir = week_dir / "4_wip_outputs"
         notes = sorted(wip_dir.glob("*_Jegyzet.md"))

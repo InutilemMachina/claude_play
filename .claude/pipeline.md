@@ -29,6 +29,7 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 | `4_wip_outputs/N_Jegyzet.md` draft | 🐍 | [06_excerpt_block_maker](skills/06_excerpt_block_maker.md) -- `06_excerpt_block_maker.py --mode extractive` | 🐍 | `4_wip_outputs/N_Jegyzet.md` (💡/🗺️ blockquote-ok) |
 | `4_wip_outputs/N_Jegyzet.md` | 🐍 | [06b_table_caption_injector](skills/06b_table_caption_injector.md) -- `06_table_caption_injector.py <fajl>` (⚠️ direkt fájl arg, nem --week-dir) | 🐍 | `4_wip_outputs/N_Jegyzet.md` (táblázat captionök) |
 | `citations_seed.json` + `3_raw_outputs/` | 🤖 | [07_citations_maker](skills/07_citations_maker.md) | 🤖 🚦 | `4_wip_outputs/N_Szozedet.md` + `3_raw_outputs/citations.json` |
+| `3_raw_outputs/citations.json` + `4_wip_outputs/N_Jegyzet.md` | 🐍 | `scripts/07-2_ieee_renderer.py --week-dir <mappa>` -- IEEE hivatkozásjegyzék renderelése | 🐍 | `4_wip_outputs/N_Jegyzet.md` (IEEE `## Hivatkozásjegyzék`) |
 | [Prompt C.1](prompts/prompt_c1_forrasattekinto.md) Studio output | 😎 | `scripts/03_util_studio_parser.py --c1` | 🐍 | `4_wip_outputs/N_Forrasattekinto.md` |
 | [Prompt C.4](prompts/prompt_c4_kerdesbank_alap.md) Studio output | 😎 | `scripts/03_util_studio_parser.py --c4` | 🐍 | `4_wip_outputs/N_Kerdesek.md` |
 | `3_raw_outputs/figure_catalog.json` + `3_raw_outputs/` | 🐍 | [09_figure_mapper](skills/09_figure_mapper.md) | 🤖 | `4_wip_outputs/N_Jegyzet.md` (FIG blokkok) |
@@ -46,7 +47,7 @@ description: Pipeline lépések 01-14 + 03-1/03-2/05/06 alaplépések, IO tábl�
 **NLM promptok:** [nlm_prompts.md](nlm_prompts.md)
 - [Prompt B](prompts/prompt_b_nlm_custom_instructions.md) (NLM Configure Chat), [Prompt C](prompts/prompt_c_datatables.md) (Data Tables Studio: [C.1](prompts/prompt_c1_forrasattekinto.md) / [C.2](prompts/prompt_c2_fogalomterkep.md) / [C.3 képpipeline](prompts/prompt_c3_abrajegyzek.md) / [C.4](prompts/prompt_c4_kerdesbank_alap.md)), [Prompt D](prompts/prompt_d_szozedet.md), [Prompt E](prompts/prompt_e_kerdesbank.md).
 
-💡 **Helyes végrehajtási sorrend:** `02 → 03 → 03-1 → 03-vlm → 03-2 → 08 (mindmap export + MSc jelölés!) → 04 (DFS + --qfig) → 05b (check) → 05_assemble → 06 → 06b → 07 → 09 → 10 → 11 → **11b (quality review)** → 12 → 13 → 14`
+💡 **Helyes végrehajtási sorrend:** `02 → 03 → 03-1 → 03-vlm → 03-2 → 08 (mindmap export + MSc jelölés!) → 04 (DFS + --qfig) → 05b (check) → 05_assemble → 06 → 06b → 07 → **07-2 (IEEE renderer)** → 09 → 10 → 11 → **11b (quality review)** → 12 → 13 → 14`
 
 💡 **Qfig (ábra-query, ingyenes VLM alternatíva):** `python scripts/04_nlm_dfs_queries.py --week-dir ... --qfig` → `nlm_qfig_raw.txt` → `03-1_qfig_parser.py` → `figure_catalog.json keywords`. Futtatandó a DFS után, 09_figure_mapper előtt.
 
