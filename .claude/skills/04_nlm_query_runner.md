@@ -31,6 +31,16 @@ Az NLM notebook mindmap-jét Depth-First-Search sorrendben bejárva tematikus le
 $env:PATH = $env:PATH + ";C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts"
 ```
 
+💡 **MCP alternatíva (2026-05-31 óta elérhető):** Claude Desktop sessionből a `mcp__notebooklm__notebook_query` tool közvetlenül hívható — subprocess és PATH beállítás nélkül. A `04_nlm_dfs_queries.py` subprocess-alapú megközelítés marad az elsődleges pipeline-út (stabil, tesztelt), de ad-hoc lekérdezésekhez és interaktív sessionökben az MCP tool ajánlott.
+
+```
+# MCP tool (Claude Desktop sessionben):
+notebook_id: <UUID>   # nlm notebook list-ből
+query: "kérdés szövege"
+```
+
+Config path (Windows UWP): `C:\Users\lasz\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json`
+
 ### 3.2. Mindmap-vezérelt DFS lekérdezések
 
 Az NLM belső query-sablonja szint szerint:
