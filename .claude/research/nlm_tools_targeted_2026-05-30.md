@@ -204,51 +204,70 @@ description: BibCit, Mindmap Extractor, notebooklm-cowork és kiegészítő eszk
 
 ---
 
-## 5. POC-terv (mini2 tantárgyon)
+## 5. POC teszteredmények (mini2, 2026-05-31)
 
-### Fázis 1 — jacob-bd MCP CLI telepítés (becsült: 1-2 óra)
+**Branch:** `test-mcp-research`
 
-```powershell
-# 1. uv telepítése (ha még nincs)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+### Sikerkritériumok — tényleges állapot
 
-# 2. notebooklm-mcp-cli telepítése
-uv tool install notebooklm-mcp-cli
+| # | Kritérium | Státusz | Megjegyzés |
+|---|-----------|---------|------------|
+| S1 | `nlm.exe` elérhető + verzió | ✅ | v0.6.10 (legújabb: v0.6.13) |
+| S2 | `nlm notebook list` visszaad notebookokat | ✅ | 6 notebook, auth OK |
+| S3 | mini2 notebook azonosítható | ✅ | ID: `6fa15dc7-19a5-484e-8795-68fb06a6aeaa`, 5 forrás |
+| S4 | DFS script lefutott mini2-re | ✅ | 19 query + qfig, `citations.json` 4 bejegyzéssel |
+| S5 | Friss (nem cached) query működik | ✅ | ~1,5s válaszidő, citációkkal |
+| S6 | 08 CLI workaround parse-olható | ⛔ | Tartalmi rekonstrukció, nem mindmap-struktúra; [MSc] jelölések hiányoznak |
+| S7 | MCP `notebooklm-mcp.exe` elérhető | ✅ | Megvan a Scripts/ mappában |
+| S7b | MCP Claude Desktop-ban aktív | ✅ | `mcp__notebooklm__*` tool-ok elérhetők; `notebook_list` + `notebook_query` tesztelve |
+| S8 | BibCit IEEE export | ❌ | Csak NLM válaszokat exportál Markdownba — hivatkozáskezelés NINCS; a neve félrevezető |
+| S9 | Mindmap Extractor (CWS, Corrected Hierarchy) | ❌ | Egyáltalán nem működik |
 
-# 3. Google bejelentkezés (Chrome ablak)
-nlm login
+### Fázis 5 — Manuális tesztek eredménye (user, 2026-05-31)
 
-# 4. Notebooks listázása (ellenőrzés)
-nlm notebook list
+**BibCit v2.5** ❌ — A neve ellenére **nem hivatkozáskezelő**. Csak az NLM chatválaszokat exportálja Markdownba. Sem IEEE, sem semmilyen más akadémiai hivatkozás nem jelenik meg az exportban. Elvethető.
 
-# 5. Claude Code MCP integráció
-claude mcp add notebooklm -- uv run notebooklm-mcp
-```
+**NLM Mindmap Extractor - Corrected Hierarchy** (CWS) ❌ — **Egyáltalán nem működik.** Az extension nem exportál semmit.
 
-### Fázis 2 — mini2 lekérdezés tesztelése
+### Legfontosabb tesztelési eredmény
 
-```powershell
-# CLI teszt: 1 query a mini2 notebookból
-nlm query --notebook "mini2" "Mi a tantárgy fő témái?"
+**A `04_nlm_dfs_queries.py` + `nlm.exe` integráció stabil és működőképes Windows-on.** Az NLM-Claude kapcsolat a pipeline 04-es lépésén keresztül már megvalósult, scriptből futtatható, 1,5s/query válaszidővel.
 
-# MCP teszt Claude Code-on keresztül:
-# (Claude Code-ban) @notebooklm notebook_query "mini2" "Főbb témák?"
-```
+### T3 eredménye — CLI mindmap workaround
 
-### Fázis 3 — BibCit és Mindmap Extractor manuális teszt
+A CLI workaround (`nlm query notebook $NB "Listazd a gondolatterkep..."`) **nem egyenértékű** a Studio Mindmap exporttal:
+- CLI kimenet: tartalmi összefoglalás, 5 főtéma, citációkkal → hasznos lekérdezési anyag, de NEM parse_mindmap() kompatibilis
+- Studio export: 19 precíz csomópont, [MSc] jelölések, pontos hierarchia → `parse_mindmap()` ezt olvassa
 
-1. Chrome-ban megnyitni a mini2 NLM notebookot
-2. BibCit gombra kattintani → IEEE export → elmenteni mint `bibcit_test_ieee.md`
-3. Studio panel → Mindmap → Corrected Hierarchy extension → OPML export → `mini2_mindmap.opml`
-4. Az OPML fájlt a `08_mindmap_manager.py`-val feldolgozni (vision bypass helyett)
+**Következmény:** A 08-as lépés manuális marad. A CLI workaround a DFS query előtt hasznos tartalmi térképként, de nem váltja ki a mindmap exportot.
 
-### Sikerkritériumok
+### T4 eredménye — MCP Desktop integráció ✅ SIKERES
 
-- [ ] `nlm notebook list` visszaadja a mini2 notebookot
-- [ ] `nlm query` működik Windows-on (UTF-8 encoding OK)
-- [ ] Claude Code MCP regisztrálva, `notebook_query` tool elérhető
-- [ ] BibCit IEEE export: a számozott hivatkozások IEEE-re konvertálva (`[1] Author, Title, Year`)
-- [ ] Mindmap Extractor: OPML fájl letöltve, parseable XML struktúrával
+- `notebooklm-mcp.exe` kész: `C:\Users\lasz\AppData\Roaming\uv\tools\notebooklm-mcp-cli\Scripts\notebooklm-mcp.exe`
+- **Helyes config-útvonal (UWP csomag):**
+  `C:\Users\lasz\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json`
+  _(NEM a `%APPDATA%\Claude\` — az egy másik, kevésbé releváns másolat)_
+- **Probléma felismerve:** A Claude Desktop időnként felülírja a config fájlt UI mentéskor. A `mcpServers` blokk elveszhet, ha az app fut szerkesztés közben.
+- **Megoldás:** App lezárva kell szerkeszteni a helyes UWP path-on lévő fájlt, majd újraindítani.
+- **Teszteredmény:** `mcp__notebooklm__notebook_list` ✅ · `mcp__notebooklm__notebook_query` ✅ (citált válasz, `cited_text` forrásszövegekkel)
+- **Auth státusz:** `stale` — tokenek régiek, de működnek; `nlm login` ajánlott frissítéshez
+- **Frissítés elérhető:** v0.6.10 → v0.6.13: `uv tool upgrade notebooklm-mcp-cli`
+
+### Fázis 5 — Manuális tesztek (user elvégzendő)
+
+**BibCit IEEE teszt:**
+1. Telepítsd (ha még nincs): [Chrome Web Store](https://chromewebstore.google.com/detail/markdown-capturer-bibcit/bbglkcgbhkhchpbbbcgpocnhplhdhnmc)
+2. Nyisd meg a mini2 NLM notebookot → tegyél fel bármilyen kérdést
+3. Kattints a piros BibCit gombra → válassz IEEE stílust → Markdown export
+4. Mentsd: `test_outputs/mini2/bibcit_test_ieee.md`
+5. Ellenőrzés: `[1] Szerző, "Cím," Év` formátumú hivatkozások?
+
+**Mindmap Extractor OPML teszt:**
+1. Telepítsd: [NLM Mindmap Extractor - Corrected Hierarchy](https://chromewebstore.google.com/detail/notebooklm-mindmap-extrac/ecikohbjgbjnlbldbjnceohmbhipipcp)
+2. mini2 notebook → Studio → Gondolattérkép megnyitása
+3. Kattints az extension ikonra → OPML export
+4. Mentsd: `test_outputs/mini2/mini2_mindmap.opml`
+5. Claude megvizsgálja: a struktúra parse_mindmap()-compatible-e?
 
 ---
 
